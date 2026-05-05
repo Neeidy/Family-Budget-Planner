@@ -145,7 +145,7 @@ export default function Settings() {
       <div>
         <h1 className="text-3xl font-display font-bold">Ayarlar</h1>
         <p className="text-muted-foreground mt-1">
-          Uygulamanin tercihlerini ve şablonlarını yönetin
+          Uygulamanin tercihlerini ve yedeklerini yönetin
         </p>
       </div>
 
@@ -269,6 +269,14 @@ export default function Settings() {
             )}
           </div>
         )}
+      </Card>
+
+      {/* Sabit Gider Bilgisi */}
+      <Card className="p-4 bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800">
+        <p className="text-sm text-amber-800 dark:text-amber-200">
+          💡 <strong>Sabit giderler</strong> her ay otomatik olarak bir sonraki aya taşınır.
+          Durdurmak için giderin tipini <strong>Değişken</strong> yapın veya silin (Gelir &amp; Gider → Giderler sekmesindeki &quot;Tek seferlik&quot; butonu).
+        </p>
       </Card>
 
       {/* Sifreyi Degistir */}

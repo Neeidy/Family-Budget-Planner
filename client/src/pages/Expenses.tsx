@@ -34,7 +34,7 @@ const DEFAULT_FORM: Omit<Expense, 'id'> = {
 };
 
 export default function Expenses() {
-  const { budgetData, addExpense, deleteExpense } = useBudget();
+  const { budgetData, addExpense, deleteExpense, updateExpense } = useBudget();
   const { person1Name, person2Name, currentPerson } = usePerson();
   const { filter: globalFilter } = usePersonFilter();
   const [open, setOpen] = useState(false);
@@ -276,7 +276,7 @@ export default function Expenses() {
                 <th className="px-4 py-3 text-right font-semibold">Miktar</th>
                 <th className="px-4 py-3 text-left font-semibold hidden md:table-cell">Durum</th>
                 <th className="px-4 py-3 text-left font-semibold hidden lg:table-cell">Tip</th>
-                <th className="px-4 py-3 text-center font-semibold">Sil</th>
+                <th className="px-4 py-3 text-center font-semibold">İşlemler</th>
               </tr>
             </thead>
             <tbody>
@@ -304,14 +304,27 @@ export default function Expenses() {
                       {expense.type}
                     </td>
                     <td className="px-4 py-3 text-center">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => deleteExpense(expense.id)}
-                        className="h-8 w-8 p-0"
-                      >
-                        <Trash2 className="w-4 h-4 text-red-500" />
-                      </Button>
+                      <div className="flex items-center justify-center gap-1">
+                        {expense.type === 'Sabit' && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => updateExpense(expense.id, { type: 'Degisken' })}
+                            title="Tek seferlik yap (Sabit → Değişken)"
+                            className="h-8 px-2 text-xs text-amber-600 hover:text-amber-700"
+                          >
+                            Tek seferlik
+                          </Button>
+                        )}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => deleteExpense(expense.id)}
+                          className="h-8 w-8 p-0"
+                        >
+                          <Trash2 className="w-4 h-4 text-red-500" />
+                        </Button>
+                      </div>
                     </td>
                   </tr>
                 ))

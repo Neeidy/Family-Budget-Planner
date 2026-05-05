@@ -18,17 +18,11 @@ import {
 } from 'lucide-react';
 
 const PAGES = [
-  { label: 'Genel Bakış', path: '/', icon: LayoutDashboard },
-  { label: 'Gelirler', path: '/gelir-gider', icon: TrendingUp },
-  { label: 'Giderler', path: '/gelir-gider', icon: TrendingDown },
-  { label: 'Borçlar', path: '/borclar', icon: CreditCard },
-  { label: 'Birikim Hedefleri', path: '/birikim', icon: PiggyBank },
-  { label: 'Yıllık Ödemeler', path: '/yillik-odemeler', icon: CalendarDays },
-  { label: 'Analitik', path: '/analitik', icon: BarChart3 },
-  { label: 'Bütçe Limitleri', path: '/butce-limitleri', icon: Sliders },
-  { label: 'Hedef Planlama', path: '/hedef-planlama', icon: Target },
-  { label: 'Ay Arşivi', path: '/ay-arsivi', icon: Archive },
-  { label: 'Taksitler', path: '/taksitler', icon: ShoppingCart },
+  { label: 'Ana Sayfa', path: '/', icon: LayoutDashboard },
+  { label: 'Gelir & Gider', path: '/gelir-gider', icon: TrendingUp },
+  { label: 'Borç & Ödemeler', path: '/borc-odemeler', icon: CreditCard },
+  { label: 'Birikim & Hedef', path: '/hedef', icon: PiggyBank },
+  { label: 'Raporlar', path: '/raporlar', icon: BarChart3 },
   { label: 'Ayarlar', path: '/ayarlar', icon: Settings },
 ];
 
@@ -65,10 +59,10 @@ export function GlobalSearch() {
       items.push({ label: e.category, sub: `Gider • ${e.type}`, path: '/gelir-gider', amount: e.amount });
     });
     budgetData.debts.forEach(d => {
-      items.push({ label: d.name, sub: `Borç • ${d.status}`, path: '/borclar', amount: d.totalDebt });
+      items.push({ label: d.name, sub: `Borç • ${d.status}`, path: '/borc-odemeler', amount: d.totalDebt });
     });
     budgetData.savingsGoals.forEach(g => {
-      items.push({ label: g.name, sub: `Birikim Hedefi`, path: '/birikim', amount: g.currentAmount });
+      items.push({ label: g.name, sub: `Birikim Hedefi`, path: '/hedef', amount: g.currentAmount });
     });
     budgetData.annualPayments?.forEach(p => {
       items.push({ label: p.name, sub: `Yıllık Ödeme`, path: '/yillik-odemeler', amount: p.amount });
