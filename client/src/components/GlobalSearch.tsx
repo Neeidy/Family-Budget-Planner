@@ -19,8 +19,8 @@ import {
 
 const PAGES = [
   { label: 'Genel Bakış', path: '/', icon: LayoutDashboard },
-  { label: 'Gelirler', path: '/gelirler', icon: TrendingUp },
-  { label: 'Giderler', path: '/giderler', icon: TrendingDown },
+  { label: 'Gelirler', path: '/gelir-gider', icon: TrendingUp },
+  { label: 'Giderler', path: '/gelir-gider', icon: TrendingDown },
   { label: 'Borçlar', path: '/borclar', icon: CreditCard },
   { label: 'Birikim Hedefleri', path: '/birikim', icon: PiggyBank },
   { label: 'Yıllık Ödemeler', path: '/yillik-odemeler', icon: CalendarDays },
@@ -59,10 +59,10 @@ export function GlobalSearch() {
     const items: Array<{ label: string; sub: string; path: string; amount?: number }> = [];
 
     budgetData.incomes.forEach(i => {
-      items.push({ label: i.name, sub: `Gelir • ${i.owner === 'Benim' ? 'Yiğit' : i.owner === 'Esim' ? 'Arzu' : 'Ortak'}`, path: '/gelirler', amount: i.actual });
+      items.push({ label: i.name, sub: `Gelir • ${i.owner === 'Benim' ? 'Yiğit' : i.owner === 'Esim' ? 'Arzu' : 'Ortak'}`, path: '/gelir-gider', amount: i.amount });
     });
     budgetData.expenses.forEach(e => {
-      items.push({ label: e.category, sub: `Gider • ${e.type}`, path: '/giderler', amount: e.actual });
+      items.push({ label: e.category, sub: `Gider • ${e.type}`, path: '/gelir-gider', amount: e.amount });
     });
     budgetData.debts.forEach(d => {
       items.push({ label: d.name, sub: `Borç • ${d.status}`, path: '/borclar', amount: d.totalDebt });

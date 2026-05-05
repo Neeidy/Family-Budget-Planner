@@ -5,7 +5,6 @@ interface BudgetState {
   incomes: string;
   expenses: string;
   debts: string;
-  savings: string;
   annualPayments: string;
   budgetLimits: string;
   savingsGoals: string;
@@ -35,7 +34,6 @@ export function useAutoSync(budgetState: BudgetState | null) {
           incomes: budgetState.incomes || '[]',
           expenses: budgetState.expenses || '[]',
           debts: budgetState.debts || '[]',
-          savings: budgetState.savings || '[]',
           annualPayments: budgetState.annualPayments || '[]',
           budgetLimits: budgetState.budgetLimits || '[]',
           savingsGoals: budgetState.savingsGoals || '[]',

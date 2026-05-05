@@ -175,7 +175,6 @@ export function useCloudSync({ budgetData, setBudgetData, isLoaded }: UseCloudSy
           incomes: JSON.stringify(budgetData.incomes),
           expenses: JSON.stringify(budgetData.expenses),
           debts: JSON.stringify(budgetData.debts),
-          savings: JSON.stringify(budgetData.savingsGoals),
           annualPayments: JSON.stringify(budgetData.annualPayments),
           budgetLimits: JSON.stringify(budgetData.budgetLimits),
           savingsGoals: JSON.stringify(budgetData.savingsGoals),

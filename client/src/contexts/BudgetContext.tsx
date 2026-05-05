@@ -109,8 +109,7 @@ export function BudgetProvider({ children }: { children: ReactNode }) {
       if (t.type === 'income') {
         budgetHook.addIncome({
           name: t.name,
-          planned: t.amount,
-          actual: 0,
+          amount: t.amount,
           owner: t.owner as 'Benim' | 'Esim',
           date: new Date().toISOString().split('T')[0],
           notes: t.notes || '',
@@ -121,11 +120,9 @@ export function BudgetProvider({ children }: { children: ReactNode }) {
           category: t.category || 'Diğer',
           subcategory: t.subcategory || '',
           type: 'Sabit',
-          planned: t.amount,
-          actual: 0,
+          amount: t.amount,
           paymentDay: '',
           status: 'Bekliyor',
-          urgency: 'Zorunlu',
           owner: t.owner,
           notes: t.notes || '',
         });

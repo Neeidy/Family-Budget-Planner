@@ -31,21 +31,21 @@ export default function Analytics() {
       ? budgetData.expenses
       : budgetData.expenses.filter(e => e.owner === selectedPerson);
     const categoryMap = new Map<string, number>();
-    filtered.forEach(e => categoryMap.set(e.category, (categoryMap.get(e.category) || 0) + e.actual));
+    filtered.forEach(e => categoryMap.set(e.category, (categoryMap.get(e.category) || 0) + e.amount));
     return Array.from(categoryMap.entries()).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
   }, [budgetData, selectedPerson]);
 
   // Kişi bazlı karşılaştırma
   const personComparison = useMemo(() => [
-    { name: `${person1Name}`, value: budgetData.expenses.filter(e => e.owner === 'Benim').reduce((s, e) => s + e.actual, 0) },
-    { name: `${person2Name}`, value: budgetData.expenses.filter(e => e.owner === 'Esim').reduce((s, e) => s + e.actual, 0) },
-    { name: 'Ortak', value: budgetData.expenses.filter(e => e.owner === 'Ev').reduce((s, e) => s + e.actual, 0) },
+    { name: `${person1Name}`, value: budgetData.expenses.filter(e => e.owner === 'Benim').reduce((s, e) => s + e.amount, 0) },
+    { name: `${person2Name}`, value: budgetData.expenses.filter(e => e.owner === 'Esim').reduce((s, e) => s + e.amount, 0) },
+    { name: 'Ortak', value: budgetData.expenses.filter(e => e.owner === 'Ev').reduce((s, e) => s + e.amount, 0) },
   ], [budgetData, person1Name, person2Name]);
 
   // Gider tipi dağılımı
   const typeDistribution = useMemo(() => {
     const typeMap = new Map<string, number>();
-    budgetData.expenses.forEach(e => typeMap.set(e.type, (typeMap.get(e.type) || 0) + e.actual));
+    budgetData.expenses.forEach(e => typeMap.set(e.type, (typeMap.get(e.type) || 0) + e.amount));
     return Array.from(typeMap.entries()).map(([name, value]) => ({ name, value }));
   }, [budgetData]);
 
@@ -63,14 +63,14 @@ export default function Analytics() {
       .slice(-5)
       .map(m => ({
         month: `${MONTHS_TR[m.month - 1]} ${m.year !== currentYear ? m.year : ''}`.trim(),
-        gelir: m.data.incomes.reduce((s: number, i: any) => s + (i.actual || 0), 0),
-        gider: m.data.expenses.reduce((s: number, e: any) => s + (e.actual || 0), 0),
-        kalan: m.data.incomes.reduce((s: number, i: any) => s + (i.actual || 0), 0) - m.data.expenses.reduce((s: number, e: any) => s + (e.actual || 0), 0),
+        gelir: m.data.incomes.reduce((s: number, i: any) => s + (i.amount || 0), 0),
+        gider: m.data.expenses.reduce((s: number, e: any) => s + (e.amount || 0), 0),
+        kalan: m.data.incomes.reduce((s: number, i: any) => s + (i.amount || 0), 0) - m.data.expenses.reduce((s: number, e: any) => s + (e.amount || 0), 0),
       }));
 
     // Mevcut ayı ekle
-    const currentIncome = budgetData.incomes.reduce((s, i) => s + i.actual, 0);
-    const currentExpense = budgetData.expenses.reduce((s, e) => s + e.actual, 0);
+    const currentIncome = budgetData.incomes.reduce((s, i) => s + i.amount, 0);
+    const currentExpense = budgetData.expenses.reduce((s, e) => s + e.amount, 0);
     pastMonths.push({
       month: `${MONTHS_TR[currentMonthNum - 1]} (Şimdi)`,
       gelir: currentIncome,
@@ -87,15 +87,15 @@ export default function Analytics() {
       ...archive.map(m => ({
         month: MONTHS_TR[m.month - 1],
         monthNum: m.month,
-        income: m.data.incomes.reduce((s: number, i: any) => s + (i.actual || 0), 0),
-        expense: m.data.expenses.reduce((s: number, e: any) => s + (e.actual || 0), 0),
+        income: m.data.incomes.reduce((s: number, i: any) => s + (i.amount || 0), 0),
+        expense: m.data.expenses.reduce((s: number, e: any) => s + (e.amount || 0), 0),
         savings: m.data.savingsGoals?.reduce((s: number, g: any) => s + (g.currentAmount || 0), 0) || 0,
       })),
     ];
 
     const currentMonthNum = new Date().getMonth() + 1;
-    const currentIncome = budgetData.incomes.reduce((s, i) => s + i.actual, 0);
-    const currentExpense = budgetData.expenses.reduce((s, e) => s + e.actual, 0);
+    const currentIncome = budgetData.incomes.reduce((s, i) => s + i.amount, 0);
+    const currentExpense = budgetData.expenses.reduce((s, e) => s + e.amount, 0);
     allMonths.push({
       month: MONTHS_TR[currentMonthNum - 1],
       monthNum: currentMonthNum,

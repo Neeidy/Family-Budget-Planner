@@ -21,15 +21,12 @@ export default function Incomes() {
   const { person1Name, person2Name, currentPerson } = usePerson();
   const { filter: globalFilter } = usePersonFilter();
   const [open, setOpen] = useState(false);
-  // Varsayılan kişi: giriş yapan kişi
   const defaultOwner: 'Benim' | 'Esim' = currentPerson ?? 'Benim';
   const [owner, setOwner] = useState<'Benim' | 'Esim'>(defaultOwner);
-  // Filtre: 'all' | 'Benim' | 'Esim'
   const [filter, setFilter] = useState<'all' | 'Benim' | 'Esim'>(currentPerson ?? 'all');
   const [formData, setFormData] = useState({
     name: '',
-    planned: 0,
-    actual: 0,
+    amount: 0,
     owner: defaultOwner as 'Benim' | 'Esim',
     date: new Date().toISOString().split('T')[0],
     notes: '',
@@ -41,12 +38,11 @@ export default function Incomes() {
   };
 
   const handleAddIncome = () => {
-    if (formData.name.trim() && formData.actual > 0) {
+    if (formData.name.trim() && formData.amount > 0) {
       addIncome({ ...formData, owner });
       setFormData({
         name: '',
-        planned: 0,
-        actual: 0,
+        amount: 0,
         owner: defaultOwner,
         date: new Date().toISOString().split('T')[0],
         notes: '',
@@ -58,15 +54,14 @@ export default function Incomes() {
 
   const myIncome = budgetData.incomes
     .filter(i => i.owner === 'Benim')
-    .reduce((sum, i) => sum + i.actual, 0);
+    .reduce((sum, i) => sum + i.amount, 0);
 
   const spouseIncome = budgetData.incomes
     .filter(i => i.owner === 'Esim')
-    .reduce((sum, i) => sum + i.actual, 0);
+    .reduce((sum, i) => sum + i.amount, 0);
 
-  const totalActual = myIncome + spouseIncome;
+  const totalAmount = myIncome + spouseIncome;
 
-  // Global filtre aktifse onu kullan, yoksa lokal filtre
   const effectiveFilter: 'all' | 'Benim' | 'Esim' =
     globalFilter === 'Benim' ? 'Benim' :
     globalFilter === 'Esim' ? 'Esim' :
@@ -99,7 +94,6 @@ export default function Incomes() {
               <DialogTitle>Yeni Gelir Ekle</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
-              {/* Kisi secimi */}
               <div>
                 <Label className="text-sm font-medium mb-2 block">Kisi</Label>
                 <div className="grid grid-cols-2 gap-2">
@@ -140,29 +134,16 @@ export default function Incomes() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <Label className="text-sm font-medium">Planlanan (EUR)</Label>
-                  <Input
-                    type="number"
-                    inputMode="decimal"
-                    placeholder="0.00"
-                    value={formData.planned || ''}
-                    onChange={(e) => setFormData({ ...formData, planned: parseFloat(e.target.value) || 0 })}
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <Label className="text-sm font-medium">Gerceklesen (EUR)</Label>
-                  <Input
-                    type="number"
-                    inputMode="decimal"
-                    placeholder="0.00"
-                    value={formData.actual || ''}
-                    onChange={(e) => setFormData({ ...formData, actual: parseFloat(e.target.value) || 0 })}
-                    className="mt-1"
-                  />
-                </div>
+              <div>
+                <Label className="text-sm font-medium">Miktar (EUR)</Label>
+                <Input
+                  type="number"
+                  inputMode="decimal"
+                  placeholder="0.00"
+                  value={formData.amount || ''}
+                  onChange={(e) => setFormData({ ...formData, amount: parseFloat(e.target.value) || 0 })}
+                  className="mt-1"
+                />
               </div>
 
               <div>
@@ -188,7 +169,7 @@ export default function Incomes() {
               <Button
                 onClick={handleAddIncome}
                 className="w-full"
-                disabled={!formData.name.trim() || formData.actual <= 0}
+                disabled={!formData.name.trim() || formData.amount <= 0}
               >
                 Gelir Ekle
               </Button>
@@ -218,7 +199,7 @@ export default function Incomes() {
             <TrendingUp className="w-4 h-4 text-green-600" />
             <p className="text-sm text-muted-foreground">Toplam Gelir</p>
           </div>
-          <p className="text-2xl font-bold text-green-600">{formatCurrency(totalActual)}</p>
+          <p className="text-2xl font-bold text-green-600">{formatCurrency(totalAmount)}</p>
         </Card>
       </div>
 
@@ -233,7 +214,7 @@ export default function Incomes() {
             key={tab.key}
             onClick={() => setFilter(tab.key)}
             className={`px-4 py-1.5 rounded-full border-2 text-sm font-medium transition-all ${
-              filter === tab.key ? tab.color : 'border-border bg-background text-muted-foreground hover:bg-secondary'
+              effectiveFilter === tab.key ? tab.color : 'border-border bg-background text-muted-foreground hover:bg-secondary'
             }`}
           >
             {tab.label}
@@ -249,8 +230,7 @@ export default function Incomes() {
               <tr className="border-b bg-secondary">
                 <th className="px-4 py-3 text-left font-semibold">Kisi</th>
                 <th className="px-4 py-3 text-left font-semibold">Gelir Adi</th>
-                <th className="px-4 py-3 text-right font-semibold hidden sm:table-cell">Planlanan</th>
-                <th className="px-4 py-3 text-right font-semibold">Gerceklesen</th>
+                <th className="px-4 py-3 text-right font-semibold">Miktar</th>
                 <th className="px-4 py-3 text-left font-semibold hidden md:table-cell">Tarih</th>
                 <th className="px-4 py-3 text-center font-semibold">Sil</th>
               </tr>
@@ -258,10 +238,10 @@ export default function Incomes() {
             <tbody>
               {filteredIncomes.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
-                    {filter === 'all'
+                  <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
+                    {effectiveFilter === 'all'
                       ? 'Henuz gelir eklenmemis. Yukardaki butona tiklayin.'
-                      : `${filter === 'Benim' ? person1Name : person2Name} icin henuz gelir eklenmemis.`
+                      : `Bu filtre icin henuz gelir eklenmemis.`
                     }
                   </td>
                 </tr>
@@ -281,11 +261,8 @@ export default function Incomes() {
                         </span>
                       </td>
                       <td className="px-4 py-3 font-medium">{income.name}</td>
-                      <td className="px-4 py-3 text-right font-mono hidden sm:table-cell text-muted-foreground">
-                        {formatCurrency(income.planned)}
-                      </td>
                       <td className="px-4 py-3 text-right font-mono font-bold text-green-600">
-                        {formatCurrency(income.actual)}
+                        {formatCurrency(income.amount)}
                       </td>
                       <td className="px-4 py-3 text-sm hidden md:table-cell text-muted-foreground">
                         {new Date(income.date).toLocaleDateString('tr-TR')}

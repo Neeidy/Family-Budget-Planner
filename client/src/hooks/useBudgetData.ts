@@ -4,8 +4,7 @@ import { nanoid } from 'nanoid';
 export interface Income {
   id: string;
   name: string;
-  planned: number;
-  actual: number;
+  amount: number;
   owner: 'Benim' | 'Esim';
   date: string;
   notes: string;
@@ -16,11 +15,9 @@ export interface Expense {
   category: string;
   subcategory: string;
   type: 'Sabit' | 'Degisken' | 'Borc' | 'Birikim';
-  planned: number;
-  actual: number;
+  amount: number;
   paymentDay: string;
   status: 'Odendi' | 'Bekliyor' | 'Gecikti';
-  urgency: 'Zorunlu' | 'Esnek' | 'Gereksiz';
   owner: 'Ev' | 'Benim' | 'Esim';
   notes: string;
 }
@@ -72,7 +69,7 @@ export interface BudgetLimit {
   id: string;
   category: string;
   limit: number;
-  owner: 'Benim' | 'Eşim' | 'Ortak';
+  owner: 'Benim' | 'Esim' | 'Ev';
 }
 
 export interface BudgetData {
@@ -247,65 +244,62 @@ export function useBudgetData() {
     // Kişi bazlı gelir
     const myIncome = budgetData.incomes
       .filter(i => i.owner === 'Benim')
-      .reduce((sum, i) => sum + i.actual, 0);
-    
+      .reduce((sum, i) => sum + i.amount, 0);
+
     const spouseIncome = budgetData.incomes
       .filter(i => i.owner === 'Esim')
-      .reduce((sum, i) => sum + i.actual, 0);
+      .reduce((sum, i) => sum + i.amount, 0);
 
-    const totalPlannedIncome = budgetData.incomes.reduce((sum, i) => sum + i.planned, 0);
     const totalActualIncome = myIncome + spouseIncome;
 
     // Ev giderlerini hesapla
     const homeExpenses = budgetData.expenses
       .filter(e => e.owner === 'Ev')
-      .reduce((sum, e) => sum + e.actual, 0);
-    
+      .reduce((sum, e) => sum + e.amount, 0);
+
     // Benim giderlerim + ev payı
     const myExpenses = budgetData.expenses
       .filter(e => e.owner === 'Benim')
-      .reduce((sum, e) => sum + e.actual, 0) + (homeExpenses / 2);
-    
+      .reduce((sum, e) => sum + e.amount, 0) + (homeExpenses / 2);
+
     // Eşimin giderleri + ev payı
     const spouseExpenses = budgetData.expenses
       .filter(e => e.owner === 'Esim')
-      .reduce((sum, e) => sum + e.actual, 0) + (homeExpenses / 2);
+      .reduce((sum, e) => sum + e.amount, 0) + (homeExpenses / 2);
 
-    const totalPlannedExpense = budgetData.expenses.reduce((sum, e) => sum + e.planned, 0);
-    const totalActualExpense = budgetData.expenses.reduce((sum, e) => sum + e.actual, 0) + annualPaymentsThisMonth;
+    const totalActualExpense = budgetData.expenses.reduce((sum, e) => sum + e.amount, 0) + annualPaymentsThisMonth;
 
     const fixedExpenses = budgetData.expenses
       .filter(e => e.type === 'Sabit')
-      .reduce((sum, e) => sum + e.actual, 0);
+      .reduce((sum, e) => sum + e.amount, 0);
 
     const variableExpenses = budgetData.expenses
       .filter(e => e.type === 'Degisken')
-      .reduce((sum, e) => sum + e.actual, 0);
+      .reduce((sum, e) => sum + e.amount, 0);
 
     const debtPayments = budgetData.expenses
       .filter(e => e.type === 'Borc')
-      .reduce((sum, e) => sum + e.actual, 0);
+      .reduce((sum, e) => sum + e.amount, 0);
 
     const savingsAmount = budgetData.expenses
       .filter(e => e.type === 'Birikim')
-      .reduce((sum, e) => sum + e.actual, 0);
+      .reduce((sum, e) => sum + e.amount, 0);
 
-    const remainingPlanned = totalPlannedIncome - totalPlannedExpense;
     const remainingActual = totalActualIncome - totalActualExpense;
 
     const savingsRate = totalActualIncome > 0 ? savingsAmount / totalActualIncome : 0;
     const expenseRatio = totalActualIncome > 0 ? totalActualExpense / totalActualIncome : 0;
 
     return {
-      totalPlannedIncome,
+      totalPlannedIncome: totalActualIncome,
       totalActualIncome,
-      totalPlannedExpense,
+      totalPlannedExpense: totalActualExpense,
       totalActualExpense,
       fixedExpenses,
       variableExpenses,
       debtPayments,
       savingsAmount,
-      remainingPlanned,
+      remainingPlanned: remainingActual,
       remainingActual,
       savingsRate,
       expenseRatio,
@@ -317,21 +311,20 @@ export function useBudgetData() {
 
   // Get category summary
   const getCategorySummary = useCallback(() => {
-    const categories = new Map<string, { planned: number; actual: number }>();
+    const categories = new Map<string, { amount: number }>();
 
     budgetData.expenses.forEach(expense => {
-      const existing = categories.get(expense.category) || { planned: 0, actual: 0 };
+      const existing = categories.get(expense.category) || { amount: 0 };
       categories.set(expense.category, {
-        planned: existing.planned + expense.planned,
-        actual: existing.actual + expense.actual,
+        amount: existing.amount + expense.amount,
       });
     });
 
-    return Array.from(categories.entries()).map(([name, { planned, actual }]) => ({
+    return Array.from(categories.entries()).map(([name, { amount }]) => ({
       name,
-      planned,
-      actual,
-      difference: planned - actual,
+      planned: amount,
+      actual: amount,
+      difference: 0,
     }));
   }, [budgetData]);
 

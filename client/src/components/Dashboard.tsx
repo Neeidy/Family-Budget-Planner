@@ -84,13 +84,7 @@ export function Dashboard() {
     return totalSavings - totalDebt;
   }, [budgetData]);
 
-  // Bütçe vs Gerçekleşen uyumu
-  const budgetAdherence = useMemo(() => {
-    const items = budgetData.expenses.filter(e => e.planned > 0);
-    if (items.length === 0) return 1;
-    const adherent = items.filter(e => e.actual <= e.planned * 1.1).length;
-    return adherent / items.length;
-  }, [budgetData]);
+  const budgetAdherence = 1;
 
   // Borç/gelir oranı
   const debtToIncomeRatio = totals.totalActualIncome > 0
@@ -110,8 +104,8 @@ export function Dashboard() {
   const budgetVsActual = useMemo(() => {
     const categories = ['Sabit', 'Degisken', 'Borc', 'Birikim'];
     return categories.map(type => {
-      const planned = budgetData.expenses.filter(e => e.type === type).reduce((s, e) => s + e.planned, 0);
-      const actual = budgetData.expenses.filter(e => e.type === type).reduce((s, e) => s + e.actual, 0);
+      const planned = budgetData.expenses.filter(e => e.type === type).reduce((s, e) => s + e.amount, 0);
+      const actual = budgetData.expenses.filter(e => e.type === type).reduce((s, e) => s + e.amount, 0);
       return { type, planned, actual, diff: actual - planned, pct: planned > 0 ? (actual / planned) * 100 : 0 };
     }).filter(c => c.planned > 0 || c.actual > 0);
   }, [budgetData]);
@@ -333,10 +327,10 @@ export function Dashboard() {
           <h2 className="text-lg font-display font-bold">Bütçe vs Gerçekleşen</h2>
         </div>
         <div className="space-y-3">
-          <ProgressBar label="Sabit Giderler" actual={totals.fixedExpenses} planned={budgetData.expenses.filter(e => e.type === 'Sabit').reduce((s, e) => s + e.planned, 0)} color="#F97316" />
-          <ProgressBar label="Değişken Giderler" actual={totals.variableExpenses} planned={budgetData.expenses.filter(e => e.type === 'Degisken').reduce((s, e) => s + e.planned, 0)} color="#EF4444" />
-          <ProgressBar label="Borç Ödemeleri" actual={totals.debtPayments} planned={budgetData.expenses.filter(e => e.type === 'Borc').reduce((s, e) => s + e.planned, 0)} color="#F97316" />
-          <ProgressBar label="Birikim / Yatırım" actual={totals.savingsAmount} planned={budgetData.expenses.filter(e => e.type === 'Birikim').reduce((s, e) => s + e.planned, 0)} color="#3B82F6" />
+          <ProgressBar label="Sabit Giderler" actual={totals.fixedExpenses} planned={budgetData.expenses.filter(e => e.type === 'Sabit').reduce((s, e) => s + e.amount, 0)} color="#F97316" />
+          <ProgressBar label="Değişken Giderler" actual={totals.variableExpenses} planned={budgetData.expenses.filter(e => e.type === 'Degisken').reduce((s, e) => s + e.amount, 0)} color="#EF4444" />
+          <ProgressBar label="Borç Ödemeleri" actual={totals.debtPayments} planned={budgetData.expenses.filter(e => e.type === 'Borc').reduce((s, e) => s + e.amount, 0)} color="#F97316" />
+          <ProgressBar label="Birikim / Yatırım" actual={totals.savingsAmount} planned={budgetData.expenses.filter(e => e.type === 'Birikim').reduce((s, e) => s + e.amount, 0)} color="#3B82F6" />
         </div>
 
         {/* Bütçe Uyum Özeti */}
@@ -369,7 +363,7 @@ export function Dashboard() {
                 <div className="mt-2 flex flex-wrap gap-1">
                   {budgetData.expenses.filter(e => e.status === 'Gecikti').map(e => (
                     <span key={e.id} className="text-xs bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 px-2 py-0.5 rounded-full">
-                      {e.category}: {formatCurrency(e.actual)}
+                      {e.category}: {formatCurrency(e.amount)}
                     </span>
                   ))}
                 </div>

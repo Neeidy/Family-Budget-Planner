@@ -128,7 +128,6 @@ type FamilyBudgetData = {
   incomes: string;
   expenses: string;
   debts: string;
-  savings: string;
   annualPayments: string;
   budgetLimits: string;
   savingsGoals: string;
@@ -154,7 +153,6 @@ export async function saveFamilyBudget(
     incomes: data.incomes,
     expenses: data.expenses,
     debts: data.debts,
-    savings: data.savings,
     annualPayments: data.annualPayments,
     budgetLimits: data.budgetLimits,
     savingsGoals: data.savingsGoals,
@@ -186,7 +184,6 @@ export async function saveFamilyBudget(
     incomes: existing.incomes,
     expenses: existing.expenses,
     debts: existing.debts,
-    savings: existing.savings,
     annualPayments: existing.annualPayments,
     budgetLimits: existing.budgetLimits,
     savingsGoals: existing.savingsGoals,

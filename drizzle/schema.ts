@@ -51,7 +51,6 @@ export const familyBudget = mysqlTable("familyBudget", {
   incomes: text("incomes").notNull(),
   expenses: text("expenses").notNull(),
   debts: text("debts").notNull(),
-  savings: text("savings").notNull(),
   annualPayments: text("annualPayments").notNull(),
   budgetLimits: text("budgetLimits").notNull(),
   savingsGoals: text("savingsGoals").notNull(),

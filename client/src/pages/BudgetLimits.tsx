@@ -23,7 +23,7 @@ export default function BudgetLimits() {
   const [formData, setFormData] = useState({
     category: Object.keys(EXPENSE_CATEGORIES)[0],
     limit: 0,
-    owner: 'Ortak' as const,
+    owner: 'Ev' as const,
   });
 
   const handleAddLimit = () => {
@@ -32,7 +32,7 @@ export default function BudgetLimits() {
       setFormData({
         category: Object.keys(EXPENSE_CATEGORIES)[0],
         limit: 0,
-        owner: 'Ortak',
+        owner: 'Ev',
       });
       setOpen(false);
     }
@@ -42,7 +42,7 @@ export default function BudgetLimits() {
   const getCategorySpending = (category: string) => {
     return budgetData.expenses
       .filter(e => e.category === category)
-      .reduce((sum, e) => sum + e.actual, 0);
+      .reduce((sum, e) => sum + e.amount, 0);
   };
 
   // Limit aşan kategorileri bul
@@ -118,7 +118,7 @@ export default function BudgetLimits() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Ortak">Ortak</SelectItem>
+                    <SelectItem value="Ev">Ortak</SelectItem>
                     <SelectItem value="Benim">{person1Name}</SelectItem>
                     <SelectItem value="Esim">{person2Name}</SelectItem>
                   </SelectContent>
@@ -182,7 +182,7 @@ export default function BudgetLimits() {
                     <tr key={limit.id} className="border-b hover:bg-secondary/50">
                       <td className="px-6 py-4 font-medium">{limit.category}</td>
                       <td className="px-6 py-4 text-sm">
-                        {limit.owner === 'Ortak' ? '🏠 Ortak' : limit.owner === 'Benim' ? `👤 ${person1Name}` : `👥 ${person2Name}`}
+                        {limit.owner === 'Ev' ? '🏠 Ortak' : limit.owner === 'Benim' ? `👤 ${person1Name}` : `👥 ${person2Name}`}
                       </td>
                       <td className="px-6 py-4 text-right font-mono">
                         {formatCurrency(limit.limit)}

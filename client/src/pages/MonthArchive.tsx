@@ -19,11 +19,11 @@ const MONTHS = [
 ];
 
 function extractStats(data: BudgetData) {
-  const myIncome = data.incomes.filter(i => i.owner === 'Benim').reduce((s, i) => s + i.actual, 0);
-  const spouseIncome = data.incomes.filter(i => i.owner === 'Esim').reduce((s, i) => s + i.actual, 0);
-  const myExpenses = data.expenses.filter(e => e.owner === 'Benim').reduce((s, e) => s + e.actual, 0);
-  const spouseExpenses = data.expenses.filter(e => e.owner === 'Esim').reduce((s, e) => s + e.actual, 0);
-  const homeExpenses = data.expenses.filter(e => e.owner === 'Ev').reduce((s, e) => s + e.actual, 0);
+  const myIncome = data.incomes.filter(i => i.owner === 'Benim').reduce((s, i) => s + i.amount, 0);
+  const spouseIncome = data.incomes.filter(i => i.owner === 'Esim').reduce((s, i) => s + i.amount, 0);
+  const myExpenses = data.expenses.filter(e => e.owner === 'Benim').reduce((s, e) => s + e.amount, 0);
+  const spouseExpenses = data.expenses.filter(e => e.owner === 'Esim').reduce((s, e) => s + e.amount, 0);
+  const homeExpenses = data.expenses.filter(e => e.owner === 'Ev').reduce((s, e) => s + e.amount, 0);
   const totalIncome = myIncome + spouseIncome;
   const totalExpenses = myExpenses + spouseExpenses + homeExpenses;
   const savings = totalIncome - totalExpenses;

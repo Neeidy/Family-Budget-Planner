@@ -1,0 +1,1 @@
+ALTER TABLE `familyBudget` DROP COLUMN `savings`;

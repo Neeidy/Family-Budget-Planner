@@ -15,6 +15,13 @@
       "when": 1777946134734,
       "tag": "0001_lethal_jackpot",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1777987464343,
+      "tag": "0002_fast_terrax",
+      "breakpoints": true
     }
   ]
 }

@@ -2,7 +2,7 @@ import { useBudget } from "@/contexts/BudgetContext";
 import { usePerson } from "@/contexts/PersonContext";
 import { usePersonFilter } from "@/contexts/PersonFilterContext";
 import { Expense } from "@/hooks/useBudgetData";
-import { EXPENSE_CATEGORIES, EXPENSE_TYPES, PAYMENT_STATUSES, URGENCY_LEVELS, formatCurrency, getCategoryColor } from "@/lib/categories";
+import { EXPENSE_CATEGORIES, EXPENSE_TYPES, PAYMENT_STATUSES, formatCurrency } from "@/lib/categories";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -26,11 +26,9 @@ const DEFAULT_FORM: Omit<Expense, 'id'> = {
   category: firstCategory,
   subcategory: firstSubcategory,
   type: 'Degisken',
-  planned: 0,
-  actual: 0,
+  amount: 0,
   paymentDay: '',
   status: 'Bekliyor',
-  urgency: 'Esnek',
   owner: 'Benim',
   notes: '',
 };
@@ -43,9 +41,7 @@ export default function Expenses() {
   const [selectedCategory, setSelectedCategory] = useState<string>(firstCategory);
   const [formData, setFormData] = useState<Omit<Expense, 'id'>>(DEFAULT_FORM);
   const [ownerSelection, setOwnerSelection] = useState<'Ev' | 'Benim' | 'Esim'>(currentPerson ?? 'Benim');
-  // Filtre: 'all' | 'Ev' | 'Benim' | 'Esim'
   const [filter, setFilter] = useState<'all' | 'Ev' | 'Benim' | 'Esim'>(currentPerson ?? 'all');
-  // Global filtre aktifse override
   const effectiveFilter: 'all' | 'Ev' | 'Benim' | 'Esim' =
     globalFilter !== 'Tümü' ? globalFilter : filter;
 
@@ -61,7 +57,7 @@ export default function Expenses() {
   };
 
   const handleAddExpense = () => {
-    if (formData.category && formData.actual >= 0) {
+    if (formData.category && formData.amount >= 0) {
       addExpense({ ...formData, owner: ownerSelection });
       setFormData(DEFAULT_FORM);
       setSelectedCategory(firstCategory);
@@ -72,8 +68,7 @@ export default function Expenses() {
 
   const categoryData = EXPENSE_CATEGORIES[selectedCategory as keyof typeof EXPENSE_CATEGORIES];
 
-  const totalPlanned = budgetData.expenses.reduce((sum: number, e: Expense) => sum + e.planned, 0);
-  const totalActual = budgetData.expenses.reduce((sum: number, e: Expense) => sum + e.actual, 0);
+  const totalAmount = budgetData.expenses.reduce((sum: number, e: Expense) => sum + e.amount, 0);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -92,6 +87,10 @@ export default function Expenses() {
       default: return <span className="text-xs text-muted-foreground">{owner}</span>;
     }
   };
+
+  const displayedExpenses = effectiveFilter === 'all'
+    ? budgetData.expenses
+    : budgetData.expenses.filter(e => e.owner === effectiveFilter);
 
   return (
     <div className="space-y-6">
@@ -114,11 +113,15 @@ export default function Expenses() {
               <DialogTitle>Yeni Gider Ekle</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
-              {/* Kisi secimi - native buton */}
+              {/* Kisi secimi */}
               <div>
                 <Label className="text-sm font-medium mb-2 block">Kisi</Label>
                 <div className="grid grid-cols-3 gap-2">
-                  {([{ key: 'Ev', label: 'Ortak', icon: <Home className="w-3.5 h-3.5" />, activeClass: 'border-orange-500 bg-orange-50 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300' }, { key: 'Benim', label: person1Name, icon: <User className="w-3.5 h-3.5" />, activeClass: 'border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' }, { key: 'Esim', label: person2Name, icon: <Users className="w-3.5 h-3.5" />, activeClass: 'border-purple-500 bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300' }] as const).map(o => (
+                  {([
+                    { key: 'Ev', label: 'Ortak', icon: <Home className="w-3.5 h-3.5" />, activeClass: 'border-orange-500 bg-orange-50 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300' },
+                    { key: 'Benim', label: person1Name, icon: <User className="w-3.5 h-3.5" />, activeClass: 'border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' },
+                    { key: 'Esim', label: person2Name, icon: <Users className="w-3.5 h-3.5" />, activeClass: 'border-purple-500 bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300' },
+                  ] as const).map(o => (
                     <button
                       key={o.key}
                       type="button"
@@ -169,7 +172,14 @@ export default function Expenses() {
 
               {/* Gider Tipi */}
               <div>
-                <Label className="text-sm font-medium">Gider Tipi</Label>
+                <Label className="text-sm font-medium">
+                  Gider Tipi
+                  {formData.type === 'Sabit' && (
+                    <span className="ml-2 text-xs font-normal text-muted-foreground">
+                      (Sabit ise her ay otomatik gelir, Degisken tek seferlik)
+                    </span>
+                  )}
+                </Label>
                 <Select value={formData.type} onValueChange={v => setFormData(prev => ({ ...prev, type: v as Expense['type'] }))}>
                   <SelectTrigger className="mt-1">
                     <SelectValue />
@@ -182,30 +192,17 @@ export default function Expenses() {
                 </Select>
               </div>
 
-              {/* Tutarlar */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <Label className="text-sm font-medium">Planlanan (EUR)</Label>
-                  <Input
-                    type="number"
-                    inputMode="decimal"
-                    placeholder="0.00"
-                    value={formData.planned || ''}
-                    onChange={e => setFormData(prev => ({ ...prev, planned: parseFloat(e.target.value) || 0 }))}
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <Label className="text-sm font-medium">Gerceklesen (EUR)</Label>
-                  <Input
-                    type="number"
-                    inputMode="decimal"
-                    placeholder="0.00"
-                    value={formData.actual || ''}
-                    onChange={e => setFormData(prev => ({ ...prev, actual: parseFloat(e.target.value) || 0 }))}
-                    className="mt-1"
-                  />
-                </div>
+              {/* Miktar */}
+              <div>
+                <Label className="text-sm font-medium">Miktar (EUR)</Label>
+                <Input
+                  type="number"
+                  inputMode="decimal"
+                  placeholder="0.00"
+                  value={formData.amount || ''}
+                  onChange={e => setFormData(prev => ({ ...prev, amount: parseFloat(e.target.value) || 0 }))}
+                  className="mt-1"
+                />
               </div>
 
               {/* Odeme Durumu */}
@@ -218,21 +215,6 @@ export default function Expenses() {
                   <SelectContent>
                     {PAYMENT_STATUSES.map(s => (
                       <SelectItem key={s} value={s}>{s}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Zorunluluk */}
-              <div>
-                <Label className="text-sm font-medium">Zorunluluk</Label>
-                <Select value={formData.urgency} onValueChange={v => setFormData(prev => ({ ...prev, urgency: v as Expense['urgency'] }))}>
-                  <SelectTrigger className="mt-1">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {URGENCY_LEVELS.map(u => (
-                      <SelectItem key={u} value={u}>{u}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -258,16 +240,10 @@ export default function Expenses() {
       </div>
 
       {/* Ozet */}
-      <div className="grid grid-cols-2 gap-4">
-        <Card className="p-4">
-          <p className="text-sm text-muted-foreground">Toplam Planlanan</p>
-          <p className="text-xl font-bold mt-1">{formatCurrency(totalPlanned)}</p>
-        </Card>
-        <Card className="p-4">
-          <p className="text-sm text-muted-foreground">Toplam Gerceklesen</p>
-          <p className="text-xl font-bold mt-1 text-red-600">{formatCurrency(totalActual)}</p>
-        </Card>
-      </div>
+      <Card className="p-4">
+        <p className="text-sm text-muted-foreground">Toplam Gider</p>
+        <p className="text-xl font-bold mt-1 text-red-600">{formatCurrency(totalAmount)}</p>
+      </Card>
 
       {/* Filtre Sekmeleri */}
       <div className="flex gap-2 flex-wrap">
@@ -281,7 +257,7 @@ export default function Expenses() {
             key={tab.key}
             onClick={() => setFilter(tab.key)}
             className={`px-4 py-1.5 rounded-full border-2 text-sm font-medium transition-all ${
-              filter === tab.key ? tab.color : 'border-border bg-background text-muted-foreground hover:bg-secondary'
+              effectiveFilter === tab.key ? tab.color : 'border-border bg-background text-muted-foreground hover:bg-secondary'
             }`}
           >
             {tab.label}
@@ -297,35 +273,35 @@ export default function Expenses() {
               <tr className="border-b bg-secondary">
                 <th className="px-4 py-3 text-left font-semibold">Kisi</th>
                 <th className="px-4 py-3 text-left font-semibold">Kategori</th>
-                <th className="px-4 py-3 text-right font-semibold hidden sm:table-cell">Planlanan</th>
-                <th className="px-4 py-3 text-right font-semibold">Gerceklesen</th>
+                <th className="px-4 py-3 text-right font-semibold">Miktar</th>
                 <th className="px-4 py-3 text-left font-semibold hidden md:table-cell">Durum</th>
+                <th className="px-4 py-3 text-left font-semibold hidden lg:table-cell">Tip</th>
                 <th className="px-4 py-3 text-center font-semibold">Sil</th>
               </tr>
             </thead>
             <tbody>
-              {(effectiveFilter === 'all' ? budgetData.expenses : budgetData.expenses.filter(e => e.owner === effectiveFilter)).length === 0 ? (
+              {displayedExpenses.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
-                    {effectiveFilter === 'all' ? 'Henuz gider eklenmemis. Yukardaki butona tiklayin.' : `Bu filtre icin gider bulunamadi.`}
+                    {effectiveFilter === 'all' ? 'Henuz gider eklenmemis. Yukardaki butona tiklayin.' : 'Bu filtre icin gider bulunamadi.'}
                   </td>
                 </tr>
               ) : (
-                (effectiveFilter === 'all' ? budgetData.expenses : budgetData.expenses.filter(e => e.owner === effectiveFilter)).map((expense: Expense) => (
+                displayedExpenses.map((expense: Expense) => (
                   <tr key={expense.id} className="border-b hover:bg-secondary/50">
                     <td className="px-4 py-3">{getOwnerBadge(expense.owner)}</td>
                     <td className="px-4 py-3">
                       <div className="font-medium">{expense.category}</div>
                       <div className="text-xs text-muted-foreground">{expense.subcategory}</div>
                     </td>
-                    <td className="px-4 py-3 text-right font-mono hidden sm:table-cell text-muted-foreground">
-                      {formatCurrency(expense.planned)}
-                    </td>
                     <td className="px-4 py-3 text-right font-mono font-bold text-red-600">
-                      {formatCurrency(expense.actual)}
+                      {formatCurrency(expense.amount)}
                     </td>
                     <td className={`px-4 py-3 text-sm hidden md:table-cell font-medium ${getStatusColor(expense.status)}`}>
                       {expense.status}
+                    </td>
+                    <td className="px-4 py-3 text-xs hidden lg:table-cell text-muted-foreground">
+                      {expense.type}
                     </td>
                     <td className="px-4 py-3 text-center">
                       <Button

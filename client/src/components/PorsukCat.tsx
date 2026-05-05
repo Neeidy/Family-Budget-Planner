@@ -79,8 +79,8 @@ export function PorsukCat() {
 
   // Bütçe durumuna göre ruh halini hesapla
   useEffect(() => {
-    const totalIncome = budgetData.incomes.reduce((s, i) => s + (i.actual || 0), 0);
-    const totalExpense = budgetData.expenses.reduce((s, e) => s + (e.actual || 0), 0);
+    const totalIncome = budgetData.incomes.reduce((s, i) => s + (i.amount || 0), 0);
+    const totalExpense = budgetData.expenses.reduce((s, e) => s + (e.amount || 0), 0);
     const totalDebt = (budgetData.debts || []).reduce((s, d) => s + (d.totalDebt || 0), 0);
     const newMood = getMoodFromBudget(totalIncome, totalExpense, totalDebt);
     setMood(newMood);
