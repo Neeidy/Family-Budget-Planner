@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS `familyBudget` (`id` int AUTO_INCREMENT NOT NULL, `familyId` varchar(64) NOT NULL, `incomes` text NOT NULL, `expenses` text NOT NULL, `debts` text NOT NULL, `savings` text NOT NULL, `annualPayments` text NOT NULL, `budgetLimits` text NOT NULL, `savingsGoals` text NOT NULL, `installments` text NOT NULL, `updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP, CONSTRAINT `familyBudget_id` PRIMARY KEY(`id`), CONSTRAINT `familyBudget_familyId_unique` UNIQUE(`familyId`))",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 28EpRFpVT9YLNbV.root --database J5XpCiuLM4TjZbaPyKNbne --execute CREATE TABLE IF NOT EXISTS `familyBudget` (`id` int AUTO_INCREMENT NOT NULL, `familyId` varchar(64) NOT NULL, `incomes` text NOT NULL, `expenses` text NOT NULL, `debts` text NOT NULL, `savings` text NOT NULL, `annualPayments` text NOT NULL, `budgetLimits` text NOT NULL, `savingsGoals` text NOT NULL, `installments` text NOT NULL, `updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP, CONSTRAINT `familyBudget_id` PRIMARY KEY(`id`), CONSTRAINT `familyBudget_familyId_unique` UNIQUE(`familyId`))",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 675
+}
