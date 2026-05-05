@@ -1,7 +1,7 @@
 import { createContext, useContext, ReactNode, useCallback } from 'react';
 import { useBudgetData, BudgetData, Income, Expense, Debt, SavingsGoal, AnnualPayment, BudgetLimit, Installment } from '@/hooks/useBudgetData';
 import { useCloudSync } from '@/hooks/useCloudSync';
-import { useMonthlyArchive, useRecurringTemplates, useUndoStack, RecurringTemplate, ArchivedMonth } from '@/hooks/useMonthlyArchive';
+import { useMonthlyArchive, useUndoStack, ArchivedMonth } from '@/hooks/useMonthlyArchive';
 import { toast } from 'sonner';
 
 // BudgetContext tipi
@@ -39,12 +39,6 @@ interface BudgetContextType {
   archive: ArchivedMonth[];
   saveCurrentMonthToArchive: () => void;
   getArchivedMonth: (year: number, month: number) => ArchivedMonth | null;
-  // Recurring templates
-  templates: RecurringTemplate[];
-  addTemplate: (t: Omit<RecurringTemplate, 'id'>) => void;
-  updateTemplate: (id: string, changes: Partial<RecurringTemplate>) => void;
-  deleteTemplate: (id: string) => void;
-  applyTemplatesToCurrentMonth: () => void;
   // Backup
   exportData: () => void;
   importData: (jsonString: string) => boolean;
@@ -55,7 +49,6 @@ const BudgetContext = createContext<BudgetContextType | null>(null);
 export function BudgetProvider({ children }: { children: ReactNode }) {
   const budgetHook = useBudgetData();
   const { archive, saveToArchive, getMonthData } = useMonthlyArchive();
-  const { templates, addTemplate, updateTemplate, deleteTemplate } = useRecurringTemplates();
   const { stack: undoStack, pushUndo, popUndo } = useUndoStack();
 
   // Cloud sync
@@ -93,46 +86,6 @@ export function BudgetProvider({ children }: { children: ReactNode }) {
     toast.success('Bu ay arşive kaydedildi');
   }, [budgetHook.budgetData, saveToArchive]);
 
-  // ─── Recurring templates ──────────────────────────────────────────────────
-
-  const applyTemplatesToCurrentMonth = useCallback(() => {
-    const enabledTemplates = templates.filter(t => t.enabled);
-    if (enabledTemplates.length === 0) {
-      toast.info('Aktif şablon bulunamadı');
-      return;
-    }
-
-    pushUndo('Şablonlar uygulandı', budgetHook.budgetData);
-
-    let applied = 0;
-    enabledTemplates.forEach(t => {
-      if (t.type === 'income') {
-        budgetHook.addIncome({
-          name: t.name,
-          amount: t.amount,
-          owner: t.owner as 'Benim' | 'Esim',
-          date: new Date().toISOString().split('T')[0],
-          notes: t.notes || '',
-        });
-        applied++;
-      } else {
-        budgetHook.addExpense({
-          category: t.category || 'Diğer',
-          subcategory: t.subcategory || '',
-          type: 'Sabit',
-          amount: t.amount,
-          paymentDay: '',
-          status: 'Bekliyor',
-          owner: t.owner,
-          notes: t.notes || '',
-        });
-        applied++;
-      }
-    });
-
-    toast.success(`${applied} şablon uygulandı`);
-  }, [templates, budgetHook, pushUndo]);
-
   // ─── Backup / Restore ─────────────────────────────────────────────────────
 
   const exportData = useCallback(() => {
@@ -141,7 +94,6 @@ export function BudgetProvider({ children }: { children: ReactNode }) {
       exportedAt: new Date().toISOString(),
       currentData: budgetHook.budgetData,
       archive,
-      templates,
     };
     const blob = new Blob([JSON.stringify(exportObj, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -151,7 +103,7 @@ export function BudgetProvider({ children }: { children: ReactNode }) {
     a.click();
     URL.revokeObjectURL(url);
     toast.success('Veriler indirildi');
-  }, [budgetHook.budgetData, archive, templates]);
+  }, [budgetHook.budgetData, archive]);
 
   const importData = useCallback((jsonString: string): boolean => {
     try {
@@ -189,12 +141,6 @@ export function BudgetProvider({ children }: { children: ReactNode }) {
     archive,
     saveCurrentMonthToArchive,
     getArchivedMonth: getMonthData,
-    // Templates
-    templates,
-    addTemplate,
-    updateTemplate,
-    deleteTemplate,
-    applyTemplatesToCurrentMonth,
     // Backup
     exportData,
     importData,

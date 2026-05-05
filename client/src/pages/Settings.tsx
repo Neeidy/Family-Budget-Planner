@@ -10,10 +10,9 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Moon, Sun, User, LogOut, Check, Download, Upload, Plus, Trash2, FileJson, RefreshCw, Archive, KeyRound, Eye, EyeOff, History, RotateCcw } from "lucide-react";
+import { Moon, Sun, User, LogOut, Check, Download, Upload, Trash2, FileJson, Archive, KeyRound, Eye, EyeOff, History, RotateCcw } from "lucide-react";
 import { useState, useRef, useMemo } from "react";
 import { toast } from "sonner";
-import { RecurringTemplate } from "@/hooks/useMonthlyArchive";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -22,8 +21,6 @@ export default function Settings() {
   const { person1Name, person2Name, setPerson1Name, setPerson2Name, currentPerson, setCurrentPerson } = usePerson();
   const {
     exportData, importData,
-    templates, addTemplate, updateTemplate, deleteTemplate,
-    applyTemplatesToCurrentMonth,
     saveCurrentMonthToArchive, archive,
   } = useBudget();
 
@@ -123,18 +120,6 @@ export default function Settings() {
     changePasswordMutation.mutate({ currentPassword: currentPw, newPassword: newPw, confirmPassword: confirmPw });
   };
 
-  // Şablon ekleme formu
-  const [templateForm, setTemplateForm] = useState<Omit<RecurringTemplate, 'id'>>({
-    type: 'expense',
-    name: '',
-    amount: 0,
-    category: 'Faturalar',
-    owner: 'Ev',
-    notes: '',
-    enabled: true,
-  });
-  const [showTemplateForm, setShowTemplateForm] = useState(false);
-
   const handleSaveNames = () => {
     if (name1.trim()) setPerson1Name(name1.trim());
     if (name2.trim()) setPerson2Name(name2.trim());
@@ -153,17 +138,6 @@ export default function Settings() {
     reader.readAsText(file);
     // Reset input
     if (fileInputRef.current) fileInputRef.current.value = '';
-  };
-
-  const handleAddTemplate = () => {
-    if (!templateForm.name.trim() || templateForm.amount <= 0) {
-      toast.error('Şablon adı ve tutar zorunludur');
-      return;
-    }
-    addTemplate(templateForm);
-    setTemplateForm({ type: 'expense', name: '', amount: 0, category: 'Faturalar', owner: 'Ev', notes: '', enabled: true });
-    setShowTemplateForm(false);
-    toast.success('Şablon eklendi');
   };
 
   return (
@@ -293,120 +267,6 @@ export default function Settings() {
             {archive.length > 6 && (
               <Badge variant="outline" className="text-xs">+{archive.length - 6} daha</Badge>
             )}
-          </div>
-        )}
-      </Card>
-
-      {/* Tekrarlayan Şablonlar */}
-      <Card className="p-6">
-        <div className="flex items-center justify-between mb-1">
-          <h2 className="text-lg font-display font-bold flex items-center gap-2">
-            <RefreshCw className="w-5 h-5 text-orange-600" />
-            Tekrarlayan Şablonlar
-          </h2>
-          <Button size="sm" variant="outline" onClick={() => setShowTemplateForm(!showTemplateForm)} className="gap-1">
-            <Plus className="w-4 h-4" />
-            Şablon Ekle
-          </Button>
-        </div>
-        <p className="text-sm text-muted-foreground mb-4">
-          Her ay tekrar eden gelir ve giderleri şablon olarak kaydedin. Ay başında tek tıkla tüm şablonları uygulayın.
-        </p>
-
-        {/* Şablon Ekleme Formu */}
-        {showTemplateForm && (
-          <div className="mb-5 p-4 border rounded-lg bg-secondary/30 space-y-3">
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label className="text-xs mb-1 block">Tür</Label>
-                <Select value={templateForm.type} onValueChange={v => setTemplateForm(p => ({ ...p, type: v as 'income' | 'expense' }))}>
-                  <SelectTrigger className="h-8 text-xs">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="income">Gelir</SelectItem>
-                    <SelectItem value="expense">Gider</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label className="text-xs mb-1 block">Kişi</Label>
-                <Select value={templateForm.owner} onValueChange={v => setTemplateForm(p => ({ ...p, owner: v as 'Benim' | 'Esim' | 'Ev' }))}>
-                  <SelectTrigger className="h-8 text-xs">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Benim">{person1Name}</SelectItem>
-                    <SelectItem value="Esim">{person2Name}</SelectItem>
-                    <SelectItem value="Ev">Ortak (Ev)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label className="text-xs mb-1 block">Ad</Label>
-                <Input
-                  value={templateForm.name}
-                  onChange={e => setTemplateForm(p => ({ ...p, name: e.target.value }))}
-                  placeholder="Kira, Maaş, vb."
-                  className="h-8 text-xs"
-                />
-              </div>
-              <div>
-                <Label className="text-xs mb-1 block">Tutar (€)</Label>
-                <Input
-                  type="number"
-                  value={templateForm.amount || ''}
-                  onChange={e => setTemplateForm(p => ({ ...p, amount: parseFloat(e.target.value) || 0 }))}
-                  placeholder="0"
-                  className="h-8 text-xs"
-                />
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <Button size="sm" onClick={handleAddTemplate} className="text-xs h-8">Ekle</Button>
-              <Button size="sm" variant="ghost" onClick={() => setShowTemplateForm(false)} className="text-xs h-8">İptal</Button>
-            </div>
-          </div>
-        )}
-
-        {/* Şablon Listesi */}
-        {templates.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            <RefreshCw className="w-8 h-8 mx-auto mb-2 opacity-30" />
-            <p className="text-sm">Henüz şablon eklenmedi</p>
-            <p className="text-xs mt-1">Kira, maaş, abonelikler gibi sabit kalemleri ekleyin</p>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {templates.map(t => (
-              <div key={t.id} className="flex items-center justify-between p-3 border rounded-lg bg-background">
-                <div className="flex items-center gap-3 min-w-0">
-                  <Switch
-                    checked={t.enabled}
-                    onCheckedChange={v => updateTemplate(t.id, { enabled: v })}
-                    className="shrink-0"
-                  />
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium truncate">{t.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {t.type === 'income' ? '📈 Gelir' : '📉 Gider'} · {t.owner === 'Benim' ? person1Name : t.owner === 'Esim' ? person2Name : 'Ortak'} · €{t.amount.toFixed(2)}
-                    </p>
-                  </div>
-                </div>
-                <Button size="icon" variant="ghost" onClick={() => deleteTemplate(t.id)} className="shrink-0 h-7 w-7 text-destructive hover:text-destructive">
-                  <Trash2 className="w-3.5 h-3.5" />
-                </Button>
-              </div>
-            ))}
-
-            <div className="pt-2 flex gap-2">
-              <Button onClick={applyTemplatesToCurrentMonth} className="gap-2 w-full">
-                <RefreshCw className="w-4 h-4" />
-                Şablonları Bu Aya Uygula ({templates.filter(t => t.enabled).length} aktif)
-              </Button>
-            </div>
           </div>
         )}
       </Card>

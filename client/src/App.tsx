@@ -9,6 +9,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import DashboardLayout from "./components/DashboardLayout";
 import { useEffect } from "react";
 import { trpc } from "@/lib/trpc";
+import { useMonthRollover } from "@/hooks/useMonthRollover";
 // Pages
 import Home from "./pages/Home";
 import GelirGider from "./pages/GelirGider";
@@ -67,6 +68,15 @@ function Router() {
   );
 }
 
+function MonthRolloverMount() {
+  useMonthRollover();
+  // One-time cleanup of legacy localStorage keys
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem('viyana_recurring_templates');
+  }
+  return null;
+}
+
 function AppContent() {
   const [location, setLocation] = useLocation();
   const { data: familySession, isLoading } = trpc.familyAuth.me.useQuery(undefined, {
@@ -107,6 +117,7 @@ function AppContent() {
 
   return (
     <PersonFilterProvider>
+      <MonthRolloverMount />
       <DashboardLayout>
         <Router />
       </DashboardLayout>
