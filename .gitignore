@@ -119,3 +119,6 @@ temp/
 
 # Manus version file (auto-generated, not part of source)
 client/public/__manus__/version.json
+
+# Claude Code worktrees (local only)
+/.claude/worktrees/
