@@ -226,6 +226,13 @@ export function useBudgetData() {
     }));
   }, []);
 
+  const updateAnnualPayment = useCallback((id: string, payment: Partial<AnnualPayment>) => {
+    setBudgetData(prev => ({
+      ...prev,
+      annualPayments: prev.annualPayments.map(p => (p.id === id ? { ...p, ...payment } : p)),
+    }));
+  }, []);
+
   const deleteAnnualPayment = useCallback((id: string) => {
     setBudgetData(prev => ({
       ...prev,
@@ -336,6 +343,13 @@ export function useBudgetData() {
     }));
   }, []);
 
+  const updateInstallment = useCallback((id: string, installment: Partial<Installment>) => {
+    setBudgetData(prev => ({
+      ...prev,
+      installments: (prev.installments || []).map(i => (i.id === id ? { ...i, ...installment } : i)),
+    }));
+  }, []);
+
   const deleteInstallment = useCallback((id: string) => {
     setBudgetData(prev => ({
       ...prev,
@@ -351,6 +365,13 @@ export function useBudgetData() {
     setBudgetData(prev => ({
       ...prev,
       budgetLimits: [...prev.budgetLimits, newLimit],
+    }));
+  }, []);
+
+  const updateBudgetLimit = useCallback((id: string, limit: Partial<BudgetLimit>) => {
+    setBudgetData(prev => ({
+      ...prev,
+      budgetLimits: prev.budgetLimits.map(l => (l.id === id ? { ...l, ...limit } : l)),
     }));
   }, []);
 
@@ -378,10 +399,13 @@ export function useBudgetData() {
     updateSavingsGoal,
     deleteSavingsGoal,
     addAnnualPayment,
+    updateAnnualPayment,
     deleteAnnualPayment,
     addBudgetLimit,
+    updateBudgetLimit,
     deleteBudgetLimit,
     addInstallment,
+    updateInstallment,
     deleteInstallment,
     calculateTotals,
     getCategorySummary,

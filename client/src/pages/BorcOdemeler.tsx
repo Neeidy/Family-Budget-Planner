@@ -9,6 +9,10 @@ import {
   StatusBadge,
   EmptyState,
   LenderIcon,
+  DebtDialog,
+  InstallmentDialog,
+  AnnualPaymentDialog,
+  DeleteConfirmDialog,
 } from "@/components/design";
 import type { AvatarWho, BadgeStatus } from "@/components/design";
 import { formatMoney } from "@/lib/format";
@@ -48,12 +52,11 @@ function PageHeader({ tab, onAdd }: { tab: Tab; onAdd: () => void }) {
       <button
         type="button"
         onClick={onAdd}
-        title="Yakında — Faz L'de aktif olacak"
         style={{
           display: "inline-flex", alignItems: "center", gap: 6,
           padding: "10px 16px", borderRadius: "var(--r-md)",
           fontSize: 13, fontWeight: 600, border: "none",
-          background: "var(--accent-green)", color: "oklch(0.15 0.03 155)", cursor: "pointer", opacity: 0.9,
+          background: "var(--accent-green)", color: "oklch(0.15 0.03 155)", cursor: "pointer",
         }}
       >
         <Plus style={{ width: 14, height: 14 }} />
@@ -130,8 +133,12 @@ function MiniStatCard({ label, amount, color }: { label: string; amount: number;
 // ── BORÇLAR TAB ───────────────────────────────────────────────
 type DebtSubFilter = "tumu" | "Benim" | "Esim" | "Ev";
 
-function DebtsTab({ globalFilter }: { globalFilter: PersonFilter }) {
-  const { budgetData, deleteDebt } = useBudget();
+function DebtsTab({ globalFilter, onEdit, onDelete }: {
+  globalFilter: PersonFilter;
+  onEdit: (debt: Debt) => void;
+  onDelete: (debt: Debt) => void;
+}) {
+  const { budgetData } = useBudget();
   const { person1Name, person2Name } = usePerson();
   const [subFilter, setSubFilter] = useState<DebtSubFilter>("tumu");
 
@@ -176,14 +183,14 @@ function DebtsTab({ globalFilter }: { globalFilter: PersonFilter }) {
         <EmptyState emoji="💳" title="Borç listesi boş" description="Kredi kartı, banka kredisi veya kişisel borçlarınızı ekleyerek takip edin." />
       ) : (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16 }}>
-          {filtered.map((d) => <DebtCard key={d.id} debt={d} onDelete={() => deleteDebt(d.id)} />)}
+          {filtered.map((d) => <DebtCard key={d.id} debt={d} onEdit={() => onEdit(d)} onDelete={() => onDelete(d)} />)}
         </div>
       )}
     </div>
   );
 }
 
-function DebtCard({ debt, onDelete }: { debt: Debt; onDelete: () => void }) {
+function DebtCard({ debt, onEdit, onDelete }: { debt: Debt; onEdit: () => void; onDelete: () => void }) {
   const paid = Math.max(0, debt.totalDebt - (debt.totalDebt - debt.monthlyPayment));
   // monthlyPayment is "this month's payment" — rough progress placeholder
   const paidProgress = debt.totalDebt > 0 ? Math.min(1, debt.monthlyPayment / debt.totalDebt) : 0;
@@ -205,7 +212,7 @@ function DebtCard({ debt, onDelete }: { debt: Debt; onDelete: () => void }) {
           </div>
         </div>
         <div style={{ display: "flex", gap: 4 }}>
-          <button type="button" title="Düzenle (yakında)" onClick={() => alert("Düzenleme yakında")} style={iconBtn("var(--text-tertiary)")}>
+          <button type="button" title="Düzenle" onClick={onEdit} style={iconBtn("var(--text-tertiary)")}>
             <Pencil style={{ width: 14, height: 14 }} />
           </button>
           <button type="button" title="Sil" onClick={onDelete} style={iconBtn("var(--status-danger)")}>
@@ -254,8 +261,12 @@ function iconBtn(color: string): React.CSSProperties {
 // ── TAKSİTLER TAB ─────────────────────────────────────────────
 type InstSubFilter = "tumu" | "Benim" | "Esim" | "Ev";
 
-function InstallmentsTab({ globalFilter }: { globalFilter: PersonFilter }) {
-  const { budgetData, deleteInstallment } = useBudget();
+function InstallmentsTab({ globalFilter, onEdit, onDelete }: {
+  globalFilter: PersonFilter;
+  onEdit: (inst: Installment) => void;
+  onDelete: (inst: Installment) => void;
+}) {
+  const { budgetData } = useBudget();
   const { person1Name, person2Name } = usePerson();
   const [subFilter, setSubFilter] = useState<InstSubFilter>("tumu");
 
@@ -300,7 +311,7 @@ function InstallmentsTab({ globalFilter }: { globalFilter: PersonFilter }) {
         <EmptyState emoji="🛍" title="Taksit listesi boş" description="Telefon, beyaz eşya veya başka taksitli alışverişlerinizi takip edin." />
       ) : (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16 }}>
-          {filtered.map((i) => <InstallmentCard key={i.id} inst={i} onDelete={() => deleteInstallment(i.id)} />)}
+          {filtered.map((i) => <InstallmentCard key={i.id} inst={i} onEdit={() => onEdit(i)} onDelete={() => onDelete(i)} />)}
         </div>
       )}
     </div>
@@ -313,7 +324,7 @@ function paidCount(i: Installment): number {
   return Math.max(0, Math.min(i.installmentCount, months + 1));
 }
 
-function InstallmentCard({ inst, onDelete }: { inst: Installment; onDelete: () => void }) {
+function InstallmentCard({ inst, onEdit, onDelete }: { inst: Installment; onEdit: () => void; onDelete: () => void }) {
   const paid = paidCount(inst);
   const progress = inst.installmentCount > 0 ? paid / inst.installmentCount : 0;
   const remainingCount = inst.installmentCount - paid;
@@ -364,7 +375,7 @@ function InstallmentCard({ inst, onDelete }: { inst: Installment; onDelete: () =
           Toplam: <span className="hero-num">{formatMoney(inst.totalAmount)}</span>
         </div>
         <div style={{ display: "flex", gap: 4 }}>
-          <button type="button" title="Düzenle (yakında)" onClick={() => alert("Düzenleme yakında")} style={iconBtn("var(--text-tertiary)")}>
+          <button type="button" title="Düzenle" onClick={onEdit} style={iconBtn("var(--text-tertiary)")}>
             <Pencil style={{ width: 14, height: 14 }} />
           </button>
           <button type="button" title="Sil" onClick={onDelete} style={iconBtn("var(--status-danger)")}>
@@ -377,8 +388,11 @@ function InstallmentCard({ inst, onDelete }: { inst: Installment; onDelete: () =
 }
 
 // ── YILLIK ÖDEMELER TAB ───────────────────────────────────────
-function AnnualPaymentsTab() {
-  const { budgetData, deleteAnnualPayment } = useBudget();
+function AnnualPaymentsTab({ onEdit, onDelete }: {
+  onEdit: (p: AnnualPayment) => void;
+  onDelete: (p: AnnualPayment) => void;
+}) {
+  const { budgetData } = useBudget();
   const list = budgetData.annualPayments ?? [];
 
   // Group by month
@@ -463,10 +477,10 @@ function AnnualPaymentsTab() {
                 </div>
               )}
               <div style={{ display: "flex", justifyContent: "flex-end", gap: 4, paddingTop: 8, borderTop: "1px solid var(--border-faint)" }}>
-                <button type="button" title="Düzenle (yakında)" onClick={() => alert("Düzenleme yakında")} style={iconBtn("var(--text-tertiary)")}>
+                <button type="button" title="Düzenle" onClick={() => onEdit(p)} style={iconBtn("var(--text-tertiary)")}>
                   <Pencil style={{ width: 14, height: 14 }} />
                 </button>
-                <button type="button" title="Sil" onClick={() => deleteAnnualPayment(p.id)} style={iconBtn("var(--status-danger)")}>
+                <button type="button" title="Sil" onClick={() => onDelete(p)} style={iconBtn("var(--status-danger)")}>
                   <Trash2 style={{ width: 14, height: 14 }} />
                 </button>
               </div>
@@ -479,18 +493,77 @@ function AnnualPaymentsTab() {
 }
 
 // ── Page entry ────────────────────────────────────────────────
+type DialogState<T> = { open: boolean; entity?: T };
+
 export default function BorcOdemeler() {
   const [tab, setTab] = useState<Tab>("Borçlar");
   const { filter } = usePersonFilter();
+  const { deleteDebt, deleteInstallment, deleteAnnualPayment } = useBudget();
+
+  const [debtDialog, setDebtDialog]                 = useState<DialogState<Debt>>({ open: false });
+  const [instDialog, setInstDialog]                 = useState<DialogState<Installment>>({ open: false });
+  const [annualDialog, setAnnualDialog]             = useState<DialogState<AnnualPayment>>({ open: false });
+  const [debtDelete, setDebtDelete]                 = useState<Debt | null>(null);
+  const [instDelete, setInstDelete]                 = useState<Installment | null>(null);
+  const [annualDelete, setAnnualDelete]             = useState<AnnualPayment | null>(null);
+
+  const handleAdd = () => {
+    if (tab === "Borçlar")              setDebtDialog({ open: true });
+    else if (tab === "Taksitler")       setInstDialog({ open: true });
+    else                                 setAnnualDialog({ open: true });
+  };
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-      <PageHeader tab={tab} onAdd={() => alert("Ekleme yakında — Faz L'de wire edilecek")} />
+      <PageHeader tab={tab} onAdd={handleAdd} />
       <TabBar tabs={[...TABS]} active={tab} onChange={(t) => setTab(t as Tab)} />
 
-      {tab === "Borçlar"        && <DebtsTab           globalFilter={filter} />}
-      {tab === "Taksitler"      && <InstallmentsTab    globalFilter={filter} />}
-      {tab === "Yıllık Ödemeler" && <AnnualPaymentsTab />}
+      {tab === "Borçlar" && (
+        <DebtsTab
+          globalFilter={filter}
+          onEdit={(d) => setDebtDialog({ open: true, entity: d })}
+          onDelete={(d) => setDebtDelete(d)}
+        />
+      )}
+      {tab === "Taksitler" && (
+        <InstallmentsTab
+          globalFilter={filter}
+          onEdit={(i) => setInstDialog({ open: true, entity: i })}
+          onDelete={(i) => setInstDelete(i)}
+        />
+      )}
+      {tab === "Yıllık Ödemeler" && (
+        <AnnualPaymentsTab
+          onEdit={(p) => setAnnualDialog({ open: true, entity: p })}
+          onDelete={(p) => setAnnualDelete(p)}
+        />
+      )}
+
+      <DebtDialog          open={debtDialog.open}   onClose={() => setDebtDialog({ open: false })}   entity={debtDialog.entity} />
+      <InstallmentDialog   open={instDialog.open}   onClose={() => setInstDialog({ open: false })}   entity={instDialog.entity} />
+      <AnnualPaymentDialog open={annualDialog.open} onClose={() => setAnnualDialog({ open: false })} entity={annualDialog.entity} />
+
+      <DeleteConfirmDialog
+        open={!!debtDelete}
+        onClose={() => setDebtDelete(null)}
+        onConfirm={() => debtDelete && deleteDebt(debtDelete.id)}
+        label={debtDelete ? `"${debtDelete.name}"` : ""}
+        description="Bu borç kaydı kaldırılacak."
+      />
+      <DeleteConfirmDialog
+        open={!!instDelete}
+        onClose={() => setInstDelete(null)}
+        onConfirm={() => instDelete && deleteInstallment(instDelete.id)}
+        label={instDelete ? `"${instDelete.name}"` : ""}
+        description="Bu taksit planı kaldırılacak."
+      />
+      <DeleteConfirmDialog
+        open={!!annualDelete}
+        onClose={() => setAnnualDelete(null)}
+        onConfirm={() => annualDelete && deleteAnnualPayment(annualDelete.id)}
+        label={annualDelete ? `"${annualDelete.name}"` : ""}
+        description="Bu yıllık ödeme kaldırılacak."
+      />
     </div>
   );
 }

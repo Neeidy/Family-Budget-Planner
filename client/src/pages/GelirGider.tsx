@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Plus, Trash2, Pencil, MoreHorizontal, RotateCw } from "lucide-react";
+import { Plus, Trash2, Pencil, RotateCw } from "lucide-react";
 import { useBudget } from "@/contexts/BudgetContext";
 import { usePerson } from "@/contexts/PersonContext";
 import { usePersonFilter, PersonFilter } from "@/contexts/PersonFilterContext";
@@ -10,6 +10,10 @@ import {
   StatusBadge,
   EmptyState,
   CircularProgress,
+  IncomeDialog,
+  ExpenseDialog,
+  BudgetLimitDialog,
+  DeleteConfirmDialog,
 } from "@/components/design";
 import type { AvatarWho } from "@/components/design";
 import { formatMoney } from "@/lib/format";
@@ -85,7 +89,6 @@ function PageHeader({ tab, onAdd }: { tab: Tab; onAdd: () => void }) {
       <button
         type="button"
         onClick={onAdd}
-        title="Yakında — Faz L'de aktif olacak"
         style={{
           display: "inline-flex",
           alignItems: "center",
@@ -98,7 +101,6 @@ function PageHeader({ tab, onAdd }: { tab: Tab; onAdd: () => void }) {
           background: "var(--accent-green)",
           color: "oklch(0.15 0.03 155)",
           cursor: "pointer",
-          opacity: 0.9,
         }}
       >
         <Plus style={{ width: 14, height: 14 }} />
@@ -127,8 +129,12 @@ function OwnerBadge({ owner, person1Name, person2Name }: { owner: string; person
 }
 
 // ── INCOMES TAB ───────────────────────────────────────────────
-function IncomesTab({ globalFilter }: { globalFilter: PersonFilter }) {
-  const { budgetData, deleteIncome } = useBudget();
+function IncomesTab({ globalFilter, onEdit, onDelete }: {
+  globalFilter: PersonFilter;
+  onEdit: (income: Income) => void;
+  onDelete: (income: Income) => void;
+}) {
+  const { budgetData } = useBudget();
   const { person1Name, person2Name } = usePerson();
   const [subFilter, setSubFilter] = useState<"tumu" | "Benim" | "Esim">("tumu");
 
@@ -194,7 +200,7 @@ function IncomesTab({ globalFilter }: { globalFilter: PersonFilter }) {
               <span style={{ fontWeight: 500 }}>{income.name}</span>,
               <span className="hero-num" style={{ fontWeight: 700, color: "var(--accent-green)" }}>{formatMoney(income.amount)}</span>,
               <span style={{ fontSize: 12, color: "var(--text-tertiary)" }}>{new Date(income.date).toLocaleDateString("tr-TR")}</span>,
-              <RowActions onEdit={() => alert("Düzenleme yakında")} onDelete={() => deleteIncome(income.id)} />,
+              <RowActions onEdit={() => onEdit(income)} onDelete={() => onDelete(income)} />,
             ],
           }))}
         />
@@ -207,8 +213,12 @@ function IncomesTab({ globalFilter }: { globalFilter: PersonFilter }) {
 type ExpenseSubFilter = "tumu" | "Benim" | "Esim" | "Ev";
 type ExpenseStatus = "tumu" | "Bekliyor" | "Odendi" | "Gecikti";
 
-function ExpensesTab({ globalFilter }: { globalFilter: PersonFilter }) {
-  const { budgetData, deleteExpense, updateExpense } = useBudget();
+function ExpensesTab({ globalFilter, onEdit, onDelete }: {
+  globalFilter: PersonFilter;
+  onEdit: (expense: Expense) => void;
+  onDelete: (expense: Expense) => void;
+}) {
+  const { budgetData, updateExpense } = useBudget();
   const { person1Name, person2Name } = usePerson();
   const [subFilter, setSubFilter] = useState<ExpenseSubFilter>("tumu");
   const [statusFilter, setStatusFilter] = useState<ExpenseStatus>("tumu");
@@ -288,7 +298,8 @@ function ExpensesTab({ globalFilter }: { globalFilter: PersonFilter }) {
               <ExpenseRowActions
                 expense={expense}
                 onMakeOnce={() => updateExpense(expense.id, { type: "Degisken" })}
-                onDelete={() => deleteExpense(expense.id)}
+                onEdit={() => onEdit(expense)}
+                onDelete={() => onDelete(expense)}
               />,
             ],
           }))}
@@ -305,8 +316,13 @@ function statusToBadge(s: string): "Odendi" | "Bekliyor" | "Gecikti" {
 }
 
 // ── BUDGET LIMITS TAB ─────────────────────────────────────────
-function BudgetLimitsTab({ globalFilter }: { globalFilter: PersonFilter }) {
-  const { budgetData, deleteBudgetLimit } = useBudget();
+function BudgetLimitsTab({ globalFilter, onAdd, onEdit, onDelete }: {
+  globalFilter: PersonFilter;
+  onAdd: () => void;
+  onEdit: (limit: BudgetLimit) => void;
+  onDelete: (limit: BudgetLimit) => void;
+}) {
+  const { budgetData } = useBudget();
 
   // Filter budget limits by owner, but keep all if no owner field is set
   const filtered = useMemo(() => {
@@ -348,15 +364,16 @@ function BudgetLimitsTab({ globalFilter }: { globalFilter: PersonFilter }) {
             key={bl.id}
             limit={bl}
             spent={spentByCategory.get(bl.category) ?? 0}
-            onDelete={() => deleteBudgetLimit(bl.id)}
+            onEdit={() => onEdit(bl)}
+            onDelete={() => onDelete(bl)}
           />
         ))}
 
-        {/* Add placeholder — disabled until Faz L */}
+        {/* Add card */}
         <button
           type="button"
-          title="Yakında — Faz L'de aktif olacak"
-          onClick={() => alert("Limit ekleme yakında")}
+          title="Yeni limit"
+          onClick={onAdd}
           style={{
             background: "var(--bg-elevated)",
             border: "2px dashed var(--border-subtle)",
@@ -382,7 +399,7 @@ function BudgetLimitsTab({ globalFilter }: { globalFilter: PersonFilter }) {
   );
 }
 
-function BudgetGaugeCard({ limit, spent, onDelete }: { limit: BudgetLimit; spent: number; onDelete: () => void }) {
+function BudgetGaugeCard({ limit, spent, onEdit, onDelete }: { limit: BudgetLimit; spent: number; onEdit: () => void; onDelete: () => void }) {
   const meta = getCategoryMeta(limit.category);
   return (
     <div style={{
@@ -396,25 +413,24 @@ function BudgetGaugeCard({ limit, spent, onDelete }: { limit: BudgetLimit; spent
       gap: 12,
       position: "relative",
     }}>
-      <button
-        type="button"
-        onClick={onDelete}
-        title="Sil"
-        style={{
-          position: "absolute",
-          top: 8,
-          right: 8,
-          padding: 6,
-          borderRadius: 999,
-          background: "transparent",
-          border: "none",
-          cursor: "pointer",
-          color: "var(--text-tertiary)",
-          opacity: 0.6,
-        }}
-      >
-        <Trash2 style={{ width: 14, height: 14 }} />
-      </button>
+      <div style={{ position: "absolute", top: 8, right: 8, display: "flex", gap: 2 }}>
+        <button
+          type="button"
+          onClick={onEdit}
+          title="Düzenle"
+          style={{ padding: 6, borderRadius: 999, background: "transparent", border: "none", cursor: "pointer", color: "var(--text-tertiary)", opacity: 0.7 }}
+        >
+          <Pencil style={{ width: 14, height: 14 }} />
+        </button>
+        <button
+          type="button"
+          onClick={onDelete}
+          title="Sil"
+          style={{ padding: 6, borderRadius: 999, background: "transparent", border: "none", cursor: "pointer", color: "var(--status-danger)", opacity: 0.6 }}
+        >
+          <Trash2 style={{ width: 14, height: 14 }} />
+        </button>
+      </div>
       <CircularProgress
         value={spent}
         max={limit.limit}
@@ -504,7 +520,7 @@ function RowActions({ onEdit, onDelete }: { onEdit?: () => void; onDelete: () =>
   );
 }
 
-function ExpenseRowActions({ expense, onMakeOnce, onDelete }: { expense: Expense; onMakeOnce: () => void; onDelete: () => void }) {
+function ExpenseRowActions({ expense, onMakeOnce, onEdit, onDelete }: { expense: Expense; onMakeOnce: () => void; onEdit: () => void; onDelete: () => void }) {
   return (
     <div style={{ display: "inline-flex", gap: 4, justifyContent: "center" }}>
       {expense.type === "Sabit" && (
@@ -526,8 +542,8 @@ function ExpenseRowActions({ expense, onMakeOnce, onDelete }: { expense: Expense
       )}
       <button
         type="button"
-        title="Düzenle (yakında)"
-        onClick={() => alert("Düzenleme yakında")}
+        title="Düzenle"
+        onClick={onEdit}
         style={{
           padding: 6,
           borderRadius: 6,
@@ -629,12 +645,24 @@ function DataTable({ columns, rows }: { columns: Column[]; rows: Row[] }) {
 }
 
 // ── Page entry ────────────────────────────────────────────────
+type DialogState<T> = { open: boolean; entity?: T };
+
 export default function GelirGider() {
   const [tab, setTab] = useState<Tab>("Gelirler");
   const { filter } = usePersonFilter();
+  const { deleteIncome, deleteExpense, deleteBudgetLimit } = useBudget();
+
+  const [incomeDialog, setIncomeDialog]       = useState<DialogState<Income>>({ open: false });
+  const [expenseDialog, setExpenseDialog]     = useState<DialogState<Expense>>({ open: false });
+  const [limitDialog, setLimitDialog]         = useState<DialogState<BudgetLimit>>({ open: false });
+  const [incomeDelete, setIncomeDelete]       = useState<Income | null>(null);
+  const [expenseDelete, setExpenseDelete]     = useState<Expense | null>(null);
+  const [limitDelete, setLimitDelete]         = useState<BudgetLimit | null>(null);
 
   const handleAdd = () => {
-    alert("Ekleme yakında — Faz L'de wire edilecek");
+    if (tab === "Gelirler")          setIncomeDialog({ open: true });
+    else if (tab === "Giderler")     setExpenseDialog({ open: true });
+    else                              setLimitDialog({ open: true });
   };
 
   return (
@@ -643,9 +671,54 @@ export default function GelirGider() {
 
       <TabBar tabs={[...TABS]} active={tab} onChange={(t) => setTab(t as Tab)} />
 
-      {tab === "Gelirler"        && <IncomesTab      globalFilter={filter} />}
-      {tab === "Giderler"        && <ExpensesTab     globalFilter={filter} />}
-      {tab === "Bütçe Limitleri" && <BudgetLimitsTab globalFilter={filter} />}
+      {tab === "Gelirler" && (
+        <IncomesTab
+          globalFilter={filter}
+          onEdit={(i) => setIncomeDialog({ open: true, entity: i })}
+          onDelete={(i) => setIncomeDelete(i)}
+        />
+      )}
+      {tab === "Giderler" && (
+        <ExpensesTab
+          globalFilter={filter}
+          onEdit={(e) => setExpenseDialog({ open: true, entity: e })}
+          onDelete={(e) => setExpenseDelete(e)}
+        />
+      )}
+      {tab === "Bütçe Limitleri" && (
+        <BudgetLimitsTab
+          globalFilter={filter}
+          onAdd={() => setLimitDialog({ open: true })}
+          onEdit={(l) => setLimitDialog({ open: true, entity: l })}
+          onDelete={(l) => setLimitDelete(l)}
+        />
+      )}
+
+      <IncomeDialog       open={incomeDialog.open}  onClose={() => setIncomeDialog({ open: false })}  entity={incomeDialog.entity} />
+      <ExpenseDialog      open={expenseDialog.open} onClose={() => setExpenseDialog({ open: false })} entity={expenseDialog.entity} />
+      <BudgetLimitDialog  open={limitDialog.open}   onClose={() => setLimitDialog({ open: false })}   entity={limitDialog.entity} />
+
+      <DeleteConfirmDialog
+        open={!!incomeDelete}
+        onClose={() => setIncomeDelete(null)}
+        onConfirm={() => incomeDelete && deleteIncome(incomeDelete.id)}
+        label={incomeDelete ? `"${incomeDelete.name}"` : ""}
+        description="Bu gelir kaydı listeden kaldırılacak."
+      />
+      <DeleteConfirmDialog
+        open={!!expenseDelete}
+        onClose={() => setExpenseDelete(null)}
+        onConfirm={() => expenseDelete && deleteExpense(expenseDelete.id)}
+        label={expenseDelete ? `"${expenseDelete.subcategory || expenseDelete.category}"` : ""}
+        description="Bu gider kaydı listeden kaldırılacak."
+      />
+      <DeleteConfirmDialog
+        open={!!limitDelete}
+        onClose={() => setLimitDelete(null)}
+        onConfirm={() => limitDelete && deleteBudgetLimit(limitDelete.id)}
+        label={limitDelete ? `"${limitDelete.category}" limiti` : ""}
+        description="Bu bütçe limiti kaldırılacak."
+      />
     </div>
   );
 }

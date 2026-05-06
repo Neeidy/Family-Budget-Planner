@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { Plus, Trash2, Pencil } from "lucide-react";
 import { useBudget } from "@/contexts/BudgetContext";
 import { usePersonFilter } from "@/contexts/PersonFilterContext";
-import { Avatar, EmptyState } from "@/components/design";
+import { Avatar, EmptyState, GoalDialog, DeleteConfirmDialog } from "@/components/design";
 import type { AvatarWho } from "@/components/design";
 import { formatMoney } from "@/lib/format";
 import { applyPersonFilter } from "@/lib/personFilter";
@@ -29,12 +29,12 @@ function PageHeader({ onAdd }: { onAdd: () => void }) {
         </p>
       </div>
       <button
-        type="button" onClick={onAdd} title="Yakında — Faz L'de aktif olacak"
+        type="button" onClick={onAdd}
         style={{
           display: "inline-flex", alignItems: "center", gap: 6,
           padding: "10px 16px", borderRadius: "var(--r-md)",
           fontSize: 13, fontWeight: 600, border: "none",
-          background: "var(--accent-green)", color: "oklch(0.15 0.03 155)", cursor: "pointer", opacity: 0.9,
+          background: "var(--accent-green)", color: "oklch(0.15 0.03 155)", cursor: "pointer",
         }}
       >
         <Plus style={{ width: 14, height: 14 }} />
@@ -78,7 +78,7 @@ function StatusChips({ value, onChange, counts }: { value: StatusFilter; onChang
 }
 
 // ── GoalCard ──────────────────────────────────────────────────
-function GoalCard({ goal, onDelete }: { goal: SavingsGoal; onDelete: () => void }) {
+function GoalCard({ goal, onEdit, onDelete }: { goal: SavingsGoal; onEdit: () => void; onDelete: () => void }) {
   const pct = goal.targetAmount > 0 ? Math.min(1, goal.currentAmount / goal.targetAmount) : 0;
   const done = goal.currentAmount >= goal.targetAmount;
   const targetDate = goal.targetDate ? new Date(goal.targetDate) : null;
@@ -147,7 +147,7 @@ function GoalCard({ goal, onDelete }: { goal: SavingsGoal; onDelete: () => void 
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 8, borderTop: "1px solid var(--border-faint)" }}>
         <Avatar who={ownerToWho(goal.owner)} size={20} />
         <div style={{ display: "flex", gap: 4 }}>
-          <button type="button" title="Düzenle (yakında)" onClick={() => alert("Düzenleme yakında")}
+          <button type="button" title="Düzenle" onClick={onEdit}
             style={{ padding: 6, borderRadius: 6, border: "none", background: "transparent", cursor: "pointer", color: "var(--text-tertiary)" }}>
             <Pencil style={{ width: 14, height: 14 }} />
           </button>
@@ -164,7 +164,7 @@ function GoalCard({ goal, onDelete }: { goal: SavingsGoal; onDelete: () => void 
 function NewGoalCard({ onClick }: { onClick: () => void }) {
   return (
     <button
-      type="button" onClick={onClick} title="Yakında"
+      type="button" onClick={onClick} title="Yeni hedef"
       style={{
         background: "var(--bg-elevated)",
         border: "2px dashed var(--border-subtle)",
@@ -198,6 +198,8 @@ export default function Hedef() {
   const { budgetData, deleteSavingsGoal } = useBudget();
   const { filter } = usePersonFilter();
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("Aktif");
+  const [goalDialog, setGoalDialog] = useState<{ open: boolean; entity?: SavingsGoal }>({ open: false });
+  const [goalDelete, setGoalDelete] = useState<SavingsGoal | null>(null);
 
   const afterGlobal = useMemo(() => applyPersonFilter(budgetData.savingsGoals ?? [], filter), [budgetData.savingsGoals, filter]);
 
@@ -219,9 +221,11 @@ export default function Hedef() {
     return afterGlobal;
   }, [statusFilter, partition, afterGlobal]);
 
+  const openAdd = () => setGoalDialog({ open: true });
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-      <PageHeader onAdd={() => alert("Hedef ekleme yakında — Faz L'de wire edilecek")} />
+      <PageHeader onAdd={openAdd} />
 
       <StatusChips value={statusFilter} onChange={setStatusFilter} counts={counts} />
 
@@ -244,11 +248,29 @@ export default function Hedef() {
           gap: 16,
         }}>
           {visible.map((g) => (
-            <GoalCard key={g.id} goal={g} onDelete={() => deleteSavingsGoal(g.id)} />
+            <GoalCard
+              key={g.id}
+              goal={g}
+              onEdit={() => setGoalDialog({ open: true, entity: g })}
+              onDelete={() => setGoalDelete(g)}
+            />
           ))}
-          <NewGoalCard onClick={() => alert("Hedef ekleme yakında")} />
+          <NewGoalCard onClick={openAdd} />
         </div>
       )}
+
+      <GoalDialog
+        open={goalDialog.open}
+        onClose={() => setGoalDialog({ open: false })}
+        entity={goalDialog.entity}
+      />
+      <DeleteConfirmDialog
+        open={!!goalDelete}
+        onClose={() => setGoalDelete(null)}
+        onConfirm={() => goalDelete && deleteSavingsGoal(goalDelete.id)}
+        label={goalDelete ? `"${goalDelete.name}" hedefi` : ""}
+        description="Bu birikim hedefi listenizden kaldırılacak."
+      />
     </div>
   );
 }
