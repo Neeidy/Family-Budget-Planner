@@ -1,46 +1,651 @@
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import Incomes from "./Incomes";
-import Expenses from "./Expenses";
-import BudgetLimits from "./BudgetLimits";
+import { useState, useMemo } from "react";
+import { Plus, Trash2, Pencil, MoreHorizontal, RotateCw } from "lucide-react";
+import { useBudget } from "@/contexts/BudgetContext";
+import { usePerson } from "@/contexts/PersonContext";
+import { usePersonFilter, PersonFilter } from "@/contexts/PersonFilterContext";
+import {
+  TabBar,
+  Avatar,
+  CategoryPill,
+  StatusBadge,
+  EmptyState,
+  CircularProgress,
+} from "@/components/design";
+import type { AvatarWho } from "@/components/design";
+import { formatMoney } from "@/lib/format";
+import { applyPersonFilter } from "@/lib/personFilter";
+import { getCategoryMeta } from "@/components/design/CategoryPill";
+import type { Income, Expense, BudgetLimit } from "@/hooks/useBudgetData";
 
-export default function GelirGider() {
+const TABS = ["Gelirler", "Giderler", "Bütçe Limitleri"] as const;
+type Tab = (typeof TABS)[number];
+
+// ── Local sub-filter chip group (e.g. by owner with counts) ──
+interface SubFilterChipsProps<T extends string> {
+  options: Array<{ key: T; label: string; count?: number; colorVar?: string }>;
+  value: T;
+  onChange: (v: T) => void;
+}
+
+function SubFilterChips<T extends string>({ options, value, onChange }: SubFilterChipsProps<T>) {
   return (
-    <div className="space-y-4">
+    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+      {options.map((o) => {
+        const active = value === o.key;
+        const colorVar = o.colorVar ?? "var(--text-secondary)";
+        return (
+          <button
+            key={o.key}
+            type="button"
+            onClick={() => onChange(o.key)}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "7px 14px",
+              borderRadius: 999,
+              fontSize: 12,
+              fontWeight: 600,
+              border: active ? "none" : "1px solid var(--border-subtle)",
+              background: active ? colorVar : "var(--bg-elevated)",
+              color: active ? "oklch(0.99 0 0)" : "var(--text-secondary)",
+              cursor: "pointer",
+              transition: "all 160ms",
+            }}
+          >
+            {o.label}
+            {typeof o.count === "number" && (
+              <span style={{ opacity: 0.7, fontVariantNumeric: "tabular-nums" }}>
+                {o.count}
+              </span>
+            )}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+// ── Page header w/ "+ Ekle" button ──
+function PageHeader({ tab, onAdd }: { tab: Tab; onAdd: () => void }) {
+  const ctaLabel =
+    tab === "Gelirler" ? "+ Gelir Ekle" :
+    tab === "Giderler" ? "+ Gider Ekle" :
+                          "+ Limit Ekle";
+  return (
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12 }}>
       <div>
-        <h1 className="text-2xl font-bold text-foreground">Gelir &amp; Gider</h1>
-        <p className="text-sm text-muted-foreground">Gelir, gider ve bütçe limitlerini yönetin</p>
+        <h1 style={{ fontSize: "clamp(1.5rem, 3.5vw, 2rem)", fontWeight: 700, letterSpacing: "-0.02em", margin: 0, color: "var(--text-primary)" }}>
+          Gelir & Gider
+        </h1>
+        <p style={{ fontSize: 13, color: "var(--text-tertiary)", marginTop: 6 }}>
+          Aylık gelir ve giderlerinizi yönetin
+        </p>
       </div>
-      <Tabs defaultValue="gelirler" className="w-full">
-        <TabsList className="bg-card border rounded-xl p-1 h-auto w-full justify-start gap-1">
-          <TabsTrigger
-            value="gelirler"
-            className="rounded-lg py-2 px-4 font-medium text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground hover:bg-accent transition-colors"
-          >
-            Gelirler
-          </TabsTrigger>
-          <TabsTrigger
-            value="giderler"
-            className="rounded-lg py-2 px-4 font-medium text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground hover:bg-accent transition-colors"
-          >
-            Giderler
-          </TabsTrigger>
-          <TabsTrigger
-            value="limitler"
-            className="rounded-lg py-2 px-4 font-medium text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground hover:bg-accent transition-colors"
-          >
-            Bütçe Limitleri
-          </TabsTrigger>
-        </TabsList>
-        <TabsContent value="gelirler" className="mt-4">
-          <Incomes />
-        </TabsContent>
-        <TabsContent value="giderler" className="mt-4">
-          <Expenses />
-        </TabsContent>
-        <TabsContent value="limitler" className="mt-4">
-          <BudgetLimits />
-        </TabsContent>
-      </Tabs>
+      <button
+        type="button"
+        onClick={onAdd}
+        title="Yakında — Faz L'de aktif olacak"
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 6,
+          padding: "10px 16px",
+          borderRadius: "var(--r-md)",
+          fontSize: 13,
+          fontWeight: 600,
+          border: "none",
+          background: "var(--accent-green)",
+          color: "oklch(0.15 0.03 155)",
+          cursor: "pointer",
+          opacity: 0.9,
+        }}
+      >
+        <Plus style={{ width: 14, height: 14 }} />
+        {ctaLabel.replace("+ ", "")}
+      </button>
+    </div>
+  );
+}
+
+// ── Owner badge in row ──
+function OwnerBadge({ owner, person1Name, person2Name }: { owner: string; person1Name: string; person2Name: string }) {
+  const who: AvatarWho =
+    owner === "Benim" ? "yigit" :
+    owner === "Esim"  ? "arzu"  :
+                         "ev";
+  const name =
+    owner === "Benim" ? person1Name :
+    owner === "Esim"  ? person2Name :
+                         "Ortak";
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+      <Avatar who={who} size={20} />
+      <span style={{ fontSize: 13, fontWeight: 500 }}>{name}</span>
+    </span>
+  );
+}
+
+// ── INCOMES TAB ───────────────────────────────────────────────
+function IncomesTab({ globalFilter }: { globalFilter: PersonFilter }) {
+  const { budgetData, deleteIncome } = useBudget();
+  const { person1Name, person2Name } = usePerson();
+  const [subFilter, setSubFilter] = useState<"tumu" | "Benim" | "Esim">("tumu");
+
+  const yigitTotal = budgetData.incomes.filter((i) => i.owner === "Benim").reduce((s, i) => s + i.amount, 0);
+  const arzuTotal  = budgetData.incomes.filter((i) => i.owner === "Esim").reduce((s, i) => s + i.amount, 0);
+  const grandTotal = yigitTotal + arzuTotal;
+
+  // Global filter (Tümü/Benim/Esim/Ev) → income only has Benim|Esim, Ev → empty
+  const afterGlobal = useMemo(() => applyPersonFilter(budgetData.incomes, globalFilter), [budgetData.incomes, globalFilter]);
+  const filteredIncomes = useMemo(() => {
+    if (subFilter === "tumu") return afterGlobal;
+    return afterGlobal.filter((i) => i.owner === subFilter);
+  }, [afterGlobal, subFilter]);
+
+  const sortedIncomes = useMemo(
+    () => [...filteredIncomes].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
+    [filteredIncomes],
+  );
+
+  const yigitCount = afterGlobal.filter((i) => i.owner === "Benim").length;
+  const arzuCount  = afterGlobal.filter((i) => i.owner === "Esim").length;
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      {/* Summary tri-card */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12 }}>
+        <MiniSummaryCard label={`${person1Name}'in Geliri`} amount={yigitTotal} accent="var(--owner-yigit)" />
+        <MiniSummaryCard label={`${person2Name}'in Geliri`} amount={arzuTotal}  accent="var(--owner-arzu)" />
+        <MiniSummaryCard label="Toplam Gelir"               amount={grandTotal} accent="var(--accent-green)" />
+      </div>
+
+      {/* Sub-filter chips */}
+      <SubFilterChips<"tumu" | "Benim" | "Esim">
+        options={[
+          { key: "tumu",  label: "Tümü",       count: afterGlobal.length, colorVar: "var(--text-secondary)" },
+          { key: "Benim", label: person1Name,  count: yigitCount,         colorVar: "var(--owner-yigit)" },
+          { key: "Esim",  label: person2Name,  count: arzuCount,          colorVar: "var(--owner-arzu)" },
+        ]}
+        value={subFilter}
+        onChange={setSubFilter}
+      />
+
+      {/* List */}
+      {sortedIncomes.length === 0 ? (
+        <EmptyState
+          emoji="💰"
+          title="Henüz gelir eklenmemiş"
+          description="Maaş, yan gelir veya kira gelirinizi ekleyerek aylık bütçenizi takip etmeye başlayın."
+        />
+      ) : (
+        <DataTable
+          columns={[
+            { header: "Kişi",       width: "auto" },
+            { header: "Gelir Adı",  width: "auto" },
+            { header: "Miktar",     width: 120, align: "right" },
+            { header: "Tarih",      width: 110, hideOnMobile: true },
+            { header: "İşlem",      width: 90,  align: "center" },
+          ]}
+          rows={sortedIncomes.map((income) => ({
+            key: income.id,
+            cells: [
+              <OwnerBadge owner={income.owner} person1Name={person1Name} person2Name={person2Name} />,
+              <span style={{ fontWeight: 500 }}>{income.name}</span>,
+              <span className="hero-num" style={{ fontWeight: 700, color: "var(--accent-green)" }}>{formatMoney(income.amount)}</span>,
+              <span style={{ fontSize: 12, color: "var(--text-tertiary)" }}>{new Date(income.date).toLocaleDateString("tr-TR")}</span>,
+              <RowActions onEdit={() => alert("Düzenleme yakında")} onDelete={() => deleteIncome(income.id)} />,
+            ],
+          }))}
+        />
+      )}
+    </div>
+  );
+}
+
+// ── EXPENSES TAB ──────────────────────────────────────────────
+type ExpenseSubFilter = "tumu" | "Benim" | "Esim" | "Ev";
+type ExpenseStatus = "tumu" | "Bekliyor" | "Odendi" | "Gecikti";
+
+function ExpensesTab({ globalFilter }: { globalFilter: PersonFilter }) {
+  const { budgetData, deleteExpense, updateExpense } = useBudget();
+  const { person1Name, person2Name } = usePerson();
+  const [subFilter, setSubFilter] = useState<ExpenseSubFilter>("tumu");
+  const [statusFilter, setStatusFilter] = useState<ExpenseStatus>("tumu");
+
+  const afterGlobal = useMemo(() => applyPersonFilter(budgetData.expenses, globalFilter), [budgetData.expenses, globalFilter]);
+
+  const filtered = useMemo(() => {
+    let list = afterGlobal;
+    if (subFilter !== "tumu")    list = list.filter((e) => e.owner === subFilter);
+    if (statusFilter !== "tumu") list = list.filter((e) => e.status === statusFilter);
+    return list;
+  }, [afterGlobal, subFilter, statusFilter]);
+
+  const counts = {
+    yigit: afterGlobal.filter((e) => e.owner === "Benim").length,
+    arzu:  afterGlobal.filter((e) => e.owner === "Esim").length,
+    ev:    afterGlobal.filter((e) => e.owner === "Ev").length,
+  };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      {/* Owner filter */}
+      <SubFilterChips<ExpenseSubFilter>
+        options={[
+          { key: "tumu",  label: "Tümü",       count: afterGlobal.length, colorVar: "var(--text-secondary)" },
+          { key: "Benim", label: person1Name,  count: counts.yigit,       colorVar: "var(--owner-yigit)" },
+          { key: "Esim",  label: person2Name,  count: counts.arzu,        colorVar: "var(--owner-arzu)" },
+          { key: "Ev",    label: "Ortak",      count: counts.ev,          colorVar: "var(--owner-ev)" },
+        ]}
+        value={subFilter}
+        onChange={setSubFilter}
+      />
+
+      {/* Status filter */}
+      <SubFilterChips<ExpenseStatus>
+        options={[
+          { key: "tumu",     label: "Tümü" },
+          { key: "Bekliyor", label: "⏳ Bekliyor", colorVar: "var(--status-warning)" },
+          { key: "Odendi",   label: "✓ Ödendi",   colorVar: "var(--status-success)" },
+          { key: "Gecikti",  label: "⚠ Gecikti",  colorVar: "var(--status-danger)" },
+        ]}
+        value={statusFilter}
+        onChange={setStatusFilter}
+      />
+
+      {filtered.length === 0 ? (
+        <EmptyState
+          emoji="🛒"
+          title="Henüz gider eklenmemiş"
+          description="Kira, market, fatura — tüm aylık giderlerinizi tek yerden takip edin."
+        />
+      ) : (
+        <DataTable
+          columns={[
+            { header: "Kişi",      width: "auto" },
+            { header: "Kategori",  width: "auto" },
+            { header: "Gider Adı", width: "auto" },
+            { header: "Tipi",      width: 100, hideOnMobile: true },
+            { header: "Miktar",    width: 120, align: "right" },
+            { header: "Durum",     width: 110, hideOnMobile: true },
+            { header: "İşlem",     width: 130, align: "center" },
+          ]}
+          rows={filtered.map((expense) => ({
+            key: expense.id,
+            cells: [
+              <OwnerBadge owner={expense.owner} person1Name={person1Name} person2Name={person2Name} />,
+              <CategoryPill cat={expense.category} size="sm" />,
+              <div>
+                <div style={{ fontWeight: 500 }}>{expense.subcategory || expense.category}</div>
+                {expense.notes && (
+                  <div style={{ fontSize: 11, color: "var(--text-tertiary)", marginTop: 2 }}>{expense.notes}</div>
+                )}
+              </div>,
+              <TypeBadge type={expense.type} />,
+              <span className="hero-num" style={{ fontWeight: 700, color: "var(--status-danger)" }}>{formatMoney(expense.amount)}</span>,
+              <StatusBadge status={statusToBadge(expense.status)} />,
+              <ExpenseRowActions
+                expense={expense}
+                onMakeOnce={() => updateExpense(expense.id, { type: "Degisken" })}
+                onDelete={() => deleteExpense(expense.id)}
+              />,
+            ],
+          }))}
+        />
+      )}
+    </div>
+  );
+}
+
+function statusToBadge(s: string): "Odendi" | "Bekliyor" | "Gecikti" {
+  if (s === "Odendi" || s === "Ödendi") return "Odendi";
+  if (s === "Gecikti" || s === "Geçikti") return "Gecikti";
+  return "Bekliyor";
+}
+
+// ── BUDGET LIMITS TAB ─────────────────────────────────────────
+function BudgetLimitsTab({ globalFilter }: { globalFilter: PersonFilter }) {
+  const { budgetData, deleteBudgetLimit } = useBudget();
+
+  // Filter budget limits by owner, but keep all if no owner field is set
+  const filtered = useMemo(() => {
+    if (globalFilter === "Tümü") return budgetData.budgetLimits ?? [];
+    return (budgetData.budgetLimits ?? []).filter((bl) => !bl.owner || bl.owner === globalFilter);
+  }, [budgetData.budgetLimits, globalFilter]);
+
+  const spentByCategory = useMemo(() => {
+    const map = new Map<string, number>();
+    budgetData.expenses.forEach((e) => {
+      map.set(e.category, (map.get(e.category) ?? 0) + e.amount);
+    });
+    return map;
+  }, [budgetData.expenses]);
+
+  if (filtered.length === 0) {
+    return (
+      <EmptyState
+        emoji="🎯"
+        title="Henüz limit yok"
+        description="Kategori başına aylık harcama limiti belirleyerek bütçenizi disiplin altına alın."
+      />
+    );
+  }
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      <p style={{ fontSize: 13, color: "var(--text-tertiary)", margin: 0 }}>
+        Kategori başına aylık harcama limiti belirleyin
+      </p>
+
+      <div className="bvgauges-grid" style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+        gap: 16,
+      }}>
+        {filtered.map((bl) => (
+          <BudgetGaugeCard
+            key={bl.id}
+            limit={bl}
+            spent={spentByCategory.get(bl.category) ?? 0}
+            onDelete={() => deleteBudgetLimit(bl.id)}
+          />
+        ))}
+
+        {/* Add placeholder — disabled until Faz L */}
+        <button
+          type="button"
+          title="Yakında — Faz L'de aktif olacak"
+          onClick={() => alert("Limit ekleme yakında")}
+          style={{
+            background: "var(--bg-elevated)",
+            border: "2px dashed var(--border-subtle)",
+            borderRadius: "var(--r-lg)",
+            padding: 32,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 10,
+            cursor: "pointer",
+            color: "var(--text-tertiary)",
+            fontSize: 13,
+            fontWeight: 600,
+            minHeight: 220,
+          }}
+        >
+          <Plus style={{ width: 28, height: 28 }} />
+          Limit Ekle
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function BudgetGaugeCard({ limit, spent, onDelete }: { limit: BudgetLimit; spent: number; onDelete: () => void }) {
+  const meta = getCategoryMeta(limit.category);
+  return (
+    <div style={{
+      background: "var(--bg-surface)",
+      borderRadius: "var(--r-lg)",
+      boxShadow: "var(--shadow-card)",
+      padding: 20,
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      gap: 12,
+      position: "relative",
+    }}>
+      <button
+        type="button"
+        onClick={onDelete}
+        title="Sil"
+        style={{
+          position: "absolute",
+          top: 8,
+          right: 8,
+          padding: 6,
+          borderRadius: 999,
+          background: "transparent",
+          border: "none",
+          cursor: "pointer",
+          color: "var(--text-tertiary)",
+          opacity: 0.6,
+        }}
+      >
+        <Trash2 style={{ width: 14, height: 14 }} />
+      </button>
+      <CircularProgress
+        value={spent}
+        max={limit.limit}
+        size={120}
+        emoji={meta.emoji}
+        label={limit.category}
+      />
+    </div>
+  );
+}
+
+// ── Sub-components ────────────────────────────────────────────
+function MiniSummaryCard({ label, amount, accent }: { label: string; amount: number; accent: string }) {
+  return (
+    <div style={{
+      background: "var(--bg-surface)",
+      borderRadius: "var(--r-lg)",
+      boxShadow: "var(--shadow-card)",
+      padding: "16px 20px",
+    }}>
+      <div className="section-label">{label}</div>
+      <div className="hero-num" style={{ fontSize: 24, fontWeight: 700, marginTop: 8, color: accent }}>
+        {formatMoney(amount)}
+      </div>
+    </div>
+  );
+}
+
+function TypeBadge({ type }: { type: string }) {
+  const labels: Record<string, { color: string; bg: string }> = {
+    Sabit:    { color: "var(--owner-ev)",       bg: "color-mix(in oklch, var(--owner-ev) 15%, transparent)" },
+    Degisken: { color: "var(--owner-arzu)",     bg: "color-mix(in oklch, var(--owner-arzu) 15%, transparent)" },
+    Borc:     { color: "var(--status-danger)",  bg: "color-mix(in oklch, var(--status-danger) 15%, transparent)" },
+    Birikim:  { color: "var(--accent-green)",   bg: "color-mix(in oklch, var(--accent-green) 15%, transparent)" },
+  };
+  const m = labels[type] ?? labels.Degisken;
+  return (
+    <span className="pill" style={{
+      background: m.bg,
+      color: m.color,
+      fontSize: 11,
+      fontWeight: 600,
+      padding: "3px 9px",
+    }}>
+      {type === "Degisken" ? "Değişken" : type}
+    </span>
+  );
+}
+
+function RowActions({ onEdit, onDelete }: { onEdit?: () => void; onDelete: () => void }) {
+  return (
+    <div style={{ display: "inline-flex", gap: 4, justifyContent: "center" }}>
+      {onEdit && (
+        <button
+          type="button"
+          onClick={onEdit}
+          title="Düzenle (yakında)"
+          style={{
+            padding: 6,
+            borderRadius: 6,
+            border: "none",
+            background: "transparent",
+            cursor: "pointer",
+            color: "var(--text-tertiary)",
+            opacity: 0.7,
+          }}
+        >
+          <Pencil style={{ width: 14, height: 14 }} />
+        </button>
+      )}
+      <button
+        type="button"
+        onClick={onDelete}
+        title="Sil"
+        style={{
+          padding: 6,
+          borderRadius: 6,
+          border: "none",
+          background: "transparent",
+          cursor: "pointer",
+          color: "var(--status-danger)",
+        }}
+      >
+        <Trash2 style={{ width: 14, height: 14 }} />
+      </button>
+    </div>
+  );
+}
+
+function ExpenseRowActions({ expense, onMakeOnce, onDelete }: { expense: Expense; onMakeOnce: () => void; onDelete: () => void }) {
+  return (
+    <div style={{ display: "inline-flex", gap: 4, justifyContent: "center" }}>
+      {expense.type === "Sabit" && (
+        <button
+          type="button"
+          onClick={onMakeOnce}
+          title="Tek seferlik yap (Sabit → Değişken)"
+          style={{
+            padding: 6,
+            borderRadius: 6,
+            border: "none",
+            background: "transparent",
+            cursor: "pointer",
+            color: "var(--status-warning)",
+          }}
+        >
+          <RotateCw style={{ width: 14, height: 14 }} />
+        </button>
+      )}
+      <button
+        type="button"
+        title="Düzenle (yakında)"
+        onClick={() => alert("Düzenleme yakında")}
+        style={{
+          padding: 6,
+          borderRadius: 6,
+          border: "none",
+          background: "transparent",
+          cursor: "pointer",
+          color: "var(--text-tertiary)",
+          opacity: 0.7,
+        }}
+      >
+        <Pencil style={{ width: 14, height: 14 }} />
+      </button>
+      <button
+        type="button"
+        onClick={onDelete}
+        title="Sil"
+        style={{
+          padding: 6,
+          borderRadius: 6,
+          border: "none",
+          background: "transparent",
+          cursor: "pointer",
+          color: "var(--status-danger)",
+        }}
+      >
+        <Trash2 style={{ width: 14, height: 14 }} />
+      </button>
+    </div>
+  );
+}
+
+// ── DataTable ─────────────────────────────────────────────────
+interface Column {
+  header: string;
+  width?: number | "auto";
+  align?: "left" | "right" | "center";
+  hideOnMobile?: boolean;
+}
+
+interface Row {
+  key: string | number;
+  cells: React.ReactNode[];
+}
+
+function DataTable({ columns, rows }: { columns: Column[]; rows: Row[] }) {
+  return (
+    <div style={{
+      background: "var(--bg-surface)",
+      borderRadius: "var(--r-lg)",
+      boxShadow: "var(--shadow-card)",
+      overflow: "hidden",
+    }}>
+      <div style={{ overflowX: "auto" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
+          <thead>
+            <tr style={{ borderBottom: "1px solid var(--border-faint)", background: "var(--bg-elevated)" }}>
+              {columns.map((c, i) => (
+                <th
+                  key={i}
+                  style={{
+                    padding: "12px 16px",
+                    textAlign: c.align ?? "left",
+                    fontSize: 11,
+                    fontWeight: 600,
+                    letterSpacing: "0.08em",
+                    textTransform: "uppercase",
+                    color: "var(--text-tertiary)",
+                    width: c.width === "auto" ? undefined : c.width,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {c.header}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row) => (
+              <tr key={row.key} style={{ borderBottom: "1px solid var(--border-faint)" }}>
+                {row.cells.map((cell, i) => (
+                  <td
+                    key={i}
+                    style={{
+                      padding: "14px 16px",
+                      textAlign: columns[i]?.align ?? "left",
+                      verticalAlign: "middle",
+                    }}
+                  >
+                    {cell}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+// ── Page entry ────────────────────────────────────────────────
+export default function GelirGider() {
+  const [tab, setTab] = useState<Tab>("Gelirler");
+  const { filter } = usePersonFilter();
+
+  const handleAdd = () => {
+    alert("Ekleme yakında — Faz L'de wire edilecek");
+  };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      <PageHeader tab={tab} onAdd={handleAdd} />
+
+      <TabBar tabs={[...TABS]} active={tab} onChange={(t) => setTab(t as Tab)} />
+
+      {tab === "Gelirler"        && <IncomesTab      globalFilter={filter} />}
+      {tab === "Giderler"        && <ExpensesTab     globalFilter={filter} />}
+      {tab === "Bütçe Limitleri" && <BudgetLimitsTab globalFilter={filter} />}
     </div>
   );
 }

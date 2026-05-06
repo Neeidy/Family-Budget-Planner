@@ -2,33 +2,19 @@ import { useMemo } from "react";
 import { useLocation } from "wouter";
 import { useBudget } from "@/contexts/BudgetContext";
 import { usePerson } from "@/contexts/PersonContext";
-import { usePersonFilter, PersonFilter } from "@/contexts/PersonFilterContext";
+import { usePersonFilter } from "@/contexts/PersonFilterContext";
 import {
   Avatar,
   HeroMetric,
   OwnerCard,
   SummaryCard,
   PersonFilterChips,
-  EmptyState,
   CategoryPill,
 } from "@/components/design";
 import type { FilterValue } from "@/components/design";
-import { TrendingUp, TrendingDown, Wallet } from "lucide-react";
+import { TrendingUp, TrendingDown, Wallet, ArrowRight } from "lucide-react";
 import { formatMoney, formatPct } from "@/lib/format";
-
-// ── PersonFilter ↔ FilterValue bridge ─────────────────────────
-const FILTER_TO_LOCAL: Record<FilterValue, PersonFilter> = {
-  tumu:  "Tümü",
-  yigit: "Benim",
-  arzu:  "Esim",
-  ev:    "Ev",
-};
-const LOCAL_TO_FILTER: Record<PersonFilter, FilterValue> = {
-  "Tümü":  "tumu",
-  "Benim": "yigit",
-  "Esim":  "arzu",
-  "Ev":    "ev",
-};
+import { FILTER_TO_LOCAL, LOCAL_TO_FILTER, applyPersonFilter } from "@/lib/personFilter";
 
 // ── Bütçe Sağlık Skoru (preserved from original) ──────────────
 function calcHealthScore(params: {
@@ -116,47 +102,62 @@ export function Dashboard() {
   const { filter, setFilter } = usePersonFilter();
   const [, setLocation] = useLocation();
 
-  const totals = calculateTotals();
+  // Person filter applied to data — drives summary, BvA, health
+  const filteredIncomes  = useMemo(() => applyPersonFilter(budgetData.incomes,  filter), [budgetData.incomes,  filter]);
+  const filteredExpenses = useMemo(() => applyPersonFilter(budgetData.expenses, filter), [budgetData.expenses, filter]);
+
+  const fullTotals = calculateTotals(); // for owner-bound metrics
+
+  // Filter-aware totals (for summary cards, health score, BvA)
+  const filteredTotals = useMemo(() => {
+    const totalIncome  = filteredIncomes.reduce((s, i) => s + i.amount, 0);
+    const totalExpense = filteredExpenses.reduce((s, e) => s + e.amount, 0);
+    const remaining    = totalIncome - totalExpense;
+    const savingsAmount = filteredExpenses.filter((e) => e.type === "Birikim").reduce((s, e) => s + e.amount, 0);
+    const expenseRatio = totalIncome > 0 ? totalExpense / totalIncome : 0;
+    const savingsRate  = totalIncome > 0 ? savingsAmount / totalIncome : 0;
+    return { totalIncome, totalExpense, remaining, savingsAmount, expenseRatio, savingsRate };
+  }, [filteredIncomes, filteredExpenses]);
 
   const activeName  = currentPerson === "Benim" ? person1Name : person2Name;
   const activeWho   = currentPerson === "Benim" ? "yigit"     : "arzu";
   const activeEmoji = currentPerson === "Benim" ? "👨"        : "👩";
 
-  // Net Değer
+  // Net Değer (always full data — net worth isn't a filter concern)
   const netWorth = useMemo(() => {
     const totalSavings = (budgetData.savingsGoals || []).reduce((s, g) => s + (g.currentAmount || 0), 0);
     const totalDebt    = (budgetData.debts || []).reduce((s, d) => s + (d.totalDebt || 0), 0);
     return { netWorth: totalSavings - totalDebt, totalSavings, totalDebt };
   }, [budgetData.savingsGoals, budgetData.debts]);
 
-  // Health score
-  const debtToIncomeRatio = totals.totalActualIncome > 0
-    ? (budgetData.debts || []).reduce((s, d) => s + (d.monthlyPayment || 0), 0) / totals.totalActualIncome
+  // Health score (filtered — reflects the active scope)
+  const debtToIncomeRatio = filteredTotals.totalIncome > 0
+    ? (budgetData.debts || []).reduce((s, d) => s + (d.monthlyPayment || 0), 0) / filteredTotals.totalIncome
     : 0;
 
   const healthScore = useMemo(
     () => calcHealthScore({
-      savingsRate: totals.savingsRate,
-      expenseRatio: totals.expenseRatio,
-      hasOverduePayments: budgetData.expenses.some((e) => e.status === "Gecikti"),
+      savingsRate: filteredTotals.savingsRate,
+      expenseRatio: filteredTotals.expenseRatio,
+      hasOverduePayments: filteredExpenses.some((e) => e.status === "Gecikti"),
       debtToIncomeRatio,
       budgetAdherence: 1,
     }),
-    [totals.savingsRate, totals.expenseRatio, budgetData.expenses, debtToIncomeRatio],
+    [filteredTotals.savingsRate, filteredTotals.expenseRatio, filteredExpenses, debtToIncomeRatio],
   );
 
-  // Top cats per owner
+  // Top cats per owner (always full data — owner cards are inherently per-owner)
   const yigitCats = useMemo(() => topCategoriesForOwner(budgetData.expenses, "Benim"), [budgetData.expenses]);
   const arzuCats  = useMemo(() => topCategoriesForOwner(budgetData.expenses, "Esim"),  [budgetData.expenses]);
   const evCats    = useMemo(() => topCategoriesForOwner(budgetData.expenses, "Ev"),    [budgetData.expenses]);
 
-  // Budget vs Actual
+  // Budget vs Actual (filtered)
   const bvaRows = useMemo(
-    () => buildBudgetVsActual(budgetData.expenses, budgetData.budgetLimits ?? []),
-    [budgetData.expenses, budgetData.budgetLimits],
+    () => buildBudgetVsActual(filteredExpenses, budgetData.budgetLimits ?? []),
+    [filteredExpenses, budgetData.budgetLimits],
   );
 
-  // Empty state
+  // Page-wide emptiness — used for info banner only
   const isEmpty = budgetData.incomes.length === 0 && budgetData.expenses.length === 0;
 
   // Financial status (net worth based)
@@ -169,19 +170,6 @@ export function Dashboard() {
   // Filter values mapped
   const fazBFilter: FilterValue = LOCAL_TO_FILTER[filter];
   const handleFilterChange = (v: FilterValue) => setFilter(FILTER_TO_LOCAL[v]);
-
-  if (isEmpty) {
-    return (
-      <div style={{ padding: "32px 16px" }}>
-        <EmptyState
-          emoji="📊"
-          title="Henüz veri yok"
-          description="İlk gelir veya giderinizi ekleyerek bütçenizi takip etmeye başlayın."
-          cta={{ label: "Başla", onClick: () => setLocation("/gelir-gider") }}
-        />
-      </div>
-    );
-  }
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
@@ -219,6 +207,45 @@ export function Dashboard() {
         yigit: person1Name,
         arzu:  person2Name,
       }} />
+
+      {/* Empty info banner — only when entire DB is empty */}
+      {isEmpty && (
+        <div style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 12,
+          padding: "12px 16px",
+          borderRadius: "var(--r-md)",
+          background: "color-mix(in oklch, var(--owner-yigit) 12%, var(--bg-surface))",
+          border: "1px solid color-mix(in oklch, var(--owner-yigit) 25%, transparent)",
+          flexWrap: "wrap",
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 13, color: "var(--text-secondary)" }}>
+            <span style={{ fontSize: 18 }}>📊</span>
+            <span><strong style={{ color: "var(--text-primary)" }}>Henüz veri yok.</strong> Gelir & Gider sayfasından eklemeye başlayın.</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setLocation("/gelir-gider")}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "8px 14px",
+              borderRadius: "var(--r-md)",
+              fontSize: 13,
+              fontWeight: 600,
+              background: "var(--accent-green)",
+              color: "oklch(0.15 0.03 155)",
+              border: "none",
+              cursor: "pointer",
+            }}
+          >
+            Başla <ArrowRight style={{ width: 14, height: 14 }} />
+          </button>
+        </div>
+      )}
 
       {/* HEALTH SCORE — full-width hero band */}
       <div style={{
@@ -282,10 +309,10 @@ export function Dashboard() {
           gap: 10,
           marginTop: 16,
         }}>
-          <MiniStat ok={totals.savingsRate >= 0.10}
-            label={`Tasarruf: ${formatPct(totals.savingsRate)}`} />
-          <MiniStat ok={totals.expenseRatio <= 0.85}
-            label={`Gider/Gelir: ${formatPct(totals.expenseRatio)}`} />
+          <MiniStat ok={filteredTotals.savingsRate >= 0.10}
+            label={`Tasarruf: ${formatPct(filteredTotals.savingsRate)}`} />
+          <MiniStat ok={filteredTotals.expenseRatio <= 0.85}
+            label={`Gider/Gelir: ${formatPct(filteredTotals.expenseRatio)}`} />
           <MiniStat ok={!budgetData.expenses.some((e) => e.status === "Gecikti")}
             label={`Gecikmiş: ${budgetData.expenses.filter((e) => e.status === "Gecikti").length} adet`} />
           <MiniStat ok={debtToIncomeRatio <= 0.35}
@@ -350,22 +377,22 @@ export function Dashboard() {
         <OwnerCard
           who="yigit"
           title={`${person1Name.toLocaleUpperCase("tr-TR")}'İN GİDERLERİ`}
-          amount={formatMoney(totals.myExpenses)}
-          subtitle={`Ev payı: ${formatMoney(totals.homeExpenses / 2)}`}
+          amount={formatMoney(fullTotals.myExpenses)}
+          subtitle={yigitCats.length === 0 ? "Bu ay gider yok" : `Ev payı: ${formatMoney(fullTotals.homeExpenses / 2)}`}
           cats={yigitCats}
         />
         <OwnerCard
           who="arzu"
           title={`${person2Name.toLocaleUpperCase("tr-TR")}'IN GİDERLERİ`}
-          amount={formatMoney(totals.spouseExpenses)}
-          subtitle={`Ev payı: ${formatMoney(totals.homeExpenses / 2)}`}
+          amount={formatMoney(fullTotals.spouseExpenses)}
+          subtitle={arzuCats.length === 0 ? "Bu ay gider yok" : `Ev payı: ${formatMoney(fullTotals.homeExpenses / 2)}`}
           cats={arzuCats}
         />
         <OwnerCard
           who="ev"
           title="SABİT GİDERLER (ORTAK)"
-          amount={formatMoney(totals.homeExpenses)}
-          subtitle={`Her biri: ${formatMoney(totals.homeExpenses / 2)}`}
+          amount={formatMoney(fullTotals.homeExpenses)}
+          subtitle={evCats.length === 0 ? "Ortak gider yok" : `Her biri: ${formatMoney(fullTotals.homeExpenses / 2)}`}
           cats={evCats}
         />
       </div>
@@ -378,48 +405,79 @@ export function Dashboard() {
       }}>
         <SummaryCard
           label="Toplam Gelir"
-          amount={formatMoney(totals.totalActualIncome)}
+          amount={formatMoney(filteredTotals.totalIncome)}
           color="green"
           icon={<TrendingUp style={{ width: 14, height: 14 }} />}
         />
         <SummaryCard
           label="Toplam Gider"
-          amount={formatMoney(totals.totalActualExpense)}
+          amount={formatMoney(filteredTotals.totalExpense)}
           color="red"
           icon={<TrendingDown style={{ width: 14, height: 14 }} />}
         />
         <SummaryCard
           label="Kalan Para"
-          amount={formatMoney(totals.remainingActual)}
-          color={totals.remainingActual >= 0 ? "green" : "red"}
-          delta={{ value: totals.remainingActual >= 0 ? "↗" : "↘", positive: totals.remainingActual >= 0 }}
+          amount={formatMoney(filteredTotals.remaining)}
+          color={filteredTotals.remaining >= 0 ? "green" : "red"}
+          delta={{ value: filteredTotals.remaining >= 0 ? "↗" : "↘", positive: filteredTotals.remaining >= 0 }}
         />
         <SummaryCard
           label="Tasarruf"
-          amount={formatMoney(totals.savingsAmount)}
+          amount={formatMoney(filteredTotals.savingsAmount)}
           color="blue"
           delta={{ value: "↗", positive: true }}
         />
       </div>
 
       {/* BÜTÇE VS GERÇEKLEŞEN */}
-      {bvaRows.length > 0 && (
-        <div style={{
-          background: "var(--bg-surface)",
-          borderRadius: "var(--r-lg)",
-          boxShadow: "var(--shadow-card)",
-          padding: 24,
-        }}>
-          <div className="section-label" style={{ marginBottom: 16 }}>
-            BÜTÇE VS GERÇEKLEŞEN
-          </div>
+      <div style={{
+        background: "var(--bg-surface)",
+        borderRadius: "var(--r-lg)",
+        boxShadow: "var(--shadow-card)",
+        padding: 24,
+      }}>
+        <div className="section-label" style={{ marginBottom: 16 }}>
+          BÜTÇE VS GERÇEKLEŞEN
+        </div>
+        {bvaRows.length > 0 ? (
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             {bvaRows.map((row) => (
               <BvARow key={row.category} row={row} />
             ))}
           </div>
-        </div>
-      )}
+        ) : (
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 10,
+            padding: "24px 16px",
+            fontSize: 13,
+            color: "var(--text-tertiary)",
+            textAlign: "center",
+          }}>
+            <span style={{ fontSize: 22 }}>🎯</span>
+            <span>
+              Bütçe limiti eklenmemiş.{" "}
+              <button
+                type="button"
+                onClick={() => setLocation("/gelir-gider")}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  padding: 0,
+                  color: "var(--accent-green)",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                }}
+              >
+                Gelir & Gider
+              </button>
+              {" "}sayfasından ekleyin.
+            </span>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

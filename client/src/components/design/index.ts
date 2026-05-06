@@ -19,6 +19,8 @@ export { OwnerCard } from './OwnerCard';
 
 export { SummaryCard } from './SummaryCard';
 
+export { CircularProgress } from './CircularProgress';
+
 export {
   SkelBox,
   SkelLine,
