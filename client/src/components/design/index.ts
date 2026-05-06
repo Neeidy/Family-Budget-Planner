@@ -19,9 +19,6 @@ export { OwnerCard } from './OwnerCard';
 
 export { SummaryCard } from './SummaryCard';
 
-export { Porsuk, PorsukSVG } from './Porsuk';
-export type { PorsukPose } from './Porsuk';
-
 export {
   SkelBox,
   SkelLine,
