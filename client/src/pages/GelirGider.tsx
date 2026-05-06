@@ -1,4 +1,5 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useSearch, useLocation } from "wouter";
 import { Plus, Trash2, Pencil, RotateCw } from "lucide-react";
 import { useBudget } from "@/contexts/BudgetContext";
 import { usePerson } from "@/contexts/PersonContext";
@@ -658,6 +659,26 @@ export default function GelirGider() {
   const [incomeDelete, setIncomeDelete]       = useState<Income | null>(null);
   const [expenseDelete, setExpenseDelete]     = useState<Expense | null>(null);
   const [limitDelete, setLimitDelete]         = useState<BudgetLimit | null>(null);
+
+  // Open dialog from MobileFAB QuickAdd via ?action= query param
+  const search = useSearch();
+  const [, setLocation] = useLocation();
+  useEffect(() => {
+    const action = new URLSearchParams(search).get("action");
+    if (action === "add-income") {
+      setTab("Gelirler");
+      setIncomeDialog({ open: true });
+      setLocation("/gelir-gider", { replace: true });
+    } else if (action === "add-expense") {
+      setTab("Giderler");
+      setExpenseDialog({ open: true });
+      setLocation("/gelir-gider", { replace: true });
+    } else if (action === "add-limit") {
+      setTab("Bütçe Limitleri");
+      setLimitDialog({ open: true });
+      setLocation("/gelir-gider", { replace: true });
+    }
+  }, [search, setLocation]);
 
   const handleAdd = () => {
     if (tab === "Gelirler")          setIncomeDialog({ open: true });

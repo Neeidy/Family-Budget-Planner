@@ -1,4 +1,5 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useSearch, useLocation } from "wouter";
 import { Plus, Trash2, Pencil, Calendar } from "lucide-react";
 import { useBudget } from "@/contexts/BudgetContext";
 import { usePerson } from "@/contexts/PersonContext";
@@ -506,6 +507,26 @@ export default function BorcOdemeler() {
   const [debtDelete, setDebtDelete]                 = useState<Debt | null>(null);
   const [instDelete, setInstDelete]                 = useState<Installment | null>(null);
   const [annualDelete, setAnnualDelete]             = useState<AnnualPayment | null>(null);
+
+  // Open dialog from MobileFAB QuickAdd via ?action= query param
+  const search = useSearch();
+  const [, setLocation] = useLocation();
+  useEffect(() => {
+    const action = new URLSearchParams(search).get("action");
+    if (action === "add-debt") {
+      setTab("Borçlar");
+      setDebtDialog({ open: true });
+      setLocation("/borc-odemeler", { replace: true });
+    } else if (action === "add-installment") {
+      setTab("Taksitler");
+      setInstDialog({ open: true });
+      setLocation("/borc-odemeler", { replace: true });
+    } else if (action === "add-annual") {
+      setTab("Yıllık Ödemeler");
+      setAnnualDialog({ open: true });
+      setLocation("/borc-odemeler", { replace: true });
+    }
+  }, [search, setLocation]);
 
   const handleAdd = () => {
     if (tab === "Borçlar")              setDebtDialog({ open: true });

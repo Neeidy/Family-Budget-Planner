@@ -168,8 +168,8 @@ export default function Login() {
         aria-label="Tema değiştir"
       >
         {isDark
-          ? <Sun style={{ width: 18, height: 18, color: "#FBBF24" }} />
-          : <Moon style={{ width: 18, height: 18, color: "#4B5563" }} />}
+          ? <Sun style={{ width: 18, height: 18, color: "var(--status-warning)" }} />
+          : <Moon style={{ width: 18, height: 18, color: "var(--text-tertiary)" }} />}
       </button>
 
       {/* Floating orbs */}

@@ -1,4 +1,5 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useSearch, useLocation } from "wouter";
 import { Plus, Trash2, Pencil } from "lucide-react";
 import { useBudget } from "@/contexts/BudgetContext";
 import { usePersonFilter } from "@/contexts/PersonFilterContext";
@@ -200,6 +201,17 @@ export default function Hedef() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("Aktif");
   const [goalDialog, setGoalDialog] = useState<{ open: boolean; entity?: SavingsGoal }>({ open: false });
   const [goalDelete, setGoalDelete] = useState<SavingsGoal | null>(null);
+
+  // Open dialog from MobileFAB QuickAdd via ?action= query param
+  const search = useSearch();
+  const [, setLocation] = useLocation();
+  useEffect(() => {
+    const action = new URLSearchParams(search).get("action");
+    if (action === "add-goal") {
+      setGoalDialog({ open: true });
+      setLocation("/hedef", { replace: true });
+    }
+  }, [search, setLocation]);
 
   const afterGlobal = useMemo(() => applyPersonFilter(budgetData.savingsGoals ?? [], filter), [budgetData.savingsGoals, filter]);
 

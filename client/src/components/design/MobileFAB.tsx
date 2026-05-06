@@ -122,12 +122,13 @@ function NavItemButton({ item, active, onClick }: { item: NavItem; active: boole
 
 // ── QuickAddSheet ─────────────────────────────────────────────
 function QuickAddSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const [, setLocation] = useLocation();
   if (!open) return null;
-  const items = [
-    { emoji: "💰", label: "Gelir Ekle",  color: "var(--accent-green)"  },
-    { emoji: "🛒", label: "Gider Ekle",  color: "var(--status-danger)" },
-    { emoji: "💳", label: "Borç Ekle",   color: "var(--owner-ev)"      },
-    { emoji: "🎯", label: "Hedef Ekle",  color: "var(--owner-yigit)"   },
+  const items: Array<{ emoji: string; label: string; color: string; path: string }> = [
+    { emoji: "💰", label: "Gelir Ekle",  color: "var(--accent-green)",  path: "/gelir-gider?action=add-income"  },
+    { emoji: "🛒", label: "Gider Ekle",  color: "var(--status-danger)", path: "/gelir-gider?action=add-expense" },
+    { emoji: "💳", label: "Borç Ekle",   color: "var(--owner-ev)",      path: "/borc-odemeler?action=add-debt"  },
+    { emoji: "🎯", label: "Hedef Ekle",  color: "var(--owner-yigit)",   path: "/hedef?action=add-goal"          },
   ];
 
   return (
@@ -136,7 +137,7 @@ function QuickAddSheet({ open, onClose }: { open: boolean; onClose: () => void }
         {items.map((it) => (
           <button
             key={it.label} type="button"
-            onClick={() => { alert(`${it.label} yakında — Faz L'de wire edilecek`); onClose(); }}
+            onClick={() => { setLocation(it.path); onClose(); }}
             style={{
               padding: 18,
               borderRadius: "var(--r-lg)",
