@@ -21,6 +21,8 @@ export { SummaryCard } from './SummaryCard';
 
 export { CircularProgress } from './CircularProgress';
 
+export { LenderIcon } from './LenderIcon';
+
 export {
   SkelBox,
   SkelLine,

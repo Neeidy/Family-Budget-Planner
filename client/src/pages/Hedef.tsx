@@ -1,310 +1,252 @@
+import { useState, useMemo } from "react";
+import { Plus, Trash2, Pencil } from "lucide-react";
 import { useBudget } from "@/contexts/BudgetContext";
-import { usePerson } from "@/contexts/PersonContext";
-import { SavingsGoal } from "@/hooks/useBudgetData";
-import { formatCurrency } from "@/lib/categories";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Trash2, Plus, Target } from "lucide-react";
-import { useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { usePersonFilter } from "@/contexts/PersonFilterContext";
+import { Avatar, EmptyState } from "@/components/design";
+import type { AvatarWho } from "@/components/design";
+import { formatMoney } from "@/lib/format";
+import { applyPersonFilter } from "@/lib/personFilter";
+import type { SavingsGoal } from "@/hooks/useBudgetData";
 
-type StatusFilter = "Tümü" | "Aktif" | "Tamamlanan";
+type StatusFilter = "Aktif" | "Tamamlanan" | "Tümü";
 
-export default function Hedef() {
-  const { budgetData, addSavingsGoal, deleteSavingsGoal } = useBudget();
-  const { currentPerson, person1Name, person2Name } = usePerson();
-  const [open, setOpen] = useState(false);
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>("Tümü");
-  const defaultOwner = currentPerson === "Benim" ? "Benim" : currentPerson === "Esim" ? "Esim" : "Ev";
+function ownerToWho(o: string): AvatarWho {
+  if (o === "Benim") return "yigit";
+  if (o === "Esim")  return "arzu";
+  return "ev";
+}
 
-  const [formData, setFormData] = useState<Omit<SavingsGoal, "id">>({
-    name: "",
-    targetAmount: 0,
-    currentAmount: 0,
-    monthlyAllocation: 0,
-    targetDate: new Date().toISOString().split("T")[0],
-    owner: defaultOwner,
-    notes: "",
-  });
+// ── Header ────────────────────────────────────────────────────
+function PageHeader({ onAdd }: { onAdd: () => void }) {
+  return (
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12 }}>
+      <div>
+        <h1 style={{ fontSize: "clamp(1.5rem, 3.5vw, 2rem)", fontWeight: 700, letterSpacing: "-0.02em", margin: 0, color: "var(--text-primary)" }}>
+          Birikim & Hedef
+        </h1>
+        <p style={{ fontSize: 13, color: "var(--text-tertiary)", marginTop: 6 }}>
+          Finansal hedeflerinizi belirleyin ve ilerlemeyi takip edin
+        </p>
+      </div>
+      <button
+        type="button" onClick={onAdd} title="Yakında — Faz L'de aktif olacak"
+        style={{
+          display: "inline-flex", alignItems: "center", gap: 6,
+          padding: "10px 16px", borderRadius: "var(--r-md)",
+          fontSize: 13, fontWeight: 600, border: "none",
+          background: "var(--accent-green)", color: "oklch(0.15 0.03 155)", cursor: "pointer", opacity: 0.9,
+        }}
+      >
+        <Plus style={{ width: 14, height: 14 }} />
+        Hedef Ekle
+      </button>
+    </div>
+  );
+}
 
-  const handleAddGoal = () => {
-    if (formData.name.trim() && formData.targetAmount > 0) {
-      addSavingsGoal(formData);
-      setFormData({
-        name: "",
-        targetAmount: 0,
-        currentAmount: 0,
-        monthlyAllocation: 0,
-        targetDate: new Date().toISOString().split("T")[0],
-        owner: defaultOwner,
-        notes: "",
-      });
-      setOpen(false);
-    }
-  };
-
-  const getOwnerLabel = (owner: string) => {
-    if (owner === "Benim") return person1Name;
-    if (owner === "Esim") return person2Name;
-    return "Ortak";
-  };
-
-  const getOwnerColor = (owner: string) => {
-    if (owner === "Benim") return "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300";
-    if (owner === "Esim") return "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300";
-    return "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300";
-  };
-
-  const allGoals = budgetData.savingsGoals;
-  const filteredGoals = allGoals.filter((g) => {
-    const done = g.currentAmount >= g.targetAmount;
-    if (statusFilter === "Aktif") return !done;
-    if (statusFilter === "Tamamlanan") return done;
-    return true;
-  });
-
-  const statusTabs: { label: string; value: StatusFilter }[] = [
-    { label: "Tümü", value: "Tümü" },
-    { label: "Aktif", value: "Aktif" },
-    { label: "Tamamlanan", value: "Tamamlanan" },
+// ── StatusFilter chips ────────────────────────────────────────
+function StatusChips({ value, onChange, counts }: { value: StatusFilter; onChange: (v: StatusFilter) => void; counts: Record<StatusFilter, number> }) {
+  const items: Array<{ key: StatusFilter; label: string }> = [
+    { key: "Aktif",      label: "Aktif" },
+    { key: "Tamamlanan", label: "Tamamlanan" },
+    { key: "Tümü",       label: "Tümü" },
   ];
+  return (
+    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+      {items.map((it) => {
+        const active = value === it.key;
+        return (
+          <button
+            key={it.key} type="button" onClick={() => onChange(it.key)}
+            style={{
+              display: "inline-flex", alignItems: "center", gap: 6,
+              padding: "7px 14px", borderRadius: 999,
+              fontSize: 12, fontWeight: 600,
+              border: active ? "none" : "1px solid var(--border-subtle)",
+              background: active ? "var(--accent-green)" : "var(--bg-elevated)",
+              color: active ? "oklch(0.15 0.03 155)" : "var(--text-secondary)",
+              cursor: "pointer", transition: "all 160ms",
+            }}
+          >
+            {it.label}
+            <span style={{ opacity: 0.7, fontVariantNumeric: "tabular-nums" }}>{counts[it.key]}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
 
-  const countFor = (f: StatusFilter) => {
-    if (f === "Tümü") return allGoals.length;
-    const done = f === "Tamamlanan";
-    return allGoals.filter((g) => (g.currentAmount >= g.targetAmount) === done).length;
-  };
-
-  const totalTarget = filteredGoals.reduce((s, g) => s + g.targetAmount, 0);
-  const totalCurrent = filteredGoals.reduce((s, g) => s + g.currentAmount, 0);
-  const totalMonthly = filteredGoals.reduce((s, g) => s + g.monthlyAllocation, 0);
+// ── GoalCard ──────────────────────────────────────────────────
+function GoalCard({ goal, onDelete }: { goal: SavingsGoal; onDelete: () => void }) {
+  const pct = goal.targetAmount > 0 ? Math.min(1, goal.currentAmount / goal.targetAmount) : 0;
+  const done = goal.currentAmount >= goal.targetAmount;
+  const targetDate = goal.targetDate ? new Date(goal.targetDate) : null;
+  const daysLeft = targetDate ? Math.max(0, Math.ceil((targetDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24))) : null;
+  const accent = "var(--accent-green)";
+  const emoji = pickEmoji(goal.name);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Birikim &amp; Hedef</h1>
-          <p className="text-sm text-muted-foreground">Finansal hedeflerinizi belirleyin ve ilerlemeyi takip edin</p>
+    <div style={{
+      background: "var(--bg-surface)",
+      borderRadius: "var(--r-lg)",
+      boxShadow: "var(--shadow-card)",
+      padding: 20,
+      borderLeft: `3px solid ${done ? "var(--accent-green)" : "var(--owner-yigit)"}`,
+      display: "flex",
+      flexDirection: "column",
+      gap: 14,
+      opacity: done ? 0.85 : 1,
+    }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <span style={{ fontSize: 32, lineHeight: 1 }}>{emoji}</span>
+          <div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)" }}>{goal.name}</div>
+            {done && (
+              <span className="pill" style={{
+                background: "color-mix(in oklch, var(--accent-green) 18%, transparent)",
+                color: "var(--accent-green)", fontSize: 10, fontWeight: 700, padding: "2px 7px", marginTop: 4,
+              }}>
+                ✓ Tamamlandı
+              </span>
+            )}
+          </div>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button className="gap-2">
-              <Plus className="w-4 h-4" />
-              Hedef Ekle
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Yeni Hedef Ekle</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <label className="text-sm font-medium">Hedef Adı</label>
-                <Input
-                  placeholder="Örn: Tatil, Araç, Acil Fon"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium">Kime Ait?</label>
-                <Select
-                  value={formData.owner}
-                  onValueChange={(v) => setFormData({ ...formData, owner: v as SavingsGoal["owner"] })}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Benim">{person1Name}</SelectItem>
-                    <SelectItem value="Esim">{person2Name}</SelectItem>
-                    <SelectItem value="Ev">Ortak</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium">Hedef Tutar (€)</label>
-                  <Input
-                    type="number"
-                    placeholder="0.00"
-                    value={formData.targetAmount || ""}
-                    onChange={(e) => setFormData({ ...formData, targetAmount: parseFloat(e.target.value) || 0 })}
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Biriken (€)</label>
-                  <Input
-                    type="number"
-                    placeholder="0.00"
-                    value={formData.currentAmount || ""}
-                    onChange={(e) => setFormData({ ...formData, currentAmount: parseFloat(e.target.value) || 0 })}
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="text-sm font-medium">Aylık Ayırılacak (€)</label>
-                <Input
-                  type="number"
-                  placeholder="0.00"
-                  value={formData.monthlyAllocation || ""}
-                  onChange={(e) => setFormData({ ...formData, monthlyAllocation: parseFloat(e.target.value) || 0 })}
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium">Hedef Tarihi</label>
-                <Input
-                  type="date"
-                  value={formData.targetDate}
-                  onChange={(e) => setFormData({ ...formData, targetDate: e.target.value })}
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium">Notlar</label>
-                <Input
-                  placeholder="İsteğe bağlı notlar"
-                  value={formData.notes}
-                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                />
-              </div>
-              <Button onClick={handleAddGoal} className="w-full">
-                Hedef Ekle
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+        <div className="hero-num" style={{ fontSize: 20, fontWeight: 700, color: "var(--text-primary)", textAlign: "right" }}>
+          {formatMoney(goal.targetAmount)}
+        </div>
       </div>
 
-      {/* Status Filtresi */}
-      <div className="flex gap-2">
-        {statusTabs.map((tab) => (
-          <button
-            key={tab.value}
-            onClick={() => setStatusFilter(tab.value)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-all border ${
-              statusFilter === tab.value
-                ? "bg-primary text-primary-foreground border-primary shadow-sm"
-                : "bg-background text-muted-foreground border-border hover:bg-accent/50"
-            }`}
-          >
-            {tab.label}
-            <span className="ml-1.5 text-xs opacity-70">({countFor(tab.value)})</span>
+      <div>
+        <div style={{ height: 10, background: "var(--bg-tint)", borderRadius: 999, overflow: "hidden" }}>
+          <div style={{
+            width: `${pct * 100}%`, height: "100%",
+            background: `linear-gradient(90deg, var(--owner-yigit), ${done ? "var(--accent-green)" : accent})`,
+            borderRadius: 999,
+            transition: "width 700ms cubic-bezier(0.2, 0, 0, 1)",
+          }} />
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6, fontSize: 11, color: "var(--text-tertiary)" }}>
+          <span>
+            <span className="hero-num" style={{ color: "var(--accent-green)", fontWeight: 600 }}>{formatMoney(goal.currentAmount)}</span>
+            {" "}/{" "}
+            <span className="hero-num">{formatMoney(goal.targetAmount)}</span>
+          </span>
+          <span className="hero-num" style={{ fontWeight: 700 }}>{Math.round(pct * 100)}%</span>
+        </div>
+      </div>
+
+      <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8, fontSize: 12, color: "var(--text-tertiary)" }}>
+        {daysLeft !== null && (<span>{daysLeft} gün kaldı</span>)}
+        {goal.monthlyAllocation > 0 && (
+          <span>Aylık <span className="hero-num" style={{ color: "var(--text-primary)" }}>{formatMoney(goal.monthlyAllocation)}</span></span>
+        )}
+      </div>
+
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 8, borderTop: "1px solid var(--border-faint)" }}>
+        <Avatar who={ownerToWho(goal.owner)} size={20} />
+        <div style={{ display: "flex", gap: 4 }}>
+          <button type="button" title="Düzenle (yakında)" onClick={() => alert("Düzenleme yakında")}
+            style={{ padding: 6, borderRadius: 6, border: "none", background: "transparent", cursor: "pointer", color: "var(--text-tertiary)" }}>
+            <Pencil style={{ width: 14, height: 14 }} />
           </button>
-        ))}
-      </div>
-
-      {/* Özet */}
-      {filteredGoals.length > 0 && (
-        <div className="grid grid-cols-3 gap-4">
-          <Card className="p-4">
-            <p className="text-xs text-muted-foreground mb-1">Toplam Hedef</p>
-            <p className="text-xl font-bold text-blue-600">{formatCurrency(totalTarget)}</p>
-          </Card>
-          <Card className="p-4">
-            <p className="text-xs text-muted-foreground mb-1">Toplam Biriken</p>
-            <p className="text-xl font-bold text-green-600">{formatCurrency(totalCurrent)}</p>
-          </Card>
-          <Card className="p-4">
-            <p className="text-xs text-muted-foreground mb-1">Aylık Ayırılan</p>
-            <p className="text-xl font-bold text-primary">{formatCurrency(totalMonthly)}</p>
-          </Card>
+          <button type="button" title="Sil" onClick={onDelete}
+            style={{ padding: 6, borderRadius: 6, border: "none", background: "transparent", cursor: "pointer", color: "var(--status-danger)" }}>
+            <Trash2 style={{ width: 14, height: 14 }} />
+          </button>
         </div>
-      )}
+      </div>
+    </div>
+  );
+}
 
-      {/* Hedef Listesi */}
-      {filteredGoals.length === 0 ? (
-        <Card className="p-12 text-center">
-          <Target className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-          <p className="text-muted-foreground">
-            {statusFilter === "Tümü" ? "Henüz hedef eklenmemiş" : `${statusFilter} hedef yok`}
-          </p>
-        </Card>
+function NewGoalCard({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      type="button" onClick={onClick} title="Yakında"
+      style={{
+        background: "var(--bg-elevated)",
+        border: "2px dashed var(--border-subtle)",
+        borderRadius: "var(--r-lg)",
+        padding: 32, minHeight: 220,
+        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10,
+        cursor: "pointer", color: "var(--text-tertiary)", fontSize: 14, fontWeight: 600,
+      }}
+    >
+      <Plus style={{ width: 28, height: 28 }} />
+      Yeni Hedef
+    </button>
+  );
+}
+
+function pickEmoji(name: string): string {
+  const lower = name.toLocaleLowerCase("tr-TR");
+  if (lower.includes("tatil") || lower.includes("seyahat") || lower.includes("gez")) return "🌴";
+  if (lower.includes("acil")  || lower.includes("fon")) return "🏥";
+  if (lower.includes("tele")  || lower.includes("phone")) return "📱";
+  if (lower.includes("ev")    || lower.includes("daire") || lower.includes("kira")) return "🏠";
+  if (lower.includes("araç")  || lower.includes("arac") || lower.includes("oto") || lower.includes("car")) return "🚗";
+  if (lower.includes("eğit")  || lower.includes("egit") || lower.includes("okul")) return "🎓";
+  if (lower.includes("düğün") || lower.includes("dugun") || lower.includes("evlilik")) return "💍";
+  if (lower.includes("mobil") || lower.includes("eşya")) return "🛋️";
+  return "🎯";
+}
+
+// ── Page entry ────────────────────────────────────────────────
+export default function Hedef() {
+  const { budgetData, deleteSavingsGoal } = useBudget();
+  const { filter } = usePersonFilter();
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("Aktif");
+
+  const afterGlobal = useMemo(() => applyPersonFilter(budgetData.savingsGoals ?? [], filter), [budgetData.savingsGoals, filter]);
+
+  const partition = useMemo(() => {
+    const aktif = afterGlobal.filter((g) => g.currentAmount < g.targetAmount);
+    const tamam = afterGlobal.filter((g) => g.currentAmount >= g.targetAmount);
+    return { aktif, tamam };
+  }, [afterGlobal]);
+
+  const counts: Record<StatusFilter, number> = {
+    Aktif:      partition.aktif.length,
+    Tamamlanan: partition.tamam.length,
+    Tümü:       afterGlobal.length,
+  };
+
+  const visible = useMemo(() => {
+    if (statusFilter === "Aktif")      return partition.aktif;
+    if (statusFilter === "Tamamlanan") return partition.tamam;
+    return afterGlobal;
+  }, [statusFilter, partition, afterGlobal]);
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      <PageHeader onAdd={() => alert("Hedef ekleme yakında — Faz L'de wire edilecek")} />
+
+      <StatusChips value={statusFilter} onChange={setStatusFilter} counts={counts} />
+
+      {visible.length === 0 && counts.Tümü === 0 ? (
+        <EmptyState
+          emoji="🎯"
+          title="Henüz hedef yok"
+          description="Yaz tatili, yeni telefon, acil fon — finansal hedef belirleyerek birikim yapmaya başlayın."
+        />
+      ) : visible.length === 0 ? (
+        <EmptyState
+          emoji="🔍"
+          title="Bu filtrede hedef yok"
+          description="Filtreyi değiştirerek diğer hedefleri görebilirsiniz."
+        />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredGoals.map((goal) => {
-            const pct = goal.targetAmount > 0 ? (goal.currentAmount / goal.targetAmount) * 100 : 0;
-            const remaining = goal.targetAmount - goal.currentAmount;
-            const monthsNeeded = goal.monthlyAllocation > 0 ? Math.ceil(remaining / goal.monthlyAllocation) : 0;
-            const done = goal.currentAmount >= goal.targetAmount;
-
-            return (
-              <Card key={goal.id} className={`p-6 ${done ? "border-green-200 bg-green-50/30 dark:bg-green-900/10" : ""}`}>
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-bold text-base">{goal.name}</h3>
-                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getOwnerColor(goal.owner)}`}>
-                        {getOwnerLabel(goal.owner)}
-                      </span>
-                    </div>
-                    {goal.targetDate && (
-                      <p className="text-xs text-muted-foreground">
-                        Hedef: {new Date(goal.targetDate).toLocaleDateString("tr-TR")}
-                      </p>
-                    )}
-                  </div>
-                  <Button variant="ghost" size="sm" onClick={() => deleteSavingsGoal(goal.id)}>
-                    <Trash2 className="w-4 h-4 text-red-500" />
-                  </Button>
-                </div>
-
-                <div className="mb-3">
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-sm text-muted-foreground">İlerleme</span>
-                    <span className="text-sm font-mono font-bold">{pct.toFixed(0)}%</span>
-                  </div>
-                  <div className="w-full bg-secondary rounded-full h-2.5 overflow-hidden">
-                    <div
-                      className={`h-full transition-all ${done ? "bg-green-500" : "bg-primary"}`}
-                      style={{ width: `${Math.min(pct, 100)}%` }}
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-1.5 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Biriken</span>
-                    <span className="font-mono font-medium text-green-600">{formatCurrency(goal.currentAmount)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Hedef</span>
-                    <span className="font-mono font-medium">{formatCurrency(goal.targetAmount)}</span>
-                  </div>
-                  {!done && (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Kalan</span>
-                      <span className="font-mono font-medium text-orange-600">{formatCurrency(remaining)}</span>
-                    </div>
-                  )}
-                  {goal.monthlyAllocation > 0 && (
-                    <div className="flex justify-between pt-1.5 border-t">
-                      <span className="text-muted-foreground">Aylık</span>
-                      <span className="font-mono font-medium">{formatCurrency(goal.monthlyAllocation)}</span>
-                    </div>
-                  )}
-                  {monthsNeeded > 0 && !done && (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Tahmini</span>
-                      <span className="font-mono font-medium text-primary">{monthsNeeded} ay</span>
-                    </div>
-                  )}
-                  {done && (
-                    <div className="mt-2 pt-2 border-t text-center">
-                      <span className="text-sm font-medium text-green-600">✓ Tamamlandı!</span>
-                    </div>
-                  )}
-                </div>
-              </Card>
-            );
-          })}
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+          gap: 16,
+        }}>
+          {visible.map((g) => (
+            <GoalCard key={g.id} goal={g} onDelete={() => deleteSavingsGoal(g.id)} />
+          ))}
+          <NewGoalCard onClick={() => alert("Hedef ekleme yakında")} />
         </div>
       )}
     </div>
