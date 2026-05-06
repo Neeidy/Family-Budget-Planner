@@ -11,12 +11,7 @@ import { formatMoney } from "@/lib/format";
 // ── Section card wrapper ──────────────────────────────────────
 function Section({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
   return (
-    <div style={{
-      background: "var(--bg-surface)",
-      borderRadius: "var(--r-lg)",
-      boxShadow: "var(--shadow-card)",
-      padding: 24,
-    }}>
+    <div className="card">
       <div style={{ marginBottom: 18 }}>
         <h2 style={{ fontSize: 16, fontWeight: 700, margin: 0, color: "var(--text-primary)" }}>
           {title}

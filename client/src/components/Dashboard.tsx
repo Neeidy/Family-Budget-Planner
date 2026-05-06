@@ -183,7 +183,7 @@ export function Dashboard() {
             margin: 0,
             color: "var(--text-primary)",
           }}>
-            Merhaba, {activeName}! <span style={{ display: "inline-block" }}>👋</span>
+            Merhaba, {activeName}! <span style={{ display: "inline-block", animation: "wave 1.6s ease-in-out infinite", transformOrigin: "70% 70%" }}>👋</span>
           </h1>
           <div style={{
             fontSize: 13,
@@ -430,12 +430,7 @@ export function Dashboard() {
       </div>
 
       {/* BÜTÇE VS GERÇEKLEŞEN */}
-      <div style={{
-        background: "var(--bg-surface)",
-        borderRadius: "var(--r-lg)",
-        boxShadow: "var(--shadow-card)",
-        padding: 24,
-      }}>
+      <div className="card">
         <div className="section-label" style={{ marginBottom: 16 }}>
           BÜTÇE VS GERÇEKLEŞEN
         </div>

@@ -414,6 +414,20 @@
     50%       { transform: translate(calc(var(--mx,0)*-12px - 40px), calc(var(--my,0)*-12px - 20px)) scale(1.05); }
   }
 
+  /* ── Surface utilities ── */
+  .card {
+    background: var(--bg-surface);
+    border-radius: var(--r-lg);
+    padding: 24px;
+    box-shadow: var(--shadow-card);
+  }
+  .card-elevated {
+    background: var(--bg-elevated);
+    border-radius: var(--r-lg);
+    padding: 20px;
+    box-shadow: var(--shadow-md);
+  }
+
   /* ── Login ambient particles (drift upward) ── */
   .login-particle {
     position: absolute;
@@ -429,6 +443,15 @@
     20%  { opacity: 0.4; }
     80%  { opacity: 0.4; }
     100% { transform: translateY(-120vh); opacity: 0; }
+  }
+
+  /* ── Wave emoji animation (Dashboard greeting) ── */
+  @keyframes wave {
+    0%, 60%, 100% { transform: rotate(0deg); }
+    10%, 30%      { transform: rotate(14deg); }
+    20%           { transform: rotate(-8deg); }
+    40%           { transform: rotate(-4deg); }
+    50%           { transform: rotate(10deg); }
   }
 
   /* Custom card styles for financial dashboard */
