@@ -23,6 +23,10 @@ export { CircularProgress } from './CircularProgress';
 
 export { LenderIcon } from './LenderIcon';
 
+export { QuickStatsPill } from './QuickStatsPill';
+export { HealthBubble } from './HealthBubble';
+export { TodaySummaryStripCompact } from './TodaySummaryStripCompact';
+
 export { NotificationsPanel } from './NotificationsPanel';
 
 export { MobileFAB } from './MobileFAB';

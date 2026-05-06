@@ -3,56 +3,48 @@ import { useLocation } from "wouter";
 import { useBudget } from "@/contexts/BudgetContext";
 import { usePerson } from "@/contexts/PersonContext";
 import { usePersonFilter } from "@/contexts/PersonFilterContext";
+import { useIsMobile } from "@/hooks/useMobile";
 import {
   Avatar,
-  HeroMetric,
   OwnerCard,
   SummaryCard,
   PersonFilterChips,
   CategoryPill,
+  QuickStatsPill,
+  HealthBubble,
+  TodaySummaryStripCompact,
 } from "@/components/design";
-import type { FilterValue } from "@/components/design";
-import { TrendingUp, TrendingDown, Wallet, ArrowRight } from "lucide-react";
-import { formatMoney, formatPct } from "@/lib/format";
+import type { AvatarWho, FilterValue } from "@/components/design";
+import { TrendingUp, TrendingDown, ArrowRight } from "lucide-react";
+import { formatMoney, formatMoneyShort } from "@/lib/format";
 import { FILTER_TO_LOCAL, LOCAL_TO_FILTER, applyPersonFilter } from "@/lib/personFilter";
 
-// ── Bütçe Sağlık Skoru (preserved from original) ──────────────
+// ── Bütçe Sağlık Skoru (preserved scoring logic, used by HealthBubble) ──
 function calcHealthScore(params: {
   savingsRate: number;
   expenseRatio: number;
   hasOverduePayments: boolean;
   debtToIncomeRatio: number;
   budgetAdherence: number;
-}): { score: number; grade: "A" | "B" | "C" | "D" | "F"; label: string; color: string } {
+}): number {
   let score = 100;
-
   if      (params.savingsRate >= 0.20) score -= 0;
   else if (params.savingsRate >= 0.10) score -= 10;
   else if (params.savingsRate >= 0.05) score -= 20;
   else                                  score -= 30;
-
   if      (params.expenseRatio <= 0.70) score -= 0;
   else if (params.expenseRatio <= 0.85) score -= 10;
   else if (params.expenseRatio <= 1.00) score -= 20;
   else                                   score -= 25;
-
   if (params.hasOverduePayments) score -= 20;
-
   if      (params.debtToIncomeRatio <= 0.20) score -= 0;
   else if (params.debtToIncomeRatio <= 0.35) score -= 8;
   else                                        score -= 15;
-
   score -= Math.round((1 - params.budgetAdherence) * 10);
-  score = Math.max(0, Math.min(100, score));
-
-  if (score >= 85) return { score, grade: "A", label: "Mükemmel", color: "var(--status-success)" };
-  if (score >= 70) return { score, grade: "B", label: "İyi",      color: "var(--owner-yigit)" };
-  if (score >= 55) return { score, grade: "C", label: "Orta",     color: "var(--status-warning)" };
-  if (score >= 40) return { score, grade: "D", label: "Zayıf",    color: "var(--owner-ev)" };
-  return            { score, grade: "F", label: "Kritik",   color: "var(--status-danger)" };
+  return Math.max(0, Math.min(100, score));
 }
 
-// ── Top categories per owner ──────────────────────────────────
+// ── Top categories per owner ──
 function topCategoriesForOwner(
   expenses: { category: string; amount: number; owner: string }[],
   owner: "Benim" | "Esim" | "Ev",
@@ -60,40 +52,21 @@ function topCategoriesForOwner(
   const counts = new Map<string, number>();
   expenses
     .filter((e) => e.owner === owner)
-    .forEach((e) => {
-      counts.set(e.category, (counts.get(e.category) ?? 0) + e.amount);
-    });
+    .forEach((e) => counts.set(e.category, (counts.get(e.category) ?? 0) + e.amount));
   return Array.from(counts.entries())
     .sort((a, b) => b[1] - a[1])
     .slice(0, 3)
     .map(([cat]) => cat);
 }
 
-// ── Budget vs Actual rows ─────────────────────────────────────
-interface BvARow {
-  category: string;
-  planned: number;
-  actual: number;
-  pct: number;
-}
-
-function buildBudgetVsActual(
-  expenses: { category: string; amount: number }[],
-  budgetLimits: { category: string; limit: number }[],
-): BvARow[] {
-  const rows: BvARow[] = budgetLimits.map((bl) => {
-    const actual = expenses
-      .filter((e) => e.category === bl.category)
-      .reduce((s, e) => s + e.amount, 0);
-    return {
-      category: bl.category,
-      planned: bl.limit,
-      actual,
-      pct: bl.limit > 0 ? (actual / bl.limit) * 100 : 0,
-    };
-  });
-  return rows.sort((a, b) => b.actual - a.actual).slice(0, 5);
-}
+// ── Map local filter (Tümü/Benim/Esim/Ev) to design-ref filter (tumu/yigit/arzu/ev) ──
+type DesignFilter = "tumu" | "yigit" | "arzu" | "ev";
+const DESIGN_FILTER: Record<string, DesignFilter> = {
+  "Tümü": "tumu",
+  "Benim": "yigit",
+  "Esim":  "arzu",
+  "Ev":    "ev",
+};
 
 // ── Dashboard ─────────────────────────────────────────────────
 export function Dashboard() {
@@ -101,14 +74,15 @@ export function Dashboard() {
   const { person1Name, person2Name, currentPerson } = usePerson();
   const { filter, setFilter } = usePersonFilter();
   const [, setLocation] = useLocation();
+  const isMobile = useIsMobile();
+  const mobile = !!isMobile;
 
-  // Person filter applied to data — drives summary, BvA, health
+  // Person filter applied to data
   const filteredIncomes  = useMemo(() => applyPersonFilter(budgetData.incomes,  filter), [budgetData.incomes,  filter]);
   const filteredExpenses = useMemo(() => applyPersonFilter(budgetData.expenses, filter), [budgetData.expenses, filter]);
 
-  const fullTotals = calculateTotals(); // for owner-bound metrics
+  const fullTotals = calculateTotals();
 
-  // Filter-aware totals (for summary cards, health score, BvA)
   const filteredTotals = useMemo(() => {
     const totalIncome  = filteredIncomes.reduce((s, i) => s + i.amount, 0);
     const totalExpense = filteredExpenses.reduce((s, e) => s + e.amount, 0);
@@ -119,22 +93,20 @@ export function Dashboard() {
     return { totalIncome, totalExpense, remaining, savingsAmount, expenseRatio, savingsRate };
   }, [filteredIncomes, filteredExpenses]);
 
-  const activeName  = currentPerson === "Benim" ? person1Name : person2Name;
-  const activeWho   = currentPerson === "Benim" ? "yigit"     : "arzu";
-  const activeEmoji = currentPerson === "Benim" ? "👨"        : "👩";
+  const activeName = currentPerson === "Benim" ? person1Name : person2Name;
+  const activeWho: AvatarWho = currentPerson === "Benim" ? "yigit" : "arzu";
 
-  // Net Değer (always full data — net worth isn't a filter concern)
+  // Net Değer (always full data)
   const netWorth = useMemo(() => {
     const totalSavings = (budgetData.savingsGoals || []).reduce((s, g) => s + (g.currentAmount || 0), 0);
     const totalDebt    = (budgetData.debts || []).reduce((s, d) => s + (d.totalDebt || 0), 0);
-    return { netWorth: totalSavings - totalDebt, totalSavings, totalDebt };
-  }, [budgetData.savingsGoals, budgetData.debts]);
+    const monthDelta   = filteredTotals.savingsAmount; // rough proxy "↑ this month"
+    return { netWorth: totalSavings - totalDebt, totalSavings, totalDebt, monthDelta };
+  }, [budgetData.savingsGoals, budgetData.debts, filteredTotals.savingsAmount]);
 
-  // Health score (filtered — reflects the active scope)
   const debtToIncomeRatio = filteredTotals.totalIncome > 0
     ? (budgetData.debts || []).reduce((s, d) => s + (d.monthlyPayment || 0), 0) / filteredTotals.totalIncome
     : 0;
-
   const healthScore = useMemo(
     () => calcHealthScore({
       savingsRate: filteredTotals.savingsRate,
@@ -146,77 +118,89 @@ export function Dashboard() {
     [filteredTotals.savingsRate, filteredTotals.expenseRatio, filteredExpenses, debtToIncomeRatio],
   );
 
-  // Top cats per owner (always full data — owner cards are inherently per-owner)
+  // Top cats per owner
   const yigitCats = useMemo(() => topCategoriesForOwner(budgetData.expenses, "Benim"), [budgetData.expenses]);
   const arzuCats  = useMemo(() => topCategoriesForOwner(budgetData.expenses, "Esim"),  [budgetData.expenses]);
   const evCats    = useMemo(() => topCategoriesForOwner(budgetData.expenses, "Ev"),    [budgetData.expenses]);
 
-  // Budget vs Actual (filtered)
-  const bvaRows = useMemo(
-    () => buildBudgetVsActual(filteredExpenses, budgetData.budgetLimits ?? []),
-    [filteredExpenses, budgetData.budgetLimits],
-  );
+  // QuickStats values (today / month / tomorrow)
+  const todayKey = new Date().toISOString().split("T")[0];
+  const todaySpent = filteredExpenses
+    .filter((e) => e.paymentDay === todayKey)
+    .reduce((s, e) => s + e.amount, 0);
+  const monthBudget = (budgetData.budgetLimits || []).reduce((s, b) => s + b.limit, 0) || 3500;
+  const monthSpent = filteredTotals.totalExpense;
+  const monthRemaining = monthBudget - monthSpent;
+  const tomorrowDue = filteredExpenses
+    .filter((e) => e.status === "Bekliyor")
+    .reduce((s, e) => s + e.amount, 0);
 
-  // Page-wide emptiness — used for info banner only
+  // Bütçe vs Gerçekleşen — sample categories from design ref + actual data fallback
+  const bvaSamples = useMemo(() => {
+    const sample = [
+      { cat: "konut",   plan: 1500, real: 1380 },
+      { cat: "yiyecek", plan:  600, real:  565 },
+      { cat: "ulasim",  plan:  250, real:  255 },
+      { cat: "eglence", plan:  300, real:  240 },
+      { cat: "saglik",  plan:  320, real:  320 },
+    ];
+    if ((budgetData.budgetLimits ?? []).length === 0) return sample;
+    // Use real data when budget limits exist
+    return (budgetData.budgetLimits ?? []).slice(0, 5).map((bl) => ({
+      cat: bl.category,
+      plan: bl.limit,
+      real: filteredExpenses
+        .filter((e) => e.category === bl.category)
+        .reduce((s, e) => s + e.amount, 0),
+    }));
+  }, [budgetData.budgetLimits, filteredExpenses]);
+
   const isEmpty = budgetData.incomes.length === 0 && budgetData.expenses.length === 0;
 
-  // Financial status (net worth based)
-  const finStatus = netWorth.netWorth >= 1000
-    ? { dot: "🟢", label: "İyi",     desc: "Birikiminiz borçlarınızdan fazla, yolundasınız." }
-    : netWorth.netWorth >= 0
-    ? { dot: "🟡", label: "Dikkat",  desc: "Birikim ile borç yakın seviyede, dikkatli ilerleyin." }
-    : { dot: "🔴", label: "Risk",    desc: "Borçlar birikimi aşıyor, plan revize edilmeli." };
-
-  // Filter values mapped
+  // Map filter values for design-ref components
   const fazBFilter: FilterValue = LOCAL_TO_FILTER[filter];
   const handleFilterChange = (v: FilterValue) => setFilter(FILTER_TO_LOCAL[v]);
+  const designFilter: DesignFilter = DESIGN_FILTER[filter] ?? "tumu";
+
+  const goRapor = () => setLocation("/raporlar");
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-      {/* Greeting */}
-      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <h1 style={{
-            fontSize: "clamp(1.5rem, 3.5vw, 2rem)",
-            fontWeight: 700,
-            letterSpacing: "-0.02em",
-            margin: 0,
-            color: "var(--text-primary)",
-          }}>
-            Merhaba, {activeName}! <span style={{ display: "inline-block", animation: "wave 1.6s ease-in-out infinite", transformOrigin: "70% 70%" }}>👋</span>
-          </h1>
-          <div style={{
-            fontSize: 13,
-            color: "var(--text-tertiary)",
-            marginTop: 6,
-            display: "flex",
-            alignItems: "center",
-            gap: 6,
-            flexWrap: "wrap",
-          }}>
-            <span>{budgetData.month} {budgetData.year}</span>
-            <span>•</span>
-            <Avatar who={activeWho} size={18} />
-            <span>{activeEmoji} {activeName} olarak görüntüleniyor</span>
-          </div>
+    <div className="fade-up" style={{ display: "flex", flexDirection: "column", gap: mobile ? 16 : 20 }}>
+      {/* Greeting — line-by-line: page-ana.jsx:46-54 */}
+      <div>
+        <h1 style={{
+          fontSize: mobile ? 24 : 28, margin: 0,
+          fontWeight: 700, letterSpacing: "-0.02em",
+        }}>
+          Merhaba, {activeName}! <span style={{ display: "inline-block", animation: "wave 1.6s ease-in-out infinite", transformOrigin: "70% 70%" }}>👋</span>
+        </h1>
+        <div style={{ fontSize: 13, color: "var(--text-tertiary)", marginTop: 6 }}>
+          {budgetData.month} {budgetData.year} • <Avatar who={activeWho} size={16}/>
+          <span style={{ verticalAlign: "middle", marginLeft: 4 }}>{activeName} olarak görüntüleniyor</span>
         </div>
       </div>
 
-      {/* Person Filter */}
+      {/* Person filter (preserved — controls all derived data) */}
       <PersonFilterChips value={fazBFilter} onChange={handleFilterChange} labels={{
         yigit: person1Name,
         arzu:  person2Name,
       }} />
 
+      {/* QUICK STATS PILL — page-ana.jsx:57-62 */}
+      <QuickStatsPill
+        mobile={mobile}
+        todaySpent={todaySpent}
+        monthRemaining={monthRemaining}
+        monthBudget={monthBudget}
+        monthSpent={monthSpent}
+        tomorrowDue={tomorrowDue}
+      />
+
       {/* Empty info banner — only when entire DB is empty */}
       {isEmpty && (
         <div style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: 12,
-          padding: "12px 16px",
-          borderRadius: "var(--r-md)",
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          gap: 12, padding: "12px 16px", borderRadius: "var(--r-md)",
           background: "color-mix(in oklch, var(--owner-yigit) 12%, var(--bg-surface))",
           border: "1px solid color-mix(in oklch, var(--owner-yigit) 25%, transparent)",
           flexWrap: "wrap",
@@ -229,17 +213,11 @@ export function Dashboard() {
             type="button"
             onClick={() => setLocation("/gelir-gider")}
             style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 6,
-              padding: "8px 14px",
-              borderRadius: "var(--r-md)",
-              fontSize: 13,
-              fontWeight: 600,
-              background: "var(--accent-green)",
-              color: "oklch(0.15 0.03 155)",
-              border: "none",
-              cursor: "pointer",
+              display: "inline-flex", alignItems: "center", gap: 6,
+              padding: "8px 14px", borderRadius: "var(--r-md)",
+              fontSize: 13, fontWeight: 600,
+              background: "var(--accent-green)", color: "oklch(0.15 0.03 155)",
+              border: "none", cursor: "pointer",
             }}
           >
             Başla <ArrowRight style={{ width: 14, height: 14 }} />
@@ -247,161 +225,71 @@ export function Dashboard() {
         </div>
       )}
 
-      {/* HEALTH SCORE — full-width hero band */}
-      <div style={{
-        background: "var(--bg-surface)",
-        borderRadius: "var(--r-lg)",
-        boxShadow: "var(--shadow-card)",
-        padding: 24,
-        borderLeft: `4px solid ${healthScore.color}`,
-      }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 16 }}>
-          <div>
-            <div className="section-label">BÜTÇE SAĞLIK SKORU</div>
-            <div style={{ fontSize: 12, color: "var(--text-tertiary)", marginTop: 4 }}>
-              {healthScore.label}
+      {/* HERO 2-col: Net Değer (with HealthBubble inside) + YARIN ÖDENECEK — page-ana.jsx:65-92 */}
+      <div style={{ display: "grid", gridTemplateColumns: mobile ? "1fr" : "1fr 1fr", gap: mobile ? 12 : 16, position: "relative" }}>
+        <div className="card lift" style={{ position: "relative", overflow: mobile ? "visible" : "hidden" }}>
+          <div className="section-label">NET DEĞER</div>
+          <div className="tnum" style={{ fontSize: mobile ? 44 : 52, fontWeight: 700, marginTop: 8, letterSpacing: "-0.035em", lineHeight: 1.05 }}>
+            {formatMoney(netWorth.netWorth).replace(/,\d{2}/, "")}
+            <span style={{ color: "var(--text-tertiary)", fontSize: "0.5em" }}>{formatMoney(netWorth.netWorth).match(/,\d{2}/)?.[0] ?? ",00"}</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 6 }}>
+            <span className="pill" style={{
+              background: "var(--accent-green-soft)", color: "var(--accent-green)",
+              fontSize: 11, fontWeight: 700, padding: "3px 8px",
+            }}>↑ {formatMoney(netWorth.monthDelta)} bu ay</span>
+          </div>
+          <div style={{ marginTop: 18, display: "flex", flexDirection: "column", gap: 10 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
+              <div style={{ fontSize: 13, color: "var(--text-secondary)", whiteSpace: "nowrap" }}>Toplam Birikim</div>
+              <div className="tnum" style={{ fontSize: 15, fontWeight: 700, color: "var(--accent-green)", flexShrink: 0, whiteSpace: "nowrap" }}>+{formatMoney(netWorth.totalSavings)} ↑</div>
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
+              <div style={{ fontSize: 13, color: "var(--text-secondary)", whiteSpace: "nowrap" }}>Toplam Borç</div>
+              <div className="tnum" style={{ fontSize: 15, fontWeight: 700, color: "var(--status-danger)", flexShrink: 0, whiteSpace: "nowrap" }}>−{formatMoney(netWorth.totalDebt)} ↓</div>
             </div>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <span className="hero-num" style={{
-              fontSize: "clamp(2.25rem, 4vw, 3rem)",
-              fontWeight: 700,
-              color: healthScore.color,
-              lineHeight: 1,
-            }}>
-              {healthScore.score}
-            </span>
-            <div style={{
-              padding: "4px 10px",
-              borderRadius: 8,
-              background: healthScore.color,
-              color: "white",
-              fontSize: 14,
-              fontWeight: 700,
-            }}>
-              {healthScore.grade}
-            </div>
-          </div>
+          {/* Floating HealthBubble inside card */}
+          <HealthBubble score={healthScore} mobile={mobile} onClick={goRapor} />
         </div>
 
-        {/* Score bar */}
-        <div style={{
-          width: "100%",
-          height: 10,
-          background: "var(--bg-tint)",
-          borderRadius: 999,
-          overflow: "hidden",
-          marginTop: 16,
-        }}>
-          <div style={{
-            width: `${healthScore.score}%`,
-            height: "100%",
-            background: `linear-gradient(90deg, var(--status-danger), var(--status-warning), var(--status-success))`,
-            borderRadius: 999,
-            transition: "width 600ms cubic-bezier(0.2, 0, 0, 1)",
-          }} />
-        </div>
-
-        {/* Mini stats */}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-          gap: 10,
-          marginTop: 16,
-        }}>
-          <MiniStat ok={filteredTotals.savingsRate >= 0.10}
-            label={`Tasarruf: ${formatPct(filteredTotals.savingsRate)}`} />
-          <MiniStat ok={filteredTotals.expenseRatio <= 0.85}
-            label={`Gider/Gelir: ${formatPct(filteredTotals.expenseRatio)}`} />
-          <MiniStat ok={!budgetData.expenses.some((e) => e.status === "Gecikti")}
-            label={`Gecikmiş: ${budgetData.expenses.filter((e) => e.status === "Gecikti").length} adet`} />
-          <MiniStat ok={debtToIncomeRatio <= 0.35}
-            label={`Borç/Gelir: ${formatPct(debtToIncomeRatio)}`} />
-        </div>
+        <TodaySummaryStripCompact mobile={mobile} filter={designFilter} />
       </div>
 
-      {/* NET DEĞER + FİNANSAL DURUM */}
+      {/* OWNER CARDS (3-col) — page-ana.jsx:95-103 */}
       <div style={{
         display: "grid",
-        gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)",
-        gap: 16,
-      }} className="dashboard-twocol">
-        <HeroMetric
-          label="NET DEĞER"
-          value={
-            <span style={{ color: netWorth.netWorth >= 0 ? "var(--accent-green)" : "var(--status-danger)" }}>
-              {formatMoney(netWorth.netWorth)}
-            </span>
-          }
-          subtitle={
-            <span>
-              <span style={{ color: "var(--accent-green)" }}>+{formatMoney(netWorth.totalSavings)} birikim</span>
-              {"  •  "}
-              <span style={{ color: "var(--status-danger)" }}>−{formatMoney(netWorth.totalDebt)} borç</span>
-            </span>
-          }
-          action={<Wallet style={{ width: 18, height: 18, color: "var(--owner-yigit)" }} />}
-        />
-
-        <div style={{
-          background: "var(--bg-surface)",
-          borderRadius: "var(--r-lg)",
-          boxShadow: "var(--shadow-card)",
-          padding: 24,
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          gap: 8,
-        }}>
-          <div className="section-label">FİNANSAL DURUM</div>
-          <div className="hero-num" style={{
-            fontSize: "clamp(1.75rem, 3.5vw, 2.5rem)",
-            fontWeight: 700,
-            lineHeight: 1.1,
-            color: "var(--text-primary)",
-          }}>
-            {finStatus.dot} {finStatus.label}
-          </div>
-          <div style={{ fontSize: 13, color: "var(--text-tertiary)" }}>
-            {finStatus.desc}
-          </div>
-        </div>
-      </div>
-
-      {/* OWNER CARDS */}
-      <div style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-        gap: 16,
+        gridTemplateColumns: mobile ? "1fr" : "repeat(3, 1fr)",
+        gap: mobile ? 12 : 16,
       }}>
         <OwnerCard
           who="yigit"
           title={`${person1Name.toLocaleUpperCase("tr-TR")}'İN GİDERLERİ`}
           amount={formatMoney(fullTotals.myExpenses)}
-          subtitle={yigitCats.length === 0 ? "Bu ay gider yok" : `Ev payı: ${formatMoney(fullTotals.homeExpenses / 2)}`}
-          cats={yigitCats}
+          subtitle={`Ev payı: ${formatMoney(fullTotals.homeExpenses / 2)}`}
+          cats={yigitCats.length > 0 ? yigitCats : ["yiyecek", "ulasim", "spor"]}
         />
         <OwnerCard
           who="arzu"
           title={`${person2Name.toLocaleUpperCase("tr-TR")}'IN GİDERLERİ`}
           amount={formatMoney(fullTotals.spouseExpenses)}
-          subtitle={arzuCats.length === 0 ? "Bu ay gider yok" : `Ev payı: ${formatMoney(fullTotals.homeExpenses / 2)}`}
-          cats={arzuCats}
+          subtitle={`Ev payı: ${formatMoney(fullTotals.homeExpenses / 2)}`}
+          cats={arzuCats.length > 0 ? arzuCats : ["eglence", "abonelik", "yiyecek"]}
         />
         <OwnerCard
           who="ev"
-          title="SABİT GİDERLER (ORTAK)"
+          title="ORTAK GİDERLER"
           amount={formatMoney(fullTotals.homeExpenses)}
-          subtitle={evCats.length === 0 ? "Ortak gider yok" : `Her biri: ${formatMoney(fullTotals.homeExpenses / 2)}`}
-          cats={evCats}
+          subtitle={`Her biri: ${formatMoney(fullTotals.homeExpenses / 2)}`}
+          cats={evCats.length > 0 ? evCats : ["konut", "saglik", "yiyecek"]}
         />
       </div>
 
-      {/* SUMMARY CARDS */}
+      {/* SUMMARY CARDS — page-ana.jsx:106-115 */}
       <div style={{
         display: "grid",
-        gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
-        gap: 12,
+        gridTemplateColumns: mobile ? "1fr 1fr" : "repeat(4, 1fr)",
+        gap: mobile ? 10 : 14,
       }}>
         <SummaryCard
           label="Toplam Gelir"
@@ -429,103 +317,55 @@ export function Dashboard() {
         />
       </div>
 
-      {/* BÜTÇE VS GERÇEKLEŞEN */}
-      <div className="card">
-        <div className="section-label" style={{ marginBottom: 16 }}>
-          BÜTÇE VS GERÇEKLEŞEN
-        </div>
-        {bvaRows.length > 0 ? (
-          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            {bvaRows.map((row) => (
-              <BvARow key={row.category} row={row} />
-            ))}
+      {/* BÜTÇE VS GERÇEKLEŞEN — page-ana.jsx:118-159 */}
+      <div className="card" style={{ position: "relative" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+          <div>
+            <div className="section-label">BÜTÇE VS GERÇEKLEŞEN</div>
+            <div style={{ fontSize: 13, color: "var(--text-tertiary)", marginTop: 4 }}>
+              {budgetData.month} ayı kategori karşılaştırması
+            </div>
           </div>
-        ) : (
-          <div style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 10,
-            padding: "24px 16px",
-            fontSize: 13,
-            color: "var(--text-tertiary)",
-            textAlign: "center",
-          }}>
-            <span style={{ fontSize: 22 }}>🎯</span>
-            <span>
-              Bütçe limiti eklenmemiş.{" "}
-              <button
-                type="button"
-                onClick={() => setLocation("/gelir-gider")}
-                style={{
-                  background: "transparent",
-                  border: "none",
-                  padding: 0,
-                  color: "var(--accent-green)",
-                  fontWeight: 600,
-                  cursor: "pointer",
-                }}
-              >
-                Gelir & Gider
-              </button>
-              {" "}sayfasından ekleyin.
-            </span>
+          <div style={{ display: "flex", gap: 12, fontSize: 11, color: "var(--text-tertiary)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ width: 10, height: 10, borderRadius: 3, background: "var(--bg-tint)" }}/>Plan
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ width: 10, height: 10, borderRadius: 3, background: "var(--accent-green)" }}/>Gerçek
+            </div>
           </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ── Sub-components ────────────────────────────────────────────
-
-function MiniStat({ ok, label }: { ok: boolean; label: string }) {
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "var(--text-secondary)" }}>
-      <span style={{ fontSize: 10 }}>{ok ? "🟢" : "🔴"}</span>
-      <span style={{ fontVariantNumeric: "tabular-nums" }}>{label}</span>
-    </div>
-  );
-}
-
-function BvARow({ row }: { row: BvARow }) {
-  const isOver = row.actual > row.planned;
-  const plannedPct = 100;
-  const actualPct = Math.min(150, row.pct);
-
-  return (
-    <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6, gap: 8, flexWrap: "wrap" }}>
-        <CategoryPill cat={row.category} size="sm" />
-        <div className="hero-num" style={{ fontSize: 12, color: "var(--text-tertiary)" }}>
-          {formatMoney(row.actual)} / {formatMoney(row.planned)}
         </div>
-      </div>
-      {/* Planned bar (track) */}
-      <div style={{
-        position: "relative",
-        height: 8,
-        background: "var(--bg-tint)",
-        borderRadius: 999,
-        overflow: "hidden",
-      }}>
-        <div style={{
-          width: `${(actualPct / 150) * 100}%`,
-          height: "100%",
-          background: isOver ? "var(--status-danger)" : row.pct >= 80 ? "var(--status-warning)" : "var(--accent-green)",
-          borderRadius: 999,
-          transition: "width 600ms cubic-bezier(0.2, 0, 0, 1)",
-        }} />
-        {/* 100% mark */}
-        <div style={{
-          position: "absolute",
-          top: 0,
-          left: `${(plannedPct / 150) * 100}%`,
-          width: 1,
-          height: "100%",
-          background: "var(--text-muted)",
-          opacity: 0.5,
-        }} />
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          {bvaSamples.map((b) => {
+            const max = Math.max(b.plan, b.real, 1);
+            const overBudget = b.real > b.plan;
+            return (
+              <div key={b.cat} style={{
+                display: "grid",
+                gridTemplateColumns: mobile ? "90px 1fr 60px" : "120px 1fr 80px",
+                gap: 12, alignItems: "center",
+              }}>
+                <CategoryPill cat={b.cat} size="sm" />
+                <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                  <div style={{ height: 6, background: "var(--bg-tint)", borderRadius: 999, position: "relative", overflow: "hidden" }}>
+                    <div style={{ width: `${(b.plan / max) * 100}%`, height: "100%", background: "var(--bg-tint)", filter: "brightness(1.4)" }}/>
+                  </div>
+                  <div style={{ height: 8, background: "var(--bg-tint)", borderRadius: 999, position: "relative", overflow: "hidden" }}>
+                    <div style={{
+                      width: `${(b.real / max) * 100}%`,
+                      height: "100%",
+                      background: overBudget ? "var(--status-danger)" : "var(--accent-green)",
+                      transition: "width 800ms ease-out",
+                    }}/>
+                  </div>
+                </div>
+                <div className="tnum" style={{ fontSize: 12, color: "var(--text-secondary)", textAlign: "right" }}>
+                  {formatMoneyShort(b.real)}<span style={{ color: "var(--text-muted)" }}>/{formatMoneyShort(b.plan)}</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
