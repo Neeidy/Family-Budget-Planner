@@ -76,6 +76,54 @@ pnpm build          # production bundle builds clean
 
 Plus the smoke checklist in `FIXES.md` end of each phase.
 
+## Design Reference
+
+Yeni UI tasarımı `_design/claude-design-v4/` klasöründe Claude Design çıktısı olarak duruyor. Bu klasör build edilmez, sadece referanstır. Dosya yapısı:
+
+| Dosya | Amaç |
+|---|---|
+| `app.jsx` | Root layout, viewport/theme toggle, page routing |
+| `components.jsx` | Avatar, CategoryPill, StatusBadge, PersonFilterChips, TabBar, EmptyState, Skeleton (PageSkeleton + 6 sub-component), HeroMetric, OwnerCard, SummaryCard |
+| `nav.jsx` | Sidebar (desktop), MobileBottomNav (with FAB), MobileHeader, Icon library |
+| `porsuk.jsx` | Calico cat character — 26 poses, click handler with anger meter (0-4), speech bubbles (idle/click/reactive/page-context), state machine, 4-frame leg cycle animation |
+| `notifications.jsx` | NotificationsPanel (dropdown desktop / bottom sheet mobile) with 5 sample notifications + empty state |
+| `dialogs.jsx` | AddIncomeDialog, AddExpenseDialog, AddDebtDialog, AddGoalDialog (CRUD modals) |
+| `page-giris.jsx` | Login page with avatar select + password + ambient orbs + parallax |
+| `page-ana.jsx` | Dashboard: Bütçe Sağlık Skoru, Net Değer, owner cards, summary cards, "BUGÜN" widget, Bütçe vs Gerçekleşen |
+| `page-gelir.jsx` | Gelir & Gider with 3 tabs (Gelirler, Giderler, Bütçe Limitleri with circular gauges) |
+| `page-borc.jsx` | Borç & Ödemeler with 3 tabs (Borçlar, Taksitler, Yıllık Ödemeler) |
+| `page-birikim.jsx` | Birikim & Hedef with filter tabs (Aktif/Tamamlanan/Tümü) |
+| `page-rapor.jsx` | Raporlar with 2 tabs (Aylık Karşılaştırma, Analitik) — custom SVG charts |
+| `page-ayar.jsx` | Ayarlar — Profil, Görünüm, Veri Yönetimi, Yedek Geçmişi, Çıkış |
+| `data.js` | Sample data: incomes, expenses, debts, installments, goals, budgets, backups, ownerLabel, fmtEUR helpers |
+| `styles.css` | Design tokens (oklch palette, owner colors, category colors, status, shadows, radii) + dark/light theme + animations |
+| `tweaks-panel.jsx` | Dev preview controls (skip during integration) |
+
+### Design tokens özet (styles.css :root)
+
+- Owner colors: --owner-yigit (blue), --owner-arzu (purple), --owner-ev (orange), --owner-tumu (green)
+- Category colors: --cat-konut, --cat-yiyecek, --cat-ulasim, --cat-saglik, --cat-eglence, --cat-abonelik, --cat-giyim, --cat-spor, --cat-cocuk, --cat-diger
+- Status: --status-success, --status-warning, --status-danger
+- Surface (dark): --bg-base, --bg-surface, --bg-elevated, --bg-tint
+- Surface (light): aynı isimler farklı tonlar
+- Typography: --font-sans (Geist), --font-mono (Geist Mono)
+- Radii: --r-sm, --r-md, --r-lg, --r-xl, --r-full
+- Shadows: --shadow-sm, --shadow-md, --shadow-lg, --shadow-card
+
+### Hard rules for design integration
+
+1. `_design/` salt-okunur referans. Asla import etme.
+2. `_design/` içindeki vanilla JSX + CSS'i **port et**, Tailwind utility class + TypeScript component olarak. Birebir kopyalama yok, mevcut shadcn/ui ve Tailwind sistemine adapte et.
+3. oklch CSS variables Tailwind config'e eklenecek (theme.extend.colors).
+4. Geist font Google Fonts CDN ile yüklenecek (zaten Inter vardı, üstüne Geist).
+5. Porsuk component standalone — başka feature'a karışmayacak.
+6. Wave 1/2/3 backend dokunulmaz.
+7. Drizzle schema dokunulmaz.
+
+### Integration plan
+
+Tasarım entegrasyonu fazlara bölünecek (FIXES.md'deki gibi). İlerleyen prompt'larda her faz spec'i verilecek. Mevcut master/butce.aileplan.uk dokunulmaz — yeni `design-claude-v4` branch'inde çalışılır, test.aileplan.uk preview'i bu branch'e işaret eder.
+
 ## Where to start
 
 1. Read `FIXES.md` end-to-end.
