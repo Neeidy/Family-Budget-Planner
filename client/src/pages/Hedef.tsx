@@ -3,9 +3,10 @@ import { useSearch, useLocation } from "wouter";
 import { Plus, Trash2, Pencil } from "lucide-react";
 import { useBudget } from "@/contexts/BudgetContext";
 import { usePersonFilter } from "@/contexts/PersonFilterContext";
+import { useIsMobile } from "@/hooks/useMobile";
 import { Avatar, EmptyState, GoalDialog, DeleteConfirmDialog } from "@/components/design";
 import type { AvatarWho } from "@/components/design";
-import { formatMoney } from "@/lib/format";
+import { formatMoney, formatMoneyShort } from "@/lib/format";
 import { applyPersonFilter } from "@/lib/personFilter";
 import type { SavingsGoal } from "@/hooks/useBudgetData";
 
@@ -17,6 +18,31 @@ function ownerToWho(o: string): AvatarWho {
   return "ev";
 }
 
+function ownerLabel(o: string): string {
+  if (o === "Benim") return "Yigit";
+  if (o === "Esim")  return "Arzu";
+  return "Ortak";
+}
+
+function pickEmoji(name: string): string {
+  const lower = name.toLocaleLowerCase("tr-TR");
+  if (lower.includes("tatil") || lower.includes("seyahat") || lower.includes("gez")) return "🌴";
+  if (lower.includes("acil")  || lower.includes("fon"))  return "🏥";
+  if (lower.includes("tele")  || lower.includes("phone")) return "📱";
+  if (lower.includes("ev")    || lower.includes("daire") || lower.includes("kira")) return "🏠";
+  if (lower.includes("araç")  || lower.includes("arac")  || lower.includes("oto") || lower.includes("car")) return "🚗";
+  if (lower.includes("eğit")  || lower.includes("egit")  || lower.includes("okul")) return "🎓";
+  if (lower.includes("düğün") || lower.includes("dugun") || lower.includes("evlilik")) return "💍";
+  if (lower.includes("mobil") || lower.includes("eşya")) return "🛋️";
+  return "🎯";
+}
+
+function pickColor(owner: string): string {
+  if (owner === "Benim") return "var(--owner-yigit)";
+  if (owner === "Esim")  return "var(--owner-arzu)";
+  return "var(--accent-green)";
+}
+
 // ── Header ────────────────────────────────────────────────────
 function PageHeader({ onAdd }: { onAdd: () => void }) {
   return (
@@ -26,7 +52,7 @@ function PageHeader({ onAdd }: { onAdd: () => void }) {
           Birikim & Hedef
         </h1>
         <p style={{ fontSize: 13, color: "var(--text-tertiary)", marginTop: 6 }}>
-          Finansal hedeflerinizi belirleyin ve ilerlemeyi takip edin
+          Tasarruf hedeflerinizi takip edin ve birlikte ulaşın
         </p>
       </div>
       <button
@@ -78,75 +104,140 @@ function StatusChips({ value, onChange, counts }: { value: StatusFilter; onChang
   );
 }
 
-// ── GoalCard ──────────────────────────────────────────────────
-function GoalCard({ goal, onEdit, onDelete }: { goal: SavingsGoal; onEdit: () => void; onDelete: () => void }) {
-  const pct = goal.targetAmount > 0 ? Math.min(1, goal.currentAmount / goal.targetAmount) : 0;
-  const done = goal.currentAmount >= goal.targetAmount;
-  const targetDate = goal.targetDate ? new Date(goal.targetDate) : null;
-  const daysLeft = targetDate ? Math.max(0, Math.ceil((targetDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24))) : null;
-  const accent = "var(--accent-green)";
-  const emoji = pickEmoji(goal.name);
+// ── HeroCard — page-birikim.jsx:30-58 ─────────────────────────
+function HeroCard({
+  totalSaved, monthDelta, totalTarget, activeCount, avgPct, mobile,
+}: {
+  totalSaved: number;
+  monthDelta: number;
+  totalTarget: number;
+  activeCount: number;
+  avgPct: number;
+  mobile: boolean;
+}) {
+  const totalStr = formatMoney(totalSaved);
+  const decMatch = totalStr.match(/,\d{2}$/);
+  const totalMain = decMatch ? totalStr.replace(/,\d{2}$/, "") : totalStr;
+  const totalDecimals = decMatch?.[0] ?? ",00";
 
   return (
-    <div style={{
-      background: "var(--bg-surface)",
-      borderRadius: "var(--r-lg)",
-      boxShadow: "var(--shadow-card)",
-      padding: 20,
-      borderLeft: `3px solid ${done ? "var(--accent-green)" : "var(--owner-yigit)"}`,
-      display: "flex",
-      flexDirection: "column",
-      gap: 14,
-      opacity: done ? 0.85 : 1,
+    <div className="card" style={{
+      background: `linear-gradient(135deg, color-mix(in oklch, var(--accent-green) 16%, var(--bg-surface)), var(--bg-surface) 70%)`,
+      padding: mobile ? 24 : 32,
+      borderTop: "2px solid var(--accent-green)",
+      position: "relative",
     }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <span style={{ fontSize: 32, lineHeight: 1 }}>{emoji}</span>
-          <div>
-            <div style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)" }}>{goal.name}</div>
-            {done && (
-              <span className="pill" style={{
-                background: "color-mix(in oklch, var(--accent-green) 18%, transparent)",
-                color: "var(--accent-green)", fontSize: 10, fontWeight: 700, padding: "2px 7px", marginTop: 4,
-              }}>
-                ✓ Tamamlandı
-              </span>
-            )}
+      <div style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: mobile ? "flex-start" : "center",
+        flexDirection: mobile ? "column" : "row",
+        gap: mobile ? 12 : 0,
+      }}>
+        <div>
+          <div className="section-label">TOPLAM BİRİKİM</div>
+          <div className="tnum" style={{ fontSize: mobile ? 48 : 60, fontWeight: 700, letterSpacing: "-0.035em", marginTop: 8, lineHeight: 1 }}>
+            {totalMain}<span style={{ color: "var(--text-tertiary)", fontSize: "0.45em" }}>{totalDecimals}</span>
+          </div>
+          <div style={{ fontSize: 13, color: "var(--text-tertiary)", marginTop: 8 }}>
+            {activeCount} aktif hedef • <span style={{ color: "var(--accent-green)", fontWeight: 600 }}>%{avgPct}</span> ortalama tamamlanma
           </div>
         </div>
-        <div className="hero-num" style={{ fontSize: 20, fontWeight: 700, color: "var(--text-primary)", textAlign: "right" }}>
-          {formatMoney(goal.targetAmount)}
+        <div style={{ display: "flex", gap: 8 }}>
+          <div style={{ padding: 16, background: "var(--bg-elevated)", borderRadius: 14, minWidth: 110 }}>
+            <div style={{ fontSize: 10, fontWeight: 600, color: "var(--text-tertiary)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Bu Ay</div>
+            <div className="tnum" style={{ fontSize: 22, fontWeight: 700, marginTop: 4, color: "var(--accent-green)" }}>+{formatMoneyShort(monthDelta)}</div>
+          </div>
+          <div style={{ padding: 16, background: "var(--bg-elevated)", borderRadius: 14, minWidth: 110 }}>
+            <div style={{ fontSize: 10, fontWeight: 600, color: "var(--text-tertiary)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Hedef</div>
+            <div className="tnum" style={{ fontSize: 22, fontWeight: 700, marginTop: 4 }}>{formatMoneyShort(totalTarget)}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── GoalCard — page-birikim.jsx:73-144 ────────────────────────
+function GoalCard({ goal, mobile, onEdit, onDelete }: { goal: SavingsGoal; mobile: boolean; onEdit: () => void; onDelete: () => void }) {
+  const pct = goal.targetAmount > 0 ? Math.round((goal.currentAmount / goal.targetAmount) * 100) : 0;
+  const color = pickColor(goal.owner);
+  const emoji = pickEmoji(goal.name);
+  const targetDate = goal.targetDate ? new Date(goal.targetDate) : null;
+  const days = targetDate ? Math.max(0, Math.ceil((targetDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24))) : null;
+
+  return (
+    <div className="card lift" style={{
+      position: "relative",
+      padding: mobile ? 20 : 24,
+      borderLeft: `3px solid ${color}`,
+      overflow: "hidden",
+    }}>
+      {/* Soft halo */}
+      <div style={{
+        position: "absolute", top: -40, right: -40,
+        width: 160, height: 160, borderRadius: "50%",
+        background: `radial-gradient(circle, ${color}, transparent 70%)`,
+        opacity: 0.15,
+        pointerEvents: "none",
+      }}/>
+
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", position: "relative" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{
+            width: 52, height: 52, borderRadius: 14,
+            background: `color-mix(in oklch, ${color} 18%, var(--bg-elevated))`,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: 28,
+          }}>{emoji}</div>
+          <div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)" }}>{goal.name}</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 4 }}>
+              <Avatar who={ownerToWho(goal.owner)} size={18}/>
+              <span style={{ fontSize: 12, color: "var(--text-tertiary)" }}>{ownerLabel(goal.owner)}</span>
+            </div>
+          </div>
+        </div>
+        <div style={{ textAlign: "right" }}>
+          <div className="tnum" style={{ fontSize: mobile ? 22 : 26, fontWeight: 700, letterSpacing: "-0.025em", color: "var(--text-primary)" }}>
+            {formatMoneyShort(goal.targetAmount)}
+          </div>
+          <div className="tnum" style={{ fontSize: 12, color: "var(--text-tertiary)" }}>
+            {formatMoneyShort(goal.currentAmount)} biriktirildi
+          </div>
         </div>
       </div>
 
-      <div>
+      <div style={{ marginTop: 18 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+          <span style={{ fontSize: 11, color: "var(--text-tertiary)", fontWeight: 600 }}>İLERLEME</span>
+          <span className="tnum" style={{ fontSize: 13, fontWeight: 700, color }}>%{pct}</span>
+        </div>
         <div style={{ height: 10, background: "var(--bg-tint)", borderRadius: 999, overflow: "hidden" }}>
           <div style={{
-            width: `${pct * 100}%`, height: "100%",
-            background: `linear-gradient(90deg, var(--owner-yigit), ${done ? "var(--accent-green)" : accent})`,
+            width: `${Math.min(100, pct)}%`,
+            height: "100%",
+            background: `linear-gradient(90deg, color-mix(in oklch, ${color} 50%, var(--accent-green)), ${color})`,
             borderRadius: 999,
             transition: "width 700ms cubic-bezier(0.2, 0, 0, 1)",
           }} />
         </div>
-        <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6, fontSize: 11, color: "var(--text-tertiary)" }}>
-          <span>
-            <span className="hero-num" style={{ color: "var(--accent-green)", fontWeight: 600 }}>{formatMoney(goal.currentAmount)}</span>
-            {" "}/{" "}
-            <span className="hero-num">{formatMoney(goal.targetAmount)}</span>
-          </span>
-          <span className="hero-num" style={{ fontWeight: 700 }}>{Math.round(pct * 100)}%</span>
+      </div>
+
+      <div style={{
+        marginTop: 16, paddingTop: 14,
+        borderTop: "1px solid var(--border-faint)",
+        display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8,
+      }}>
+        <div style={{ display: "flex", gap: 12, fontSize: 12, color: "var(--text-tertiary)", flexWrap: "wrap" }}>
+          {days !== null && days > 0 && (
+            <span>📅 <span style={{ color: "var(--text-secondary)", fontWeight: 600 }}>{days}</span> gün kaldı</span>
+          )}
+          {(days === null || days === 0) && <span>♾️ Sürekli</span>}
+          {goal.monthlyAllocation > 0 && (
+            <span>💰 <span className="tnum" style={{ color: "var(--text-secondary)", fontWeight: 600 }}>{formatMoneyShort(goal.monthlyAllocation)}</span>/ay</span>
+          )}
         </div>
-      </div>
-
-      <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8, fontSize: 12, color: "var(--text-tertiary)" }}>
-        {daysLeft !== null && (<span>{daysLeft} gün kaldı</span>)}
-        {goal.monthlyAllocation > 0 && (
-          <span>Aylık <span className="hero-num" style={{ color: "var(--text-primary)" }}>{formatMoney(goal.monthlyAllocation)}</span></span>
-        )}
-      </div>
-
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 8, borderTop: "1px solid var(--border-faint)" }}>
-        <Avatar who={ownerToWho(goal.owner)} size={20} />
         <div style={{ display: "flex", gap: 4 }}>
           <button type="button" title="Düzenle" onClick={onEdit}
             style={{ padding: 6, borderRadius: 6, border: "none", background: "transparent", cursor: "pointer", color: "var(--text-tertiary)" }}>
@@ -162,42 +253,58 @@ function GoalCard({ goal, onEdit, onDelete }: { goal: SavingsGoal; onEdit: () =>
   );
 }
 
-function NewGoalCard({ onClick }: { onClick: () => void }) {
+// ── NewGoalCard — page-birikim.jsx:146-183 ────────────────────
+function NewGoalCard({ onClick, mobile }: { onClick: () => void; mobile: boolean }) {
   return (
     <button
-      type="button" onClick={onClick} title="Yeni hedef"
+      type="button"
+      onClick={onClick}
       style={{
-        background: "var(--bg-elevated)",
-        border: "2px dashed var(--border-subtle)",
+        border: "1.5px dashed var(--border-subtle)",
+        background: "transparent",
         borderRadius: "var(--r-lg)",
-        padding: 32, minHeight: 220,
+        padding: mobile ? 24 : 36,
+        cursor: "pointer",
         display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10,
-        cursor: "pointer", color: "var(--text-tertiary)", fontSize: 14, fontWeight: 600,
+        color: "var(--text-tertiary)",
+        fontFamily: "inherit",
+        transition: "all 200ms",
+        minHeight: 180,
+      }}
+      onMouseEnter={(e) => {
+        const el = e.currentTarget as HTMLButtonElement;
+        el.style.borderColor = "var(--accent-green)";
+        el.style.color = "var(--accent-green)";
+        el.style.background = "var(--accent-green-soft)";
+      }}
+      onMouseLeave={(e) => {
+        const el = e.currentTarget as HTMLButtonElement;
+        el.style.borderColor = "var(--border-subtle)";
+        el.style.color = "var(--text-tertiary)";
+        el.style.background = "transparent";
       }}
     >
-      <Plus style={{ width: 28, height: 28 }} />
-      Yeni Hedef
+      <div style={{
+        width: 44, height: 44, borderRadius: 14,
+        background: "var(--bg-elevated)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+      }}>
+        <Plus style={{ width: 22, height: 22 }} />
+      </div>
+      <div style={{ fontSize: 14, fontWeight: 600 }}>Yeni Hedef Ekle</div>
+      <div style={{ fontSize: 12, color: "var(--text-muted)", textAlign: "center", maxWidth: 220 }}>
+        Tatil, ev, eğitim — birlikte planlayın
+      </div>
     </button>
   );
-}
-
-function pickEmoji(name: string): string {
-  const lower = name.toLocaleLowerCase("tr-TR");
-  if (lower.includes("tatil") || lower.includes("seyahat") || lower.includes("gez")) return "🌴";
-  if (lower.includes("acil")  || lower.includes("fon")) return "🏥";
-  if (lower.includes("tele")  || lower.includes("phone")) return "📱";
-  if (lower.includes("ev")    || lower.includes("daire") || lower.includes("kira")) return "🏠";
-  if (lower.includes("araç")  || lower.includes("arac") || lower.includes("oto") || lower.includes("car")) return "🚗";
-  if (lower.includes("eğit")  || lower.includes("egit") || lower.includes("okul")) return "🎓";
-  if (lower.includes("düğün") || lower.includes("dugun") || lower.includes("evlilik")) return "💍";
-  if (lower.includes("mobil") || lower.includes("eşya")) return "🛋️";
-  return "🎯";
 }
 
 // ── Page entry ────────────────────────────────────────────────
 export default function Hedef() {
   const { budgetData, deleteSavingsGoal } = useBudget();
   const { filter } = usePersonFilter();
+  const isMobile = useIsMobile();
+  const mobile = !!isMobile;
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("Aktif");
   const [goalDialog, setGoalDialog] = useState<{ open: boolean; entity?: SavingsGoal }>({ open: false });
   const [goalDelete, setGoalDelete] = useState<SavingsGoal | null>(null);
@@ -233,14 +340,38 @@ export default function Hedef() {
     return afterGlobal;
   }, [statusFilter, partition, afterGlobal]);
 
+  // Hero stats
+  const totalSaved   = afterGlobal.reduce((s, g) => s + g.currentAmount, 0);
+  const totalTarget  = afterGlobal.reduce((s, g) => s + g.targetAmount, 0);
+  const monthDelta   = afterGlobal.reduce((s, g) => s + (g.monthlyAllocation || 0), 0);
+  const activeCount  = partition.aktif.length;
+  const avgPct = afterGlobal.length === 0
+    ? 0
+    : Math.round(
+        afterGlobal.reduce((s, g) => s + (g.targetAmount > 0 ? Math.min(100, (g.currentAmount / g.targetAmount) * 100) : 0), 0) / afterGlobal.length,
+      );
+
   const openAdd = () => setGoalDialog({ open: true });
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+    <div className="fade-up" style={{ display: "flex", flexDirection: "column", gap: mobile ? 16 : 20 }}>
       <PageHeader onAdd={openAdd} />
 
-      <StatusChips value={statusFilter} onChange={setStatusFilter} counts={counts} />
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+        <StatusChips value={statusFilter} onChange={setStatusFilter} counts={counts} />
+      </div>
 
+      {/* Hero card — TOPLAM BİRİKİM */}
+      <HeroCard
+        totalSaved={totalSaved}
+        monthDelta={monthDelta}
+        totalTarget={totalTarget}
+        activeCount={activeCount}
+        avgPct={avgPct}
+        mobile={mobile}
+      />
+
+      {/* Goals grid */}
       {visible.length === 0 && counts.Tümü === 0 ? (
         <EmptyState
           emoji="🎯"
@@ -256,18 +387,19 @@ export default function Hedef() {
       ) : (
         <div style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+          gridTemplateColumns: mobile ? "1fr" : "repeat(2, 1fr)",
           gap: 16,
         }}>
           {visible.map((g) => (
             <GoalCard
               key={g.id}
               goal={g}
+              mobile={mobile}
               onEdit={() => setGoalDialog({ open: true, entity: g })}
               onDelete={() => setGoalDelete(g)}
             />
           ))}
-          <NewGoalCard onClick={openAdd} />
+          <NewGoalCard onClick={openAdd} mobile={mobile} />
         </div>
       )}
 
