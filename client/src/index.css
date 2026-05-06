@@ -365,6 +365,15 @@
     100% { background-position:  400px 0; }
   }
 
+  @keyframes barGrow {
+    0%   { transform: scaleY(0); }
+    100% { transform: scaleY(1); }
+  }
+  @keyframes lineDraw {
+    0%   { stroke-dashoffset: 1000; }
+    100% { stroke-dashoffset: 0; }
+  }
+
   /* ── Login ambient orb animations ── */
   .login-orb {
     position: absolute;
