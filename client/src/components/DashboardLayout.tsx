@@ -27,12 +27,11 @@ import {
   Sun,
   Moon,
   LogOut,
-  Search,
 } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { PorsukCat } from "@/components/PorsukCat";
 import { GlobalSearch } from "@/components/GlobalSearch";
-import { MobileFAB, NotificationsPanel, PageSkeleton, type SkeletonPage } from "@/components/design";
+import { MobileFAB, NotificationsPanel, PageSkeleton, Avatar, type SkeletonPage, type AvatarWho } from "@/components/design";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useBudget } from "@/contexts/BudgetContext";
@@ -119,6 +118,7 @@ function DashboardLayoutContent({
   // Aktif kişi bilgisi
   const activeName = currentPerson === 'Benim' ? person1Name : person2Name;
   const activeEmoji = currentPerson === 'Benim' ? '👨' : '👩';
+  const activeWho: AvatarWho = currentPerson === 'Benim' ? 'yigit' : 'arzu';
   const activeColor = currentPerson === 'Benim'
     ? 'text-blue-600 bg-blue-50 dark:bg-blue-900/30'
     : 'text-purple-600 bg-purple-50 dark:bg-purple-900/30';
@@ -376,53 +376,69 @@ function DashboardLayoutContent({
       />
       <SidebarInset>
         {isMobile && (
-          <div className="flex border-b h-14 items-center justify-between bg-background/95 px-3 backdrop-blur supports-[backdrop-filter]:backdrop-blur sticky top-0 z-40">
-            <div className="flex items-center gap-2">
-              <SidebarTrigger className="h-9 w-9 rounded-lg bg-background" />
-              <div className="flex items-center gap-2">
-                <span className="text-base" role="img" aria-label="panda">🐼</span>
-                <span className="font-semibold text-sm text-foreground" style={{ fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif" }}>
-                  {activeMenuItem?.label ?? "UK Ailesi Butce"}
-                </span>
+          /* MobileHeader — line-by-line port of _design/nav.jsx:224-267 */
+          <div style={{
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            padding: "14px 18px",
+            background: "var(--bg-base)",
+            borderBottom: "1px solid var(--border-faint)",
+            position: "sticky", top: 0, zIndex: 20,
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <SidebarTrigger className="h-9 w-9 rounded-lg" />
+              {/* Single 32x32 gradient panda box (NO duplicate emoji) */}
+              <div style={{
+                width: 32, height: 32, borderRadius: 10,
+                background: "linear-gradient(135deg, var(--accent-green), var(--owner-yigit))",
+                display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18,
+                flexShrink: 0,
+              }}>🐼</div>
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <div style={{ fontSize: 13, fontWeight: 700, lineHeight: 1.2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", color: "var(--text-primary)" }}>
+                  ÜK Ailesi Bütçe
+                </div>
+                <div style={{ fontSize: 10, color: "var(--text-tertiary)", marginTop: 1, whiteSpace: "nowrap" }}>
+                  {activeMenuItem?.label ?? "Ana Sayfa"}
+                </div>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              {/* Mobilde aktif kisi */}
+            <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+              <button
+                onClick={toggleTheme}
+                style={{
+                  background: "var(--bg-surface)", border: "none",
+                  padding: 8, borderRadius: 10, cursor: "pointer",
+                  color: "var(--text-secondary)",
+                  display: "flex", alignItems: "center",
+                }}
+                aria-label="Tema değiştir"
+              >
+                {theme === 'dark' ? <Sun className="h-4 w-4 text-amber-500" /> : <Moon className="h-4 w-4 text-indigo-500" />}
+              </button>
+              <button
+                onClick={() => setNotificationsOpen(true)}
+                style={{
+                  background: "var(--bg-surface)", border: "none",
+                  padding: 8, borderRadius: 10, cursor: "pointer",
+                  color: "var(--text-secondary)",
+                  position: "relative",
+                  display: "flex", alignItems: "center",
+                }}
+                aria-label="Bildirimler"
+              >
+                <Bell className="h-4 w-4" />
+              </button>
+              {/* Single Avatar — replaces raw 👨/👩 emoji */}
               {currentPerson && (
                 <button
                   onClick={handleSwitchPerson}
-                  className="text-base"
-                  title="Kisi degistir"
+                  style={{ background: "transparent", border: "none", padding: 0, cursor: "pointer", display: "flex", alignItems: "center" }}
+                  title="Kişi değiştir"
+                  aria-label={`${activeName} olarak görüntüleniyor — değiştir`}
                 >
-                  {activeEmoji}
+                  <Avatar who={activeWho} size={32} />
                 </button>
               )}
-              <button
-                onClick={toggleTheme}
-                className="h-8 w-8 flex items-center justify-center hover:bg-accent/20 rounded-lg transition-colors"
-                aria-label="Tema degistir"
-              >
-                {theme === 'dark' ? (
-                  <Sun className="h-4 w-4 text-amber-500" />
-                ) : (
-                  <Moon className="h-4 w-4 text-indigo-500" />
-                )}
-              </button>
-              <Cloud className={`h-4 w-4 ${saveMutation.isPending ? "text-blue-500 animate-pulse" : "text-muted-foreground"}`} />
-              <button
-                onClick={() => setNotificationsOpen(true)}
-                className="h-8 w-8 flex items-center justify-center hover:bg-accent/20 rounded-lg transition-colors"
-                aria-label="Bildirimler"
-              >
-                <Bell className="h-4 w-4 text-muted-foreground" />
-              </button>
-              <button
-                onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true, bubbles: true }))}
-                className="h-8 w-8 flex items-center justify-center hover:bg-accent/20 rounded-lg transition-colors"
-                aria-label="Ara"
-              >
-                <Search className="h-4 w-4 text-muted-foreground" />
-              </button>
             </div>
           </div>
         )}

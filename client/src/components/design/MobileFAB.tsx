@@ -1,122 +1,110 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { Home, ArrowLeftRight, Plus, BarChart3, Menu, ClipboardList, Target, Settings as SettingsIcon, LogOut, RotateCw, Sun, Moon, X, Bell } from "lucide-react";
-import { useTheme } from "@/contexts/ThemeContext";
-import { usePerson } from "@/contexts/PersonContext";
+import { Home, ArrowLeftRight, Plus, ClipboardList, Target, X } from "lucide-react";
 
 interface NavItem {
-  icon: React.ComponentType<{ style?: React.CSSProperties }>;
+  key: string;
   label: string;
+  icon: React.ComponentType<{ style?: React.CSSProperties }>;
   path: string;
+  fab?: boolean;
 }
 
-const PRIMARY_NAV: NavItem[] = [
-  { icon: Home,           label: "Ana",          path: "/" },
-  { icon: ArrowLeftRight, label: "Gelir-Gider",  path: "/gelir-gider" },
-  { icon: ClipboardList,  label: "Borç",         path: "/borc-odemeler" },
-  { icon: BarChart3,      label: "Raporlar",     path: "/raporlar" },
+/**
+ * Line-by-line port of _design/nav.jsx:167-219 (MobileBottomNav).
+ * 5-item layout with center FAB that lifts above the nav line via marginTop:-28
+ * + 4px ring (border solid bg-surface).
+ */
+
+const NAV_ITEMS: NavItem[] = [
+  { key: "ana",     label: "Ana Sayfa", icon: Home,           path: "/" },
+  { key: "gelir",   label: "Gelir",     icon: ArrowLeftRight, path: "/gelir-gider" },
+  { key: "fab",     label: "",          icon: Plus,           path: "",                fab: true },
+  { key: "borc",    label: "Borç",      icon: ClipboardList,  path: "/borc-odemeler" },
+  { key: "birikim", label: "Hedef",     icon: Target,         path: "/hedef" },
 ];
 
 interface MobileFABProps {
+  /** kept for backward compat with DashboardLayout — not used in new 5-item layout */
   onNotifications?: () => void;
 }
 
-export function MobileFAB({ onNotifications }: MobileFABProps) {
+export function MobileFAB(_props: MobileFABProps) {
   const [location, setLocation] = useLocation();
   const [quickAddOpen, setQuickAddOpen] = useState(false);
-  const [dahaOpen, setDahaOpen] = useState(false);
+
+  const handleFab = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const el = e.currentTarget;
+    el.style.animation = "none";
+    void el.offsetWidth;
+    el.style.animation = "fabPress 280ms cubic-bezier(0.2, 0, 0, 1)";
+    setQuickAddOpen(true);
+  };
 
   return (
     <>
-      <nav
-        style={{
-          position: "fixed",
-          bottom: 0, left: 0, right: 0,
-          height: 70,
-          background: "var(--bg-surface)",
-          borderTop: "1px solid var(--border-faint)",
-          boxShadow: "0 -8px 24px -8px rgba(0,0,0,0.15)",
-          display: "flex",
-          alignItems: "stretch",
-          zIndex: 30,
-        }}
-      >
-        {/* Left 2 nav items */}
-        {PRIMARY_NAV.slice(0, 2).map((it) => (
-          <NavItemButton key={it.path} item={it} active={location === it.path} onClick={() => setLocation(it.path)} />
-        ))}
+      <div style={{
+        position: "fixed", bottom: 0, left: 0, right: 0,
+        background: "color-mix(in oklch, var(--bg-surface) 88%, transparent)",
+        backdropFilter: "blur(20px)",
+        WebkitBackdropFilter: "blur(20px)",
+        borderTop: "1px solid var(--border-faint)",
+        padding: "8px 8px calc(env(safe-area-inset-bottom, 0px) + 12px)",
+        display: "flex",
+        justifyContent: "space-around",
+        alignItems: "center",
+        zIndex: 30,
+        overflow: "visible",
+      }}>
+        {NAV_ITEMS.map((it) => {
+          if (it.fab) {
+            return (
+              <button
+                key="fab"
+                type="button"
+                onClick={handleFab}
+                aria-label="Hızlı ekle"
+                style={{
+                  width: 56, height: 56, borderRadius: "50%",
+                  background: "var(--accent-green)",
+                  color: "oklch(0.15 0.03 155)",
+                  border: "4px solid var(--bg-surface)",
+                  cursor: "pointer",
+                  marginTop: -28,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  boxShadow: "0 8px 24px -4px var(--accent-green-soft), 0 0 0 0 var(--accent-green-soft)",
+                  transition: "transform 100ms",
+                }}
+              >
+                <Plus style={{ width: 24, height: 24 }} />
+              </button>
+            );
+          }
+          const active = location === it.path;
+          const Icon = it.icon;
+          return (
+            <button
+              key={it.key}
+              type="button"
+              onClick={() => setLocation(it.path)}
+              style={{
+                background: "transparent", border: "none", cursor: "pointer",
+                display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
+                padding: "6px 8px",
+                color: active ? "var(--accent-green)" : "var(--text-tertiary)",
+                fontWeight: active ? 700 : 500,
+                fontSize: 10, minWidth: 56,
+              }}
+            >
+              <Icon style={{ width: 20, height: 20 }} />
+              <span>{it.label}</span>
+            </button>
+          );
+        })}
+      </div>
 
-        {/* Center FAB */}
-        <div style={{ position: "relative", width: 80, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <button
-            type="button"
-            onClick={() => setQuickAddOpen(true)}
-            aria-label="Hızlı ekle"
-            style={{
-              position: "absolute",
-              top: -22,
-              width: 56, height: 56,
-              borderRadius: "50%",
-              background: "var(--accent-green)",
-              color: "oklch(0.15 0.03 155)",
-              border: "none",
-              boxShadow: "0 8px 24px -4px var(--accent-green-soft), 0 4px 12px rgba(0,0,0,0.2)",
-              cursor: "pointer",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              transition: "transform 200ms",
-            }}
-            onMouseDown={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = "scale(0.92)"; }}
-            onMouseUp={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = "scale(1)"; }}
-          >
-            <Plus style={{ width: 28, height: 28 }} />
-          </button>
-        </div>
-
-        {/* Right 2 nav items */}
-        {PRIMARY_NAV.slice(2, 4).map((it) => (
-          <NavItemButton key={it.path} item={it} active={location === it.path} onClick={() => setLocation(it.path)} />
-        ))}
-
-        {/* Daha */}
-        <button
-          type="button"
-          onClick={() => setDahaOpen(true)}
-          style={{
-            flex: 1, display: "flex", flexDirection: "column",
-            alignItems: "center", justifyContent: "center", gap: 2,
-            background: "transparent", border: "none",
-            color: "var(--text-tertiary)", cursor: "pointer",
-            fontSize: 10, fontWeight: 600, paddingTop: 8,
-          }}
-        >
-          <Menu style={{ width: 18, height: 18 }} />
-          <span>Daha</span>
-        </button>
-      </nav>
-
-      {/* Bottom sheets */}
       <QuickAddSheet open={quickAddOpen} onClose={() => setQuickAddOpen(false)} />
-      <DahaSheet open={dahaOpen} onClose={() => setDahaOpen(false)} onNotifications={onNotifications} />
     </>
-  );
-}
-
-function NavItemButton({ item, active, onClick }: { item: NavItem; active: boolean; onClick: () => void }) {
-  const Icon = item.icon;
-  return (
-    <button
-      type="button" onClick={onClick}
-      style={{
-        flex: 1, display: "flex", flexDirection: "column",
-        alignItems: "center", justifyContent: "center", gap: 2,
-        background: "transparent", border: "none",
-        color: active ? "var(--accent-green)" : "var(--text-tertiary)",
-        cursor: "pointer", fontSize: 10, fontWeight: 600, paddingTop: 8,
-      }}
-    >
-      <Icon style={{ width: 18, height: 18 }} />
-      <span>{item.label}</span>
-    </button>
   );
 }
 
@@ -136,7 +124,8 @@ function QuickAddSheet({ open, onClose }: { open: boolean; onClose: () => void }
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, padding: 20 }}>
         {items.map((it) => (
           <button
-            key={it.label} type="button"
+            key={it.label}
+            type="button"
             onClick={() => { setLocation(it.path); onClose(); }}
             style={{
               padding: 18,
@@ -154,76 +143,6 @@ function QuickAddSheet({ open, onClose }: { open: boolean; onClose: () => void }
       </div>
     </BottomSheet>
   );
-}
-
-// ── DahaSheet ─────────────────────────────────────────────────
-function DahaSheet({ open, onClose, onNotifications }: { open: boolean; onClose: () => void; onNotifications?: () => void }) {
-  const [, setLocation] = useLocation();
-  const { theme, toggleTheme } = useTheme();
-  const { setCurrentPerson } = usePerson();
-
-  if (!open) return null;
-
-  const go = (path: string) => { setLocation(path); onClose(); };
-
-  return (
-    <BottomSheet onClose={onClose} title="Daha">
-      <div style={{ padding: "8px 0" }}>
-        <SheetItem icon={<Target style={{ width: 18, height: 18 }} />}     label="Birikim & Hedef" onClick={() => go("/hedef")}    chevron />
-        <SheetItem icon={<BarChart3 style={{ width: 18, height: 18 }} />}  label="Raporlar"        onClick={() => go("/raporlar")} chevron />
-        <SheetItem icon={<SettingsIcon style={{ width: 18, height: 18 }} />} label="Ayarlar"      onClick={() => go("/ayarlar")} chevron />
-        {onNotifications && (
-          <SheetItem icon={<Bell style={{ width: 18, height: 18 }} />} label="Bildirimler" onClick={() => { onNotifications(); onClose(); }} chevron />
-        )}
-
-        <Divider />
-
-        <SheetItem
-          icon={theme === "dark" ? <Sun style={{ width: 18, height: 18, color: "#FBBF24" }} /> : <Moon style={{ width: 18, height: 18, color: "#4B5563" }} />}
-          label={theme === "dark" ? "Açık Tema" : "Karanlık Tema"}
-          onClick={toggleTheme}
-        />
-        <SheetItem
-          icon={<RotateCw style={{ width: 18, height: 18 }} />}
-          label="Senkronize Et"
-          onClick={() => alert("Senkronizasyon otomatik — bulutla canlı bağlantı aktif")}
-        />
-
-        <Divider />
-
-        <SheetItem
-          icon={<LogOut style={{ width: 18, height: 18 }} />}
-          label="Çıkış Yap"
-          danger
-          onClick={() => { onClose(); if (confirm("Çıkış yapılsın mı?")) setCurrentPerson(null); }}
-        />
-      </div>
-    </BottomSheet>
-  );
-}
-
-function SheetItem({ icon, label, onClick, danger, chevron }: { icon: React.ReactNode; label: string; onClick: () => void; danger?: boolean; chevron?: boolean }) {
-  return (
-    <button
-      type="button" onClick={onClick}
-      style={{
-        width: "100%",
-        padding: "14px 20px",
-        display: "flex", alignItems: "center", gap: 14,
-        background: "transparent", border: "none",
-        color: danger ? "var(--status-danger)" : "var(--text-primary)",
-        cursor: "pointer", fontSize: 14, fontWeight: 500,
-      }}
-    >
-      <span style={{ display: "flex", color: danger ? "var(--status-danger)" : "var(--text-secondary)" }}>{icon}</span>
-      <span style={{ flex: 1, textAlign: "left" }}>{label}</span>
-      {chevron && <span style={{ color: "var(--text-tertiary)" }}>›</span>}
-    </button>
-  );
-}
-
-function Divider() {
-  return <div style={{ height: 1, background: "var(--border-faint)", margin: "4px 16px" }} />;
 }
 
 function BottomSheet({ children, onClose, title }: { children: React.ReactNode; onClose: () => void; title: string }) {
