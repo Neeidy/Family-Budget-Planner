@@ -436,7 +436,7 @@ export default function Settings() {
             style={{
               background: "var(--bg-surface)",
               borderRadius: 20,
-              boxShadow: "0 24px 64px -12px rgba(0,0,0,0.5)",
+              boxShadow: "var(--shadow-lg)",
               maxWidth: 480, width: "100%",
               padding: 24,
             }}

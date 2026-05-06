@@ -194,6 +194,19 @@ export default function Login() {
         animation: "orb-drift-4 20s ease-in-out infinite",
       }} />
 
+      {/* Ambient particles drifting upward */}
+      {Array.from({ length: 10 }).map((_, i) => (
+        <div
+          key={i}
+          className="login-particle"
+          style={{
+            left: `${(i * 13 + 7) % 100}%`,
+            bottom: `-${10 + (i * 7) % 30}px`,
+            animation: `particle-rise ${22 + (i % 5) * 2}s linear ${i * 2.3}s infinite`,
+          }}
+        />
+      ))}
+
       {/* Main card group — parallax layer */}
       <div
         style={{

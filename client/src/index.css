@@ -414,6 +414,23 @@
     50%       { transform: translate(calc(var(--mx,0)*-12px - 40px), calc(var(--my,0)*-12px - 20px)) scale(1.05); }
   }
 
+  /* ── Login ambient particles (drift upward) ── */
+  .login-particle {
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    background: oklch(0.95 0.01 80);
+    border-radius: 50%;
+    opacity: 0;
+    pointer-events: none;
+  }
+  @keyframes particle-rise {
+    0%   { transform: translateY(20px); opacity: 0; }
+    20%  { opacity: 0.4; }
+    80%  { opacity: 0.4; }
+    100% { transform: translateY(-120vh); opacity: 0; }
+  }
+
   /* Custom card styles for financial dashboard */
   .card-metric {
     @apply bg-card text-card-foreground rounded-lg p-6 shadow-sm border border-border transition-all duration-200 hover:shadow-md;
@@ -455,19 +472,6 @@
 
   .progress-savings {
     @apply bg-blue-500;
-  }
-
-  /* Number styling for financial data */
-  .number-large {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    @apply text-2xl font-semibold;
-    letter-spacing: -0.02em;
-  }
-
-  .number-medium {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    @apply text-lg font-medium;
-    letter-spacing: -0.01em;
   }
 
   /* Page transition animations */
