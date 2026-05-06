@@ -37,6 +37,7 @@ import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useBudget } from "@/contexts/BudgetContext";
 import { Undo2 } from "lucide-react";
+import { Porsuk } from "@/components/design";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Ana Sayfa",       path: "/" },
@@ -339,6 +340,7 @@ function DashboardLayoutContent({
       <PorsukCat />
       <GlobalSearch />
       {isMobile && <MobileBottomNav />}
+      <Porsuk page={location.split('/')[1] || 'ana'} mobile={isMobile} />
       <SidebarInset>
         {isMobile && (
           <div className="flex border-b h-14 items-center justify-between bg-background/95 px-3 backdrop-blur supports-[backdrop-filter]:backdrop-blur sticky top-0 z-40">

@@ -365,6 +365,64 @@
     100% { background-position:  400px 0; }
   }
 
+  /* ── Porsuk character animations ── */
+  @keyframes porsuk-leg-A {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    25%       { transform: translateY(-3px) rotate(-15deg); }
+    50%       { transform: translateY(0); }
+    75%       { transform: translateY(-3px) rotate(15deg); }
+  }
+  @keyframes porsuk-leg-B {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    25%       { transform: translateY(-3px) rotate(15deg); }
+    50%       { transform: translateY(0); }
+    75%       { transform: translateY(-3px) rotate(-15deg); }
+  }
+  @keyframes porsuk-body-bob {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-2px); }
+  }
+  @keyframes porsuk-head-bob {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(1px); }
+  }
+  @keyframes porsuk-blink {
+    0%, 90%, 100% { transform: scaleY(1); }
+    95%            { transform: scaleY(0.1); }
+  }
+  @keyframes porsuk-breathe {
+    0%, 100% { transform: scale(1); }
+    50%       { transform: scale(1.02); }
+  }
+  @keyframes porsuk-wave {
+    0%, 100% { transform: rotate(0deg); }
+    25%       { transform: rotate(-30deg); }
+    75%       { transform: rotate(25deg); }
+  }
+  @keyframes porsuk-walk {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-2px); }
+  }
+  @keyframes porsuk-shake {
+    0%, 100% { transform: translateX(-50%) translateY(-8px); }
+    20%       { transform: translateX(calc(-50% - 4px)) translateY(-8px); }
+    40%       { transform: translateX(calc(-50% + 4px)) translateY(-8px); }
+    60%       { transform: translateX(calc(-50% - 3px)) translateY(-8px); }
+    80%       { transform: translateX(calc(-50% + 3px)) translateY(-8px); }
+  }
+  @keyframes porsuk-zfloat {
+    0%, 100% { transform: translateY(0) rotate(-5deg); opacity: 0.7; }
+    50%       { transform: translateY(-8px) rotate(5deg); opacity: 0.4; }
+  }
+  @keyframes bubble-in {
+    0%   { transform: translateX(-50%) translateY(4px) scale(0.9); opacity: 0; }
+    100% { transform: translateX(-50%) translateY(-8px) scale(1); opacity: 1; }
+  }
+  @keyframes fadeUp {
+    0%   { transform: translateY(8px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+
   /* Custom card styles for financial dashboard */
   .card-metric {
     @apply bg-card text-card-foreground rounded-lg p-6 shadow-sm border border-border transition-all duration-200 hover:shadow-md;

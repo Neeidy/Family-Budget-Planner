@@ -14,8 +14,9 @@ import {
   SkelHero,
   SkelRow,
   PageSkeleton,
+  PorsukSVG,
 } from '@/components/design';
-import type { FilterValue } from '@/components/design';
+import type { FilterValue, PorsukPose } from '@/components/design';
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -215,6 +216,80 @@ export default function DesignShowcase() {
           <PageSkeleton page="ana" />
         </div>
       </Section>
+
+      {/* Porsuk states */}
+      <PorsukShowcase />
     </div>
+  );
+}
+
+const SHOWCASE_POSES: Array<{ pose: PorsukPose; label: string }> = [
+  { pose: 'walking',     label: 'Walking' },
+  { pose: 'sit',         label: 'Sitting' },
+  { pose: 'sleeping',    label: 'Sleeping' },
+  { pose: 'celebrating', label: 'Celebrating' },
+  { pose: 'sad',         label: 'Sad' },
+  { pose: 'waving',      label: 'Waving' },
+];
+
+function PorsukShowcase() {
+  const [angerDemo, setAngerDemo] = useState(0);
+  const [demoAnger, setDemoAnger] = useState(0);
+
+  return (
+    <section style={{ marginBottom: 40 }}>
+      <h2 style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: 16 }}>
+        Porsuk States
+      </h2>
+
+      {/* 6 pose grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 24 }}>
+        {SHOWCASE_POSES.map(({ pose, label }) => (
+          <div key={pose} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10,
+            background: 'var(--bg-surface)', borderRadius: 'var(--r-lg)', padding: '24px 16px',
+            boxShadow: 'var(--shadow-card)' }}>
+            <PorsukSVG pose={pose} anger={0} size={100} />
+            <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-tertiary)' }}>
+              {label}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {/* Anger meter demo */}
+      <div style={{ background: 'var(--bg-surface)', borderRadius: 'var(--r-lg)', padding: 24, boxShadow: 'var(--shadow-card)' }}>
+        <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: 16 }}>
+          Anger meter debug
+        </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap' }}>
+          <div style={{ position: 'relative', width: 100, height: 100 }}>
+            <PorsukSVG pose={demoAnger >= 4 ? 'running' : demoAnger >= 3 ? 'worried' : demoAnger >= 2 ? 'sit' : demoAnger >= 1 ? 'sit' : 'idle'}
+              anger={demoAnger} size={100} />
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div style={{ display: 'flex', gap: 6 }}>
+              {[0, 1, 2, 3, 4].map((i) => (
+                <div key={i} style={{ width: 14, height: 14, borderRadius: '50%',
+                  background: i < demoAnger ? 'oklch(0.55 0.25 25)' : 'transparent',
+                  border: '1.5px solid oklch(0.6 0.15 25)', transition: 'background 300ms' }} />
+              ))}
+              <span style={{ fontSize: 11, marginLeft: 4, color: 'var(--text-tertiary)' }}>anger {demoAnger}/4</span>
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button onClick={() => setDemoAnger((a) => Math.min(4, a + 1))} style={{
+                padding: '6px 14px', borderRadius: 8, fontSize: 12, fontWeight: 600,
+                background: 'oklch(0.65 0.22 25)', color: 'white', border: 'none', cursor: 'pointer' }}>
+                Click (+1 anger)
+              </button>
+              <button onClick={() => setDemoAnger(0)} style={{
+                padding: '6px 14px', borderRadius: 8, fontSize: 12, fontWeight: 600,
+                background: 'var(--accent-green)', color: 'oklch(0.15 0.03 155)', border: 'none', cursor: 'pointer' }}>
+                Reset
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
