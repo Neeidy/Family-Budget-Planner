@@ -373,6 +373,18 @@
     0%   { stroke-dashoffset: 1000; }
     100% { stroke-dashoffset: 0; }
   }
+  @keyframes slideUp {
+    0%   { transform: translateY(100%); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+  @keyframes fadeIn {
+    0%   { opacity: 0; }
+    100% { opacity: 1; }
+  }
+  @keyframes fadeUp {
+    0%   { transform: translateY(8px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+  }
 
   /* ── Login ambient orb animations ── */
   .login-orb {

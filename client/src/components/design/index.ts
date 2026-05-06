@@ -23,6 +23,10 @@ export { CircularProgress } from './CircularProgress';
 
 export { LenderIcon } from './LenderIcon';
 
+export { NotificationsPanel } from './NotificationsPanel';
+
+export { MobileFAB } from './MobileFAB';
+
 export {
   SkelBox,
   SkelLine,

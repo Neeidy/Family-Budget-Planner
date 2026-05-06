@@ -32,11 +32,11 @@ import {
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { PorsukCat } from "@/components/PorsukCat";
 import { GlobalSearch } from "@/components/GlobalSearch";
-import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { MobileFAB, NotificationsPanel, PageSkeleton, type SkeletonPage } from "@/components/design";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useBudget } from "@/contexts/BudgetContext";
-import { Undo2 } from "lucide-react";
+import { Undo2, Bell } from "lucide-react";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Ana Sayfa",       path: "/" },
@@ -46,6 +46,15 @@ const menuItems = [
   { icon: BarChart3,       label: "Raporlar",        path: "/raporlar" },
   { icon: Settings,        label: "Ayarlar",         path: "/ayarlar" },
 ];
+
+const SKELETON_PAGE_BY_PATH: Record<string, SkeletonPage> = {
+  "/": "ana",
+  "/gelir-gider": "gelir",
+  "/borc-odemeler": "borc",
+  "/hedef": "birikim",
+  "/raporlar": "rapor",
+  "/ayarlar": "ayar",
+};
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";
 const DEFAULT_WIDTH = 240;
@@ -125,6 +134,12 @@ function DashboardLayoutContent({
   // Sync durumu
   const saveMutation = trpc.familyBudget.save.useMutation();
 
+  // Notifications panel state
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+
+  // Loading skeleton state — derived per-route below from useBudget().isLoaded
+  const skeletonPage = SKELETON_PAGE_BY_PATH[location];
+
   useEffect(() => {
     if (isCollapsed) {
       setIsResizing(false);
@@ -172,7 +187,7 @@ function DashboardLayoutContent({
     logoutMutation.mutate();
   };
 
-  const { undo, canUndo, undoDescription } = useBudget();
+  const { undo, canUndo, undoDescription, isLoaded } = useBudget();
 
   // Ctrl+Z klavye kısayolu
   useEffect(() => {
@@ -291,6 +306,14 @@ function DashboardLayoutContent({
                     </>
                   )}
                 </button>
+                <button
+                  onClick={() => setNotificationsOpen(true)}
+                  className="w-full flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-accent/20 transition-colors text-sm font-medium"
+                  aria-label="Bildirimler"
+                >
+                  <Bell className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <span className="text-muted-foreground text-xs">Bildirimler</span>
+                </button>
                 {canUndo && (
                   <button
                     onClick={undo}
@@ -321,6 +344,13 @@ function DashboardLayoutContent({
                     <Moon className="h-4 w-4 text-indigo-500" />
                   )}
                 </button>
+                <button
+                  onClick={() => setNotificationsOpen(true)}
+                  className="h-8 w-8 flex items-center justify-center hover:bg-accent/20 rounded-lg transition-colors"
+                  aria-label="Bildirimler"
+                >
+                  <Bell className="h-4 w-4 text-muted-foreground" />
+                </button>
                 <Cloud className="h-4 w-4 text-muted-foreground" />
               </div>
             )}
@@ -338,7 +368,12 @@ function DashboardLayoutContent({
 
       <PorsukCat />
       <GlobalSearch />
-      {isMobile && <MobileBottomNav />}
+      {isMobile && <MobileFAB onNotifications={() => setNotificationsOpen(true)} />}
+      <NotificationsPanel
+        open={notificationsOpen}
+        onClose={() => setNotificationsOpen(false)}
+        mobile={isMobile}
+      />
       <SidebarInset>
         {isMobile && (
           <div className="flex border-b h-14 items-center justify-between bg-background/95 px-3 backdrop-blur supports-[backdrop-filter]:backdrop-blur sticky top-0 z-40">
@@ -375,6 +410,13 @@ function DashboardLayoutContent({
               </button>
               <Cloud className={`h-4 w-4 ${saveMutation.isPending ? "text-blue-500 animate-pulse" : "text-muted-foreground"}`} />
               <button
+                onClick={() => setNotificationsOpen(true)}
+                className="h-8 w-8 flex items-center justify-center hover:bg-accent/20 rounded-lg transition-colors"
+                aria-label="Bildirimler"
+              >
+                <Bell className="h-4 w-4 text-muted-foreground" />
+              </button>
+              <button
                 onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true, bubbles: true }))}
                 className="h-8 w-8 flex items-center justify-center hover:bg-accent/20 rounded-lg transition-colors"
                 aria-label="Ara"
@@ -402,7 +444,11 @@ function DashboardLayoutContent({
         </div>
         <main className="flex-1 p-3 md:p-6 pb-20 md:pb-6">
           <div key={location} className="page-enter">
-            {children}
+            {!isLoaded && skeletonPage ? (
+              <PageSkeleton page={skeletonPage} />
+            ) : (
+              children
+            )}
           </div>
         </main>
       </SidebarInset>
