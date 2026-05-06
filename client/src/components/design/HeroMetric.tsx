@@ -1,19 +1,26 @@
+import type { ReactNode } from 'react';
+
 interface HeroDelta {
   value: string;
   positive?: boolean;
 }
 
 interface HeroAction {
-  label: string;
-  onClick: () => void;
+  label?: string;
+  onClick?: () => void;
 }
 
 interface HeroMetricProps {
   label: string;
-  value: string;
-  subtitle?: string;
+  value: ReactNode;
+  subtitle?: ReactNode;
   delta?: HeroDelta;
-  action?: HeroAction;
+  /** Either an action button (label+onClick) or a custom node (icon, etc.) */
+  action?: HeroAction | ReactNode;
+}
+
+function isAction(a: unknown): a is HeroAction {
+  return !!a && typeof a === 'object' && ('label' in a || 'onClick' in a);
 }
 
 export function HeroMetric({ label, value, subtitle, delta, action }: HeroMetricProps) {
@@ -31,7 +38,7 @@ export function HeroMetric({ label, value, subtitle, delta, action }: HeroMetric
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <span className="section-label">{label}</span>
-        {action && (
+        {action && (isAction(action) ? (
           <button
             type="button"
             onClick={action.onClick}
@@ -46,7 +53,7 @@ export function HeroMetric({ label, value, subtitle, delta, action }: HeroMetric
           >
             {action.label}
           </button>
-        )}
+        ) : action as ReactNode)}
       </div>
 
       <div
