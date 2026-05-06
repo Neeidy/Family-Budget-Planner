@@ -40,6 +40,65 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  /* ── Claude Design v4: owner colors ── */
+  --color-owner-yigit: var(--owner-yigit);
+  --color-owner-yigit-soft: var(--owner-yigit-soft);
+  --color-owner-arzu: var(--owner-arzu);
+  --color-owner-arzu-soft: var(--owner-arzu-soft);
+  --color-owner-ev: var(--owner-ev);
+  --color-owner-ev-soft: var(--owner-ev-soft);
+  --color-owner-tumu: var(--owner-tumu);
+  --color-owner-tumu-soft: var(--owner-tumu-soft);
+
+  /* ── Claude Design v4: category colors ── */
+  --color-cat-konut: var(--cat-konut);
+  --color-cat-yiyecek: var(--cat-yiyecek);
+  --color-cat-ulasim: var(--cat-ulasim);
+  --color-cat-saglik: var(--cat-saglik);
+  --color-cat-eglence: var(--cat-eglence);
+  --color-cat-abonelik: var(--cat-abonelik);
+  --color-cat-giyim: var(--cat-giyim);
+  --color-cat-spor: var(--cat-spor);
+  --color-cat-cocuk: var(--cat-cocuk);
+  --color-cat-diger: var(--cat-diger);
+
+  /* ── Claude Design v4: status colors ── */
+  --color-status-success: var(--status-success);
+  --color-status-warning: var(--status-warning);
+  --color-status-danger: var(--status-danger);
+
+  /* ── Claude Design v4: surface colors ── */
+  --color-surface-base: var(--bg-base);
+  --color-surface-card: var(--bg-surface);
+  --color-surface-elevated: var(--bg-elevated);
+  --color-surface-tint: var(--bg-tint);
+
+  /* ── Claude Design v4: accent ── */
+  --color-accent-green: var(--accent-green);
+  --color-accent-green-soft: var(--accent-green-soft);
+
+  /* ── Claude Design v4: semantic text ── */
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-tertiary);
+  --color-text-muted: var(--text-muted);
+
+  /* ── Claude Design v4: typography ── */
+  --font-sans: 'Geist', 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'Geist Mono', 'JetBrains Mono', 'Courier New', monospace;
+
+  /* ── Claude Design v4: border radius ── */
+  --radius-r-sm: var(--r-sm);
+  --radius-r-md: var(--r-md);
+  --radius-r-lg: var(--r-lg);
+  --radius-r-xl: var(--r-xl);
+  --radius-r-full: var(--r-full);
+
+  /* ── Claude Design v4: shadows ── */
+  --shadow-card: var(--shadow-card);
+  --shadow-card-md: var(--shadow-md);
+  --shadow-card-lg: var(--shadow-lg);
 }
 
 :root {
@@ -88,6 +147,68 @@
   --color-debt: #F97316;
   --color-warning: #F59E0B;
   --color-success: #059669;
+
+  /* ── Claude Design v4 tokens ─────────────────────────────── */
+
+  /* Owner / filter accent (consistent across themes) */
+  --owner-yigit: oklch(0.65 0.18 245);
+  --owner-yigit-soft: oklch(0.65 0.18 245 / 0.15);
+  --owner-arzu: oklch(0.65 0.22 305);
+  --owner-arzu-soft: oklch(0.65 0.22 305 / 0.15);
+  --owner-ev: oklch(0.7 0.17 55);
+  --owner-ev-soft: oklch(0.7 0.17 55 / 0.15);
+  --owner-tumu: oklch(0.72 0.18 155);
+  --owner-tumu-soft: oklch(0.72 0.18 155 / 0.15);
+
+  /* Category accents (consistent across themes) */
+  --cat-konut: oklch(0.7 0.16 240);
+  --cat-yiyecek: oklch(0.72 0.18 145);
+  --cat-ulasim: oklch(0.74 0.16 60);
+  --cat-saglik: oklch(0.68 0.2 25);
+  --cat-eglence: oklch(0.72 0.2 350);
+  --cat-abonelik: oklch(0.7 0.2 295);
+  --cat-giyim: oklch(0.82 0.16 95);
+  --cat-spor: oklch(0.72 0.14 195);
+  --cat-cocuk: oklch(0.78 0.14 215);
+  --cat-diger: oklch(0.7 0.02 250);
+
+  /* Status (consistent across themes) */
+  --status-success: oklch(0.72 0.18 155);
+  --status-warning: oklch(0.78 0.16 75);
+  --status-danger: oklch(0.68 0.2 25);
+
+  /* Shared shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 8px 24px -8px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.25);
+  --shadow-lg: 0 20px 50px -12px rgba(0, 0, 0, 0.65), 0 8px 16px -4px rgba(0, 0, 0, 0.35);
+
+  /* Border radius */
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 20px;
+  --r-xl: 28px;
+  --r-full: 999px;
+
+  /* Surface — light theme */
+  --bg-base: oklch(0.975 0.008 80);
+  --bg-surface: oklch(1 0 0);
+  --bg-elevated: oklch(0.985 0.005 80);
+  --bg-tint: oklch(0.95 0.008 80);
+  --border-subtle: oklch(0.88 0.01 80);
+  --border-faint: oklch(0.92 0.008 80);
+
+  /* Text — light theme */
+  --text-primary: oklch(0.22 0.015 265);
+  --text-secondary: oklch(0.42 0.015 265);
+  --text-tertiary: oklch(0.55 0.012 265);
+  --text-muted: oklch(0.65 0.01 265);
+
+  /* Accent — light theme */
+  --accent-green: oklch(0.62 0.17 155);
+  --accent-green-soft: oklch(0.62 0.17 155 / 0.12);
+
+  /* Card shadow — light theme */
+  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px -12px rgba(15, 23, 42, 0.12);
 }
 
 .dark {
@@ -123,6 +244,29 @@
   --sidebar-accent-foreground: #0F172A;
   --sidebar-border: #334155;
   --sidebar-ring: #10B981;
+
+  /* ── Claude Design v4: dark theme overrides ── */
+
+  /* Surface — dark */
+  --bg-base: oklch(0.18 0.018 265);
+  --bg-surface: oklch(0.225 0.018 265);
+  --bg-elevated: oklch(0.27 0.02 265);
+  --bg-tint: oklch(0.32 0.022 265);
+  --border-subtle: oklch(0.34 0.02 265 / 0.5);
+  --border-faint: oklch(0.34 0.02 265 / 0.25);
+
+  /* Text — dark */
+  --text-primary: oklch(0.97 0.005 80);
+  --text-secondary: oklch(0.78 0.012 265);
+  --text-tertiary: oklch(0.58 0.012 265);
+  --text-muted: oklch(0.48 0.012 265);
+
+  /* Accent — dark */
+  --accent-green: oklch(0.72 0.18 155);
+  --accent-green-soft: oklch(0.72 0.18 155 / 0.18);
+
+  /* Card shadow — dark */
+  --shadow-card: 0 1px 0 0 oklch(1 0 0 / 0.04) inset, 0 12px 28px -12px rgba(0, 0, 0, 0.55);
 }
 
 @layer base {
