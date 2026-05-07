@@ -68,12 +68,10 @@ const CATEGORIES: Record<string, CategoryMeta> = {
   dijitalabonelikler: { name: "Abonelik", emoji: "📺", colorVar: C_ABONELIK },
   streaming: { name: "Streaming", emoji: "📺", colorVar: C_ABONELIK },
 
-  // Giyim & spor & porsuk (eski 'cocuk' kategorisi -> porsuk olarak rename edildi)
+  // Giyim & spor & porsuk
   giyim: { name: "Giyim", emoji: "👕", colorVar: C_GIYIM },
   spor: { name: "Spor", emoji: "⚽", colorVar: C_SPOR },
   porsuk: { name: "Porsuk", emoji: "🐈", colorVar: C_PORSUK },
-  // Defansif: backup'tan restore senaryosu için 'Cocuk' gelirse 'Porsuk' gibi render et
-  cocuk: { name: "Porsuk", emoji: "🐈", colorVar: C_PORSUK },
   okul: { name: "Okul", emoji: "📚", colorVar: C_PORSUK },
   egitim: { name: "Eğitim", emoji: "📚", colorVar: C_PORSUK },
   egitimvegelisim: { name: "Eğitim", emoji: "📚", colorVar: C_PORSUK },

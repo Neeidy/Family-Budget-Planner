@@ -1,6 +1,4 @@
 import type { CreateExpressContextOptions } from "@trpc/server/adapters/express";
-import type { User } from "../../drizzle/schema";
-import { sdk } from "./sdk";
 import { parse as parseCookies } from "cookie";
 import {
   verifyFamilySession,
@@ -11,7 +9,6 @@ import {
 export type TrpcContext = {
   req: CreateExpressContextOptions["req"];
   res: CreateExpressContextOptions["res"];
-  user: User | null;
   family: { person: FamilyPerson } | null;
   isGuest: boolean;
 };
@@ -19,15 +16,6 @@ export type TrpcContext = {
 export async function createContext(
   opts: CreateExpressContextOptions
 ): Promise<TrpcContext> {
-  let user: User | null = null;
-
-  try {
-    user = await sdk.authenticateRequest(opts.req);
-  } catch (error) {
-    // Authentication is optional for public procedures.
-    user = null;
-  }
-
   // Parse family session cookie
   let family: { person: FamilyPerson } | null = null;
   try {
@@ -46,7 +34,6 @@ export async function createContext(
   return {
     req: opts.req,
     res: opts.res,
-    user,
     family,
     isGuest,
   };

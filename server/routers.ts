@@ -1,16 +1,7 @@
-import { COOKIE_NAME } from "@shared/const";
-import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import {
-  publicProcedure,
-  protectedProcedure,
-  guestSafeProcedure,
-  router,
-} from "./_core/trpc";
+import { guestSafeProcedure, router } from "./_core/trpc";
 import { familyAuthRouter } from "./familyAuthRouter";
 import {
-  getBudgetData,
-  saveBudgetData,
   getFamilyBudget,
   saveFamilyBudget,
   listFamilyBudgetHistory,
@@ -38,42 +29,6 @@ const jsonArrayString = z
 
 export const appRouter = router({
   system: systemRouter,
-  auth: router({
-    me: publicProcedure.query(opts => opts.ctx.user),
-    logout: publicProcedure.mutation(({ ctx }) => {
-      const cookieOptions = getSessionCookieOptions(ctx.req);
-      ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
-      return {
-        success: true,
-      } as const;
-    }),
-  }),
-
-  // Eski kullanıcı bazlı budget (artık kullanılmıyor)
-  budget: router({
-    get: protectedProcedure.query(async ({ ctx }) => {
-      if (!ctx.user) return null;
-      return await getBudgetData(ctx.user.id);
-    }),
-    save: protectedProcedure
-      .input(
-        z.object({
-          currentMonth: z.string(),
-          incomes: z.string(),
-          expenses: z.string(),
-          debts: z.string(),
-          savings: z.string(),
-          annualPayments: z.string(),
-          budgetLimits: z.string(),
-          savingsGoals: z.string(),
-        })
-      )
-      .mutation(async ({ ctx, input }) => {
-        if (!ctx.user) throw new Error("Not authenticated");
-        return await saveBudgetData(ctx.user.id, input);
-      }),
-  }),
-
   familyAuth: familyAuthRouter,
   // Yeni aile bazlı budget - aile şifresi gerektirir.
   // Demo subdomain (ctx.isGuest) için: queries DEMO_FAMILY_BUDGET döndürür,
