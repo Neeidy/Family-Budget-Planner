@@ -223,6 +223,8 @@ function DashboardLayoutContent({
   }, [canUndo, undo]);
 
   const demo = isDemoMode();
+  const brandTitle = demo ? "Kerem & Yağmur Bütçesi" : "ÜK Ailesi Bütçe";
+  const brandTagline = demo ? "Demo aile profili" : "Aile bütçe paneli";
 
   return (
     <>
@@ -296,7 +298,7 @@ function DashboardLayoutContent({
                         color: "var(--text-primary)",
                       }}
                     >
-                      ÜK Ailesi Bütçe
+                      {brandTitle}
                     </div>
                     <div
                       style={{
@@ -306,7 +308,7 @@ function DashboardLayoutContent({
                         whiteSpace: "nowrap",
                       }}
                     >
-                      Aile bütçe paneli
+                      {brandTagline}
                     </div>
                   </div>
                 </>
@@ -561,7 +563,7 @@ function DashboardLayoutContent({
                     color: "var(--text-primary)",
                   }}
                 >
-                  ÜK Ailesi Bütçe
+                  {brandTitle}
                 </div>
                 <div
                   style={{
