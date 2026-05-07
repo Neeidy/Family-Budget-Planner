@@ -387,7 +387,7 @@ export default function Login() {
               color: "var(--text-primary)",
             }}
           >
-            ÜK Ailesi Bütçe
+            {demo ? "Kerem & Yağmur Bütçesi" : "ÜK Ailesi Bütçe"}
           </h1>
           <div
             style={{
@@ -396,7 +396,9 @@ export default function Login() {
               marginTop: 6,
             }}
           >
-            Hoş geldiniz, lütfen giriş yapın
+            {demo
+              ? "Demo profil seçin — şifre gerekmez"
+              : "Hoş geldiniz, lütfen giriş yapın"}
           </div>
         </div>
 
