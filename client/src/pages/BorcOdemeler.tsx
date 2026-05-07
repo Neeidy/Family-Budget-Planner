@@ -67,43 +67,6 @@ function PageHeader({ tab, onAdd }: { tab: Tab; onAdd: () => void }) {
   );
 }
 
-// ── SubFilterChips ───────────────────────────────────────────
-interface SubFilterChipsProps<T extends string> {
-  options: Array<{ key: T; label: string; count?: number; colorVar?: string }>;
-  value: T;
-  onChange: (v: T) => void;
-}
-
-function SubFilterChips<T extends string>({ options, value, onChange }: SubFilterChipsProps<T>) {
-  return (
-    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-      {options.map((o) => {
-        const active = value === o.key;
-        const colorVar = o.colorVar ?? "var(--text-secondary)";
-        return (
-          <button
-            key={o.key} type="button" onClick={() => onChange(o.key)}
-            style={{
-              display: "inline-flex", alignItems: "center", gap: 6,
-              padding: "7px 14px", borderRadius: 999,
-              fontSize: 12, fontWeight: 600,
-              border: active ? "none" : "1px solid var(--border-subtle)",
-              background: active ? colorVar : "var(--bg-elevated)",
-              color: active ? "oklch(0.99 0 0)" : "var(--text-secondary)",
-              cursor: "pointer", transition: "all 160ms",
-            }}
-          >
-            {o.label}
-            {typeof o.count === "number" && (
-              <span style={{ opacity: 0.7, fontVariantNumeric: "tabular-nums" }}>{o.count}</span>
-            )}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
 // ── Hero card ─────────────────────────────────────────────────
 function HeroCard({ label, value, accent }: { label: string; value: string; accent?: string }) {
   return (
@@ -132,28 +95,14 @@ function MiniStatCard({ label, amount, color }: { label: string; amount: number;
 }
 
 // ── BORÇLAR TAB ───────────────────────────────────────────────
-type DebtSubFilter = "tumu" | "Benim" | "Esim" | "Ev";
-
 function DebtsTab({ globalFilter, onEdit, onDelete }: {
   globalFilter: PersonFilter;
   onEdit: (debt: Debt) => void;
   onDelete: (debt: Debt) => void;
 }) {
   const { budgetData } = useBudget();
-  const { person1Name, person2Name } = usePerson();
-  const [subFilter, setSubFilter] = useState<DebtSubFilter>("tumu");
 
-  const afterGlobal = useMemo(() => applyPersonFilter(budgetData.debts, globalFilter), [budgetData.debts, globalFilter]);
-  const filtered = useMemo(
-    () => subFilter === "tumu" ? afterGlobal : afterGlobal.filter((d) => d.owner === subFilter),
-    [afterGlobal, subFilter],
-  );
-
-  const counts = {
-    yigit: afterGlobal.filter((d) => d.owner === "Benim").length,
-    arzu:  afterGlobal.filter((d) => d.owner === "Esim").length,
-    ev:    afterGlobal.filter((d) => d.owner === "Ev").length,
-  };
+  const filtered = useMemo(() => applyPersonFilter(budgetData.debts, globalFilter), [budgetData.debts, globalFilter]);
 
   const totalDebt    = filtered.reduce((s, d) => s + d.totalDebt, 0);
   const totalMonthly = filtered.reduce((s, d) => s + d.monthlyPayment, 0);
@@ -168,17 +117,6 @@ function DebtsTab({ globalFilter, onEdit, onDelete }: {
         <MiniStatCard label="Bu Ay Ödenecek"  amount={totalMonthly} color="var(--status-warning)" />
         <MiniStatCard label="Kalan Borç"      amount={remaining}    color="var(--owner-yigit)" />
       </div>
-
-      <SubFilterChips<DebtSubFilter>
-        options={[
-          { key: "tumu",  label: "Tümü",       count: afterGlobal.length, colorVar: "var(--text-secondary)" },
-          { key: "Benim", label: person1Name,  count: counts.yigit,       colorVar: "var(--owner-yigit)" },
-          { key: "Esim",  label: person2Name,  count: counts.arzu,        colorVar: "var(--owner-arzu)" },
-          { key: "Ev",    label: "Ortak",      count: counts.ev,          colorVar: "var(--owner-ev)" },
-        ]}
-        value={subFilter}
-        onChange={setSubFilter}
-      />
 
       {filtered.length === 0 ? (
         <EmptyState emoji="💳" title="Borç listesi boş" description="Kredi kartı, banka kredisi veya kişisel borçlarınızı ekleyerek takip edin." />
@@ -260,28 +198,14 @@ function iconBtn(color: string): React.CSSProperties {
 }
 
 // ── TAKSİTLER TAB ─────────────────────────────────────────────
-type InstSubFilter = "tumu" | "Benim" | "Esim" | "Ev";
-
 function InstallmentsTab({ globalFilter, onEdit, onDelete }: {
   globalFilter: PersonFilter;
   onEdit: (inst: Installment) => void;
   onDelete: (inst: Installment) => void;
 }) {
   const { budgetData } = useBudget();
-  const { person1Name, person2Name } = usePerson();
-  const [subFilter, setSubFilter] = useState<InstSubFilter>("tumu");
 
-  const afterGlobal = useMemo(() => applyPersonFilter(budgetData.installments ?? [], globalFilter), [budgetData.installments, globalFilter]);
-  const filtered = useMemo(
-    () => subFilter === "tumu" ? afterGlobal : afterGlobal.filter((i) => i.owner === subFilter),
-    [afterGlobal, subFilter],
-  );
-
-  const counts = {
-    yigit: afterGlobal.filter((i) => i.owner === "Benim").length,
-    arzu:  afterGlobal.filter((i) => i.owner === "Esim").length,
-    ev:    afterGlobal.filter((i) => i.owner === "Ev").length,
-  };
+  const filtered = useMemo(() => applyPersonFilter(budgetData.installments ?? [], globalFilter), [budgetData.installments, globalFilter]);
 
   const totalActive  = filtered.length;
   const totalMonthly = filtered.reduce((s, i) => s + i.monthlyAmount, 0);
@@ -296,17 +220,6 @@ function InstallmentsTab({ globalFilter, onEdit, onDelete }: {
         <MiniStatCard label="Kalan Toplam"  amount={totalRemaining} color="var(--status-danger)" />
         <MiniStatCard label="Aktif Taksit"  amount={totalActive}    color="var(--accent-green)" />
       </div>
-
-      <SubFilterChips<InstSubFilter>
-        options={[
-          { key: "tumu",  label: "Tümü",       count: afterGlobal.length, colorVar: "var(--text-secondary)" },
-          { key: "Benim", label: person1Name,  count: counts.yigit,       colorVar: "var(--owner-yigit)" },
-          { key: "Esim",  label: person2Name,  count: counts.arzu,        colorVar: "var(--owner-arzu)" },
-          { key: "Ev",    label: "Ortak",      count: counts.ev,          colorVar: "var(--owner-ev)" },
-        ]}
-        value={subFilter}
-        onChange={setSubFilter}
-      />
 
       {filtered.length === 0 ? (
         <EmptyState emoji="🛍" title="Taksit listesi boş" description="Telefon, beyaz eşya veya başka taksitli alışverişlerinizi takip edin." />

@@ -137,26 +137,16 @@ function IncomesTab({ globalFilter, onEdit, onDelete }: {
 }) {
   const { budgetData } = useBudget();
   const { person1Name, person2Name } = usePerson();
-  const [subFilter, setSubFilter] = useState<"tumu" | "Benim" | "Esim">("tumu");
 
   const yigitTotal = budgetData.incomes.filter((i) => i.owner === "Benim").reduce((s, i) => s + i.amount, 0);
   const arzuTotal  = budgetData.incomes.filter((i) => i.owner === "Esim").reduce((s, i) => s + i.amount, 0);
   const grandTotal = yigitTotal + arzuTotal;
 
-  // Global filter (Tümü/Benim/Esim/Ev) → income only has Benim|Esim, Ev → empty
   const afterGlobal = useMemo(() => applyPersonFilter(budgetData.incomes, globalFilter), [budgetData.incomes, globalFilter]);
-  const filteredIncomes = useMemo(() => {
-    if (subFilter === "tumu") return afterGlobal;
-    return afterGlobal.filter((i) => i.owner === subFilter);
-  }, [afterGlobal, subFilter]);
-
   const sortedIncomes = useMemo(
-    () => [...filteredIncomes].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
-    [filteredIncomes],
+    () => [...afterGlobal].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
+    [afterGlobal],
   );
-
-  const yigitCount = afterGlobal.filter((i) => i.owner === "Benim").length;
-  const arzuCount  = afterGlobal.filter((i) => i.owner === "Esim").length;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -166,17 +156,6 @@ function IncomesTab({ globalFilter, onEdit, onDelete }: {
         <MiniSummaryCard label={`${person2Name}'in Geliri`} amount={arzuTotal}  accent="var(--owner-arzu)" />
         <MiniSummaryCard label="Toplam Gelir"               amount={grandTotal} accent="var(--accent-green)" />
       </div>
-
-      {/* Sub-filter chips */}
-      <SubFilterChips<"tumu" | "Benim" | "Esim">
-        options={[
-          { key: "tumu",  label: "Tümü",       count: afterGlobal.length, colorVar: "var(--text-secondary)" },
-          { key: "Benim", label: person1Name,  count: yigitCount,         colorVar: "var(--owner-yigit)" },
-          { key: "Esim",  label: person2Name,  count: arzuCount,          colorVar: "var(--owner-arzu)" },
-        ]}
-        value={subFilter}
-        onChange={setSubFilter}
-      />
 
       {/* List */}
       {sortedIncomes.length === 0 ? (
@@ -221,38 +200,17 @@ function ExpensesTab({ globalFilter, onEdit, onDelete }: {
 }) {
   const { budgetData, updateExpense } = useBudget();
   const { person1Name, person2Name } = usePerson();
-  const [subFilter, setSubFilter] = useState<ExpenseSubFilter>("tumu");
   const [statusFilter, setStatusFilter] = useState<ExpenseStatus>("tumu");
 
   const afterGlobal = useMemo(() => applyPersonFilter(budgetData.expenses, globalFilter), [budgetData.expenses, globalFilter]);
 
   const filtered = useMemo(() => {
-    let list = afterGlobal;
-    if (subFilter !== "tumu")    list = list.filter((e) => e.owner === subFilter);
-    if (statusFilter !== "tumu") list = list.filter((e) => e.status === statusFilter);
-    return list;
-  }, [afterGlobal, subFilter, statusFilter]);
-
-  const counts = {
-    yigit: afterGlobal.filter((e) => e.owner === "Benim").length,
-    arzu:  afterGlobal.filter((e) => e.owner === "Esim").length,
-    ev:    afterGlobal.filter((e) => e.owner === "Ev").length,
-  };
+    if (statusFilter === "tumu") return afterGlobal;
+    return afterGlobal.filter((e) => e.status === statusFilter);
+  }, [afterGlobal, statusFilter]);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      {/* Owner filter */}
-      <SubFilterChips<ExpenseSubFilter>
-        options={[
-          { key: "tumu",  label: "Tümü",       count: afterGlobal.length, colorVar: "var(--text-secondary)" },
-          { key: "Benim", label: person1Name,  count: counts.yigit,       colorVar: "var(--owner-yigit)" },
-          { key: "Esim",  label: person2Name,  count: counts.arzu,        colorVar: "var(--owner-arzu)" },
-          { key: "Ev",    label: "Ortak",      count: counts.ev,          colorVar: "var(--owner-ev)" },
-        ]}
-        value={subFilter}
-        onChange={setSubFilter}
-      />
-
       {/* Status filter */}
       <SubFilterChips<ExpenseStatus>
         options={[
