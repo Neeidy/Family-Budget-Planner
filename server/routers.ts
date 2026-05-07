@@ -1,9 +1,10 @@
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, protectedProcedure, familyProtectedProcedure, router } from "./_core/trpc";
+import { publicProcedure, protectedProcedure, familyProtectedProcedure, guestSafeProcedure, router } from "./_core/trpc";
 import { familyAuthRouter } from "./familyAuthRouter";
 import { getBudgetData, saveBudgetData, getFamilyBudget, saveFamilyBudget, listFamilyBudgetHistory, getFamilyBudgetSnapshot } from "./db";
+import { DEMO_FAMILY_BUDGET } from "./demo/demoBudget";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 
@@ -59,12 +60,15 @@ export const appRouter = router({
   }),
 
   familyAuth: familyAuthRouter,
-  // Yeni aile bazlı budget - aile şifresi gerektirir
+  // Yeni aile bazlı budget - aile şifresi gerektirir.
+  // Demo subdomain (ctx.isGuest) için: queries DEMO_FAMILY_BUDGET döndürür,
+  // mutations FORBIDDEN. Read-only showcase.
   familyBudget: router({
-    get: familyProtectedProcedure.query(async () => {
+    get: guestSafeProcedure.query(async ({ ctx }) => {
+      if (ctx.demoMode) return DEMO_FAMILY_BUDGET;
       return await getFamilyBudget(FAMILY_ID);
     }),
-    save: familyProtectedProcedure
+    save: guestSafeProcedure
       .input(z.object({
         incomes: jsonArrayString,
         expenses: jsonArrayString,
@@ -98,22 +102,27 @@ export const appRouter = router({
         }
         return result;
       }),
-    getUpdatedAt: familyProtectedProcedure.query(async () => {
+    getUpdatedAt: guestSafeProcedure.query(async ({ ctx }) => {
+      if (ctx.demoMode) return DEMO_FAMILY_BUDGET.updatedAt;
       const data = await getFamilyBudget(FAMILY_ID);
       return data ? data.updatedAt : null;
     }),
     history: router({
-      list: familyProtectedProcedure.query(async () => {
+      list: guestSafeProcedure.query(async ({ ctx }) => {
+        if (ctx.demoMode) return [];
         return await listFamilyBudgetHistory(FAMILY_ID);
       }),
-      get: familyProtectedProcedure
+      get: guestSafeProcedure
         .input(z.object({ id: z.number().int().positive() }))
-        .query(async ({ input }) => {
+        .query(async ({ input, ctx }) => {
+          if (ctx.demoMode) {
+            throw new TRPCError({ code: 'NOT_FOUND', message: 'Demo modunda yedek geçmişi yok' });
+          }
           const snap = await getFamilyBudgetSnapshot(FAMILY_ID, input.id);
           if (!snap) throw new TRPCError({ code: 'NOT_FOUND', message: 'Snapshot bulunamadı' });
           return snap;
         }),
-      restore: familyProtectedProcedure
+      restore: guestSafeProcedure
         .input(z.object({
           id: z.number().int().positive(),
           expectedUpdatedAt: z.string().datetime().nullable(),

@@ -198,6 +198,7 @@ function createFamilyContextForHistory(): TrpcContext {
   return {
     user: null,
     family: { person: "Yigit" },
+    isGuest: false,
     req: { protocol: "https", headers: {} } as TrpcContext["req"],
     res: {
       clearCookie: vi.fn(),

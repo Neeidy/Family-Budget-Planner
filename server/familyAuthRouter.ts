@@ -1,6 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { router, publicProcedure } from "./_core/trpc";
+import { router, publicProcedure, guestOnlyProcedure } from "./_core/trpc";
 import { ENV } from "./_core/env";
 import {
   verifyPassword,
@@ -9,6 +9,7 @@ import {
   VIYANA_FAMILY_COOKIE,
   type FamilyPerson,
 } from "./auth/familyAuth";
+import { DEMO_PROFILES } from "./demo/demoBudget";
 
 const COOKIE_MAX_AGE = 30 * 24 * 60 * 60 * 1000; // 30 days in ms
 
@@ -114,5 +115,30 @@ export const familyAuthRouter = router({
       process.env.FAMILY_PASSWORD_HASH = newHash;
 
       return { ok: true, newHash } as const;
+    }),
+
+  /**
+   * Demo subdomain only — list of fake profiles for the showcase login.
+   * Returns NOT_FOUND on butce.aileplan.uk (production family domain).
+   */
+  getDemoProfiles: guestOnlyProcedure.query(() => {
+    return DEMO_PROFILES.map((p) => ({ id: p.id, name: p.name, emoji: p.emoji }));
+  }),
+
+  /**
+   * Demo subdomain only — bypass-login that signs a family session for the
+   * picked demo profile. Same cookie as the real login so the rest of the
+   * app works unchanged; ctx.isGuest is what gates writes back to FORBIDDEN.
+   */
+  loginAsDemoProfile: guestOnlyProcedure
+    .input(z.object({ profileId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const profile = DEMO_PROFILES.find((p) => p.id === input.profileId);
+      if (!profile) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Profil bulunamadı" });
+      }
+      const token = await signFamilySession({ person: profile.person as FamilyPerson });
+      ctx.res.cookie(VIYANA_FAMILY_COOKIE, token, getCookieOptions(ENV.isProduction));
+      return { ok: true, person: profile.person, name: profile.name } as const;
     }),
 });
