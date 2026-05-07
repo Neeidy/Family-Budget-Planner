@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "uk.aileplan.butce.twa",
+        "sha256_cert_fingerprints": ["85:CE:41:7F:DC:B2:4E:FA:D6:40:5C:B2:9D:FE:B0:88:75:F4:12:AF:5D:84:B0:8A:23:0D:09:42:34:37:80:5D"]
+      }
+    }]
