@@ -45,6 +45,7 @@ export function AnnualPaymentDialog({
   const [name, setName] = useState("");
   const [amount, setAmount] = useState("");
   const [paymentMonth, setPaymentMonth] = useState(now.getMonth() + 1);
+  const [paymentDay, setPaymentDay] = useState("");
   const [lastPaymentDate, setLastPaymentDate] = useState(todayISO);
   const [notes, setNotes] = useState("");
 
@@ -54,12 +55,14 @@ export function AnnualPaymentDialog({
       setName(entity.name);
       setAmount(String(entity.amount));
       setPaymentMonth(entity.paymentMonth);
+      setPaymentDay(entity.paymentDay ? String(entity.paymentDay) : "");
       setLastPaymentDate(entity.lastPaymentDate || todayISO);
       setNotes(entity.notes ?? "");
     } else {
       setName("");
       setAmount("");
       setPaymentMonth(now.getMonth() + 1);
+      setPaymentDay("");
       setLastPaymentDate(todayISO);
       setNotes("");
     }
@@ -67,8 +70,18 @@ export function AnnualPaymentDialog({
   }, [open, entity]);
 
   const numAmount = parseFloat(amount.replace(",", "."));
+  const numPaymentDay =
+    paymentDay.trim() === "" ? undefined : parseInt(paymentDay, 10);
+  const paymentDayValid =
+    numPaymentDay === undefined ||
+    (Number.isFinite(numPaymentDay) &&
+      numPaymentDay >= 1 &&
+      numPaymentDay <= 31);
   const valid =
-    name.trim().length > 0 && Number.isFinite(numAmount) && numAmount > 0;
+    name.trim().length > 0 &&
+    Number.isFinite(numAmount) &&
+    numAmount > 0 &&
+    paymentDayValid;
 
   const handleSave = () => {
     if (!valid) return;
@@ -76,6 +89,7 @@ export function AnnualPaymentDialog({
       name: name.trim(),
       amount: numAmount,
       paymentMonth,
+      paymentDay: numPaymentDay,
       lastPaymentDate,
       notes,
     };
@@ -126,6 +140,16 @@ export function AnnualPaymentDialog({
             value: i + 1,
             label: label.slice(0, 3),
           }))}
+        />
+      </Field>
+      <Field label="Ödeme Günü (opsiyonel)">
+        <TextInput
+          value={paymentDay}
+          onChange={setPaymentDay}
+          placeholder="Örn: 15 (1–31)"
+          type="number"
+          min={1}
+          max={31}
         />
       </Field>
       <Field label="Son Ödeme Tarihi">
