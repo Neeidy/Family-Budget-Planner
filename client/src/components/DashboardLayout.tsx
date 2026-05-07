@@ -15,6 +15,7 @@ import { useIsMobile } from "@/hooks/useMobile";
 import { useTheme } from "@/contexts/ThemeContext";
 import { usePerson } from "@/contexts/PersonContext";
 import { usePersonFilter, PersonFilter } from "@/contexts/PersonFilterContext";
+import { PersonFilterChips, type FilterValue } from "@/components/design/PersonFilterChips";
 import {
   LayoutDashboard,
   ArrowLeftRight,
@@ -124,12 +125,10 @@ function DashboardLayoutContent({
     : 'text-purple-600 bg-purple-50 dark:bg-purple-900/30';
 
   const { filter: personFilter, setFilter: setPersonFilter } = usePersonFilter();
-  const personFilterOptions: { label: string; value: PersonFilter }[] = [
-    { label: "Tümü", value: "Tümü" },
-    { label: person1Name, value: "Benim" },
-    { label: person2Name, value: "Esim" },
-    { label: "Ev", value: "Ev" },
-  ];
+  const filterToValue = (f: PersonFilter): FilterValue =>
+    f === "Tümü" ? "tumu" : f === "Benim" ? "yigit" : f === "Esim" ? "arzu" : "ev";
+  const valueToFilter = (v: FilterValue): PersonFilter =>
+    v === "tumu" ? "Tümü" : v === "yigit" ? "Benim" : v === "arzu" ? "Esim" : "Ev";
 
   // Sync durumu
   const saveMutation = trpc.familyBudget.save.useMutation();
@@ -443,20 +442,12 @@ function DashboardLayoutContent({
           </div>
         )}
         {/* Global person filter */}
-        <div className="flex items-center gap-2 px-3 md:px-6 pt-3 md:pt-4 pb-0 flex-wrap">
-          {personFilterOptions.map((opt) => (
-            <button
-              key={opt.value}
-              onClick={() => setPersonFilter(opt.value)}
-              className={`px-3 py-1 rounded-full text-xs font-medium transition-all border ${
-                personFilter === opt.value
-                  ? "bg-primary text-primary-foreground border-primary shadow-sm"
-                  : "bg-background text-muted-foreground border-border hover:bg-accent/50"
-              }`}
-            >
-              {opt.label}
-            </button>
-          ))}
+        <div className="px-3 md:px-6 pt-3 md:pt-4 pb-0">
+          <PersonFilterChips
+            value={filterToValue(personFilter)}
+            onChange={(v) => setPersonFilter(valueToFilter(v))}
+            labels={{ yigit: person1Name, arzu: person2Name }}
+          />
         </div>
         <main className="flex-1 p-3 md:p-6 pb-20 md:pb-6">
           <div key={location} className="page-enter">
