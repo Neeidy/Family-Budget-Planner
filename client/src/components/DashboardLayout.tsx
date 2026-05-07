@@ -230,20 +230,39 @@ function DashboardLayoutContent({
             </div>
           </SidebarHeader>
 
-          {/* Aktif kisi gostergesi */}
+          {/* Aktif kullanıcı pill — port of _design/nav.jsx:87-104 */}
           {!isCollapsed && currentPerson && (
-            <div className="px-3 py-2 border-b">
-              <div className={`flex items-center justify-between px-2 py-1.5 rounded-lg ${activeColor}`}>
-                <div className="flex items-center gap-2">
-                  <span className="text-base">{activeEmoji}</span>
-                  <span className="text-sm font-semibold">{activeName}</span>
+            <div style={{ padding: "0 14px 16px" }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  padding: "10px 12px",
+                  background: "var(--bg-elevated)",
+                  borderRadius: 14,
+                }}
+              >
+                <Avatar who={activeWho} size={32} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}>
+                    {activeName}
+                  </div>
+                  <div style={{ fontSize: 11, color: "var(--text-tertiary)" }}>Aktif kullanıcı</div>
                 </div>
                 <button
                   onClick={handleSwitchPerson}
-                  className="text-xs opacity-60 hover:opacity-100 transition-opacity flex items-center gap-1"
-                  title="Kisi degistir"
+                  style={{
+                    background: "transparent",
+                    border: "none",
+                    cursor: "pointer",
+                    color: "var(--text-tertiary)",
+                    padding: 4,
+                    borderRadius: 8,
+                  }}
+                  title="Çıkış Yap"
                 >
-                  <LogOut className="w-3 h-3" />
+                  <LogOut className="w-4 h-4" />
                 </button>
               </div>
             </div>
