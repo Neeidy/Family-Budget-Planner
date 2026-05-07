@@ -49,6 +49,7 @@ export function InstallmentDialog({
   const [monthlyAmount, setMonthlyAmount] = useState("");
   const [startYear, setStartYear] = useState(String(now.getFullYear()));
   const [startMonth, setStartMonth] = useState(String(now.getMonth() + 1));
+  const [paymentDay, setPaymentDay] = useState("");
   const [owner, setOwner] = useState<"Ev" | "Benim" | "Esim">(
     (currentPerson as "Benim" | "Esim" | null) ?? "Ev"
   );
@@ -63,6 +64,7 @@ export function InstallmentDialog({
       setMonthlyAmount(String(entity.monthlyAmount));
       setStartYear(String(entity.startYear));
       setStartMonth(String(entity.startMonth));
+      setPaymentDay(entity.paymentDay ? String(entity.paymentDay) : "");
       setOwner(entity.owner);
       setNotes(entity.notes ?? "");
     } else {
@@ -72,6 +74,7 @@ export function InstallmentDialog({
       setMonthlyAmount("");
       setStartYear(String(now.getFullYear()));
       setStartMonth(String(now.getMonth() + 1));
+      setPaymentDay("");
       setOwner((currentPerson as "Benim" | "Esim" | null) ?? "Ev");
       setNotes("");
     }
@@ -82,6 +85,13 @@ export function InstallmentDialog({
   const numMonthly = parseFloat(monthlyAmount.replace(",", "."));
   const numYear = parseInt(startYear, 10);
   const numMonth = parseInt(startMonth, 10);
+  const numPaymentDay =
+    paymentDay.trim() === "" ? undefined : parseInt(paymentDay, 10);
+  const paymentDayValid =
+    numPaymentDay === undefined ||
+    (Number.isFinite(numPaymentDay) &&
+      numPaymentDay >= 1 &&
+      numPaymentDay <= 31);
   const valid =
     name.trim().length > 0 &&
     Number.isFinite(numTotal) &&
@@ -94,7 +104,8 @@ export function InstallmentDialog({
     numYear >= 2000 &&
     Number.isFinite(numMonth) &&
     numMonth >= 1 &&
-    numMonth <= 12;
+    numMonth <= 12 &&
+    paymentDayValid;
 
   const handleSave = () => {
     if (!valid) return;
@@ -105,6 +116,7 @@ export function InstallmentDialog({
       monthlyAmount: numMonthly,
       startYear: numYear,
       startMonth: numMonth,
+      paymentDay: numPaymentDay,
       owner,
       notes,
     };
@@ -201,6 +213,16 @@ export function InstallmentDialog({
           />
         </Field>
       </div>
+      <Field label="Ödeme Günü (opsiyonel)">
+        <TextInput
+          value={paymentDay}
+          onChange={setPaymentDay}
+          placeholder="Örn: 15 (1–31)"
+          type="number"
+          min={1}
+          max={31}
+        />
+      </Field>
       <Field label="Notlar (opsiyonel)">
         <TextAreaInput
           value={notes}

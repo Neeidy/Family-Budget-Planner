@@ -49,6 +49,7 @@ export interface AnnualPayment {
   name: string;
   amount: number;
   paymentMonth: number;
+  paymentDay?: number; // 1-31, optional — falls back to 15 when null
   lastPaymentDate: string;
   notes: string;
 }
@@ -61,6 +62,7 @@ export interface Installment {
   monthlyAmount: number;
   startYear: number;
   startMonth: number; // 1-12
+  paymentDay?: number; // 1-31, optional — falls back to 1 when null
   owner: "Ev" | "Benim" | "Esim";
   notes: string;
 }

@@ -38,14 +38,20 @@ function daysUntilDayOfMonth(dayStr: string, today: Date): number | null {
 }
 
 /**
- * Days until the 15th of `month` (1-12). If that day has already passed
- * this year, target the next occurrence in the following year.
+ * Days until the given day in `month` (1-12). When `day` is undefined or
+ * out of range, the 15th is used as a fallback. Rolls forward to next
+ * year if the target has already passed this year.
  */
-function daysUntilMonth(month: number, today: Date): number {
+function daysUntilMonth(
+  month: number,
+  day: number | undefined,
+  today: Date
+): number {
   const year = today.getFullYear();
-  let target = new Date(year, month - 1, 15);
+  const safeDay = day !== undefined && day >= 1 && day <= 31 ? day : 15;
+  let target = new Date(year, month - 1, safeDay);
   if (target.getTime() < today.getTime()) {
-    target = new Date(year + 1, month - 1, 15);
+    target = new Date(year + 1, month - 1, safeDay);
   }
   return Math.round((target.getTime() - today.getTime()) / 86_400_000);
 }
@@ -264,14 +270,15 @@ export function Dashboard() {
       });
     }
 
-    // Installments — recurring monthly payment, anchored at startMonth
+    // Installments — recurring monthly payment; paymentDay (1-31)
+    // when set, otherwise day 1 fallback.
     const filteredInstallments = applyPersonFilter(
       budgetData.installments ?? [],
       filter
     );
     for (const inst of filteredInstallments) {
-      // Treat day-of-month as 1 (no per-day field on installments)
-      const days = daysUntilDayOfMonth("1", today);
+      const dayStr = inst.paymentDay ? String(inst.paymentDay) : "1";
+      const days = daysUntilDayOfMonth(dayStr, today);
       if (days === null) continue;
       items.push({
         name: inst.name,
@@ -282,11 +289,12 @@ export function Dashboard() {
       });
     }
 
-    // Annual payments — show only when filter is Tümü or Ev (family-wide)
+    // Annual payments — show only when filter is Tümü or Ev (family-wide).
+    // paymentDay (1-31) when set, otherwise 15th of paymentMonth fallback.
     if (filter === "Tümü" || filter === "Ev") {
       for (const ap of budgetData.annualPayments ?? []) {
         if (!ap.paymentMonth) continue;
-        const days = daysUntilMonth(ap.paymentMonth, today);
+        const days = daysUntilMonth(ap.paymentMonth, ap.paymentDay, today);
         // Only surface annual payments due in the next ~60 days
         if (days > 60) continue;
         items.push({
