@@ -208,24 +208,61 @@ function DashboardLayoutContent({
           className="border-r-0"
           disableTransition={isResizing}
         >
-          <SidebarHeader className="h-16 justify-center border-b">
-            <div className="flex items-center gap-3 px-2 transition-all w-full">
+          {/* Brand header — port of _design/nav.jsx:71-85 */}
+          <SidebarHeader className="border-b" style={{ padding: isCollapsed ? "12px 8px" : "12px 14px" }}>
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              width: "100%",
+            }}>
               <button
                 onClick={toggleSidebar}
-                className="h-8 w-8 flex items-center justify-center hover:bg-accent/20 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring shrink-0"
-                aria-label="Navigasyonu ac/kapat"
+                aria-label="Navigasyonu aç/kapat"
+                style={{
+                  width: 32, height: 32,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  borderRadius: 8,
+                  background: "transparent",
+                  border: "none",
+                  cursor: "pointer",
+                  color: "var(--text-tertiary)",
+                  flexShrink: 0,
+                }}
               >
-                <PanelLeft className="h-4 w-4 text-muted-foreground" />
+                <PanelLeft className="h-4 w-4" />
               </button>
               {!isCollapsed ? (
-                <div className="flex items-center gap-2 min-w-0">
-                  <span className="text-xl" role="img" aria-label="panda">🐼</span>
-                  <span className="font-bold text-sm tracking-tight truncate text-primary" style={{ fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif" }}>
-                    UK Ailesi Butce
-                  </span>
-                </div>
+                <>
+                  <div style={{
+                    width: 38, height: 38, borderRadius: 12,
+                    background: "linear-gradient(135deg, var(--accent-green), var(--owner-yigit))",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontSize: 22,
+                    flexShrink: 0,
+                    boxShadow: "0 4px 12px -4px var(--accent-green-soft)",
+                  }}>🐼</div>
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <div style={{
+                      fontSize: 13, fontWeight: 700, lineHeight: 1.25,
+                      letterSpacing: "-0.01em",
+                      whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+                      color: "var(--text-primary)",
+                    }}>ÜK Ailesi Bütçe</div>
+                    <div style={{
+                      fontSize: 11, color: "var(--text-tertiary)", marginTop: 2,
+                      whiteSpace: "nowrap",
+                    }}>Aile bütçe paneli</div>
+                  </div>
+                </>
               ) : (
-                <span className="text-lg" role="img" aria-label="panda">🐼</span>
+                <div style={{
+                  width: 32, height: 32, borderRadius: 10,
+                  background: "linear-gradient(135deg, var(--accent-green), var(--owner-yigit))",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 18,
+                  flexShrink: 0,
+                }}>🐼</div>
               )}
             </div>
           </SidebarHeader>
