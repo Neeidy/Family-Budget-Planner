@@ -6,6 +6,7 @@ import { trpc } from "@/lib/trpc";
 import { usePerson } from "@/contexts/PersonContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Avatar } from "@/components/design";
+import { isDemoMode } from "@/lib/demoMode";
 
 // ── UserSelectButton ─────────────────────────────────────────────
 
@@ -73,6 +74,61 @@ function UserSelectButton({ who, name, selected, onClick }: UserSelectButtonProp
   );
 }
 
+// ── Demo profile button ────────────────────────────────────────
+interface DemoProfileButtonProps {
+  who: "yigit" | "arzu";
+  name: string;
+  emoji: string;
+  selected: boolean;
+  onClick: () => void;
+}
+
+function DemoProfileButton({ who, name, emoji, selected, onClick }: DemoProfileButtonProps) {
+  const ownerColor = `var(--owner-${who})`;
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={{
+        padding: 18,
+        borderRadius: 16,
+        border: selected ? `2px solid ${ownerColor}` : "2px solid transparent",
+        background: selected
+          ? `color-mix(in oklch, ${ownerColor} 14%, var(--bg-elevated))`
+          : "var(--bg-elevated)",
+        cursor: "pointer",
+        fontFamily: "inherit",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: 10,
+        transition: "all 200ms",
+        boxShadow: selected ? `0 8px 18px -8px ${ownerColor}` : "none",
+        width: "100%",
+      }}
+    >
+      <div
+        style={{
+          width: 56,
+          height: 56,
+          borderRadius: "50%",
+          background: `color-mix(in oklch, ${ownerColor} 24%, var(--bg-surface))`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: 30,
+        }}
+        aria-hidden
+      >
+        {emoji}
+      </div>
+      <div style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)" }}>
+        {name}
+      </div>
+    </button>
+  );
+}
+
 // ── Login ────────────────────────────────────────────────────────
 
 export default function Login() {
@@ -80,6 +136,23 @@ export default function Login() {
   const { person1Name, person2Name } = usePerson();
   const { theme, toggleTheme } = useTheme();
   const utils = trpc.useUtils();
+  const demo = isDemoMode();
+
+  // Demo profiles loaded only on demo subdomain
+  const demoProfilesQuery = trpc.familyAuth.getDemoProfiles.useQuery(undefined, {
+    enabled: demo,
+    retry: false,
+  });
+  const [selectedDemoId, setSelectedDemoId] = useState<string | null>(null);
+  const demoLoginMutation = trpc.familyAuth.loginAsDemoProfile.useMutation({
+    onSuccess: async () => {
+      await utils.familyAuth.me.invalidate();
+      setLocation("/");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Demo girişi başarısız");
+    },
+  });
 
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -108,7 +181,12 @@ export default function Login() {
     loginMutation.mutate({ password, person: selectedPerson });
   };
 
-  const isLoading = loginMutation.isPending;
+  const isLoading = loginMutation.isPending || demoLoginMutation.isPending;
+
+  const handleDemoSubmit = (profileId: string) => {
+    setSelectedDemoId(profileId);
+    demoLoginMutation.mutate({ profileId });
+  };
 
   // Parallax — desktop only
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
@@ -258,33 +336,61 @@ export default function Login() {
         {/* Avatar select card */}
         <div style={cardStyle}>
           <div className="section-label" style={{ marginBottom: 12 }}>
-            KİM GİRİŞ YAPIYOR?
+            {demo ? "DEMO PROFİL SEÇ" : "KİM GİRİŞ YAPIYOR?"}
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-            <UserSelectButton
-              who="yigit"
-              person="Benim"
-              name={person1Name}
-              selected={selectedPerson === "Benim"}
-              onClick={() => setSelectedPerson("Benim")}
-            />
-            <UserSelectButton
-              who="arzu"
-              person="Esim"
-              name={person2Name}
-              selected={selectedPerson === "Esim"}
-              onClick={() => setSelectedPerson("Esim")}
-            />
-          </div>
-          {selectedName && (
-            <div style={{ fontSize: 12, color: "var(--text-tertiary)", marginTop: 12, textAlign: "center" }}>
-              <strong style={{ color: "var(--text-secondary)" }}>{selectedName}</strong> olarak giriş yapacaksınız
-            </div>
+          {demo ? (
+            <>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                {demoProfilesQuery.data?.map((p, i) => (
+                  <DemoProfileButton
+                    key={p.id}
+                    who={i === 0 ? "yigit" : "arzu"}
+                    name={p.name}
+                    emoji={p.emoji}
+                    selected={selectedDemoId === p.id}
+                    onClick={() => handleDemoSubmit(p.id)}
+                  />
+                ))}
+                {demoProfilesQuery.isLoading && (
+                  <>
+                    <div style={{ height: 130, borderRadius: 16, background: "var(--bg-elevated)" }} />
+                    <div style={{ height: 130, borderRadius: 16, background: "var(--bg-elevated)" }} />
+                  </>
+                )}
+              </div>
+              <div style={{ fontSize: 12, color: "var(--text-tertiary)", marginTop: 12, textAlign: "center" }}>
+                Profil tıklayarak demo'ya gir
+              </div>
+            </>
+          ) : (
+            <>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                <UserSelectButton
+                  who="yigit"
+                  person="Benim"
+                  name={person1Name}
+                  selected={selectedPerson === "Benim"}
+                  onClick={() => setSelectedPerson("Benim")}
+                />
+                <UserSelectButton
+                  who="arzu"
+                  person="Esim"
+                  name={person2Name}
+                  selected={selectedPerson === "Esim"}
+                  onClick={() => setSelectedPerson("Esim")}
+                />
+              </div>
+              {selectedName && (
+                <div style={{ fontSize: 12, color: "var(--text-tertiary)", marginTop: 12, textAlign: "center" }}>
+                  <strong style={{ color: "var(--text-secondary)" }}>{selectedName}</strong> olarak giriş yapacaksınız
+                </div>
+              )}
+            </>
           )}
         </div>
 
-        {/* Password card */}
-        <form onSubmit={handleSubmit} style={cardStyle}>
+        {/* Password card — hidden in demo mode (login on profile click) */}
+        {!demo && <form onSubmit={handleSubmit} style={cardStyle}>
           <label style={{
             display: "block",
             fontSize: 11,
@@ -379,7 +485,7 @@ export default function Login() {
               <>Giriş Yap →</>
             )}
           </button>
-        </form>
+        </form>}
 
         {/* Footer */}
         <p style={{
@@ -389,7 +495,9 @@ export default function Login() {
           lineHeight: 1.5,
           padding: "0 12px",
         }}>
-          🔒 Bu uygulamaya sadece aile üyeleri erişebilir. Şifre bilmiyorsanız aile üyelerinden birine sorun.
+          {demo
+            ? "🎭 Demo gösterimi · Veriler örnektir, kaydedilmez. Tüm yazma işlemleri kapalıdır."
+            : "🔒 Bu uygulamaya sadece aile üyeleri erişebilir. Şifre bilmiyorsanız aile üyelerinden birine sorun."}
         </p>
       </div>
     </div>

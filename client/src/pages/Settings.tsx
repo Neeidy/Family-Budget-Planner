@@ -7,6 +7,7 @@ import { useBudget } from "@/contexts/BudgetContext";
 import { trpc } from "@/lib/trpc";
 import { Avatar } from "@/components/design";
 import { formatMoney } from "@/lib/format";
+import { isDemoMode, demoDisabledProps } from "@/lib/demoMode";
 
 // ── Section card wrapper ──────────────────────────────────────
 function Section({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
@@ -250,13 +251,15 @@ export default function Settings() {
           <button
             type="button"
             onClick={handleSaveNames}
-            disabled={!name1.trim() || !name2.trim()}
+            disabled={!name1.trim() || !name2.trim() || isDemoMode()}
+            title={isDemoMode() ? "Demo modunda düzenleme yapılamaz" : undefined}
             style={{
               display: "inline-flex", alignItems: "center", gap: 6,
               padding: "10px 16px", borderRadius: "var(--r-md)",
               fontSize: 13, fontWeight: 600, border: "none",
               background: "var(--accent-green)", color: "oklch(0.15 0.03 155)",
-              cursor: "pointer", opacity: !name1.trim() || !name2.trim() ? 0.5 : 1,
+              cursor: isDemoMode() ? "not-allowed" : "pointer",
+              opacity: !name1.trim() || !name2.trim() || isDemoMode() ? 0.5 : 1,
             }}
           >
             {saved ? <><Check style={{ width: 14, height: 14 }} /> Kaydedildi</> : "İsimleri Kaydet"}
@@ -298,10 +301,10 @@ export default function Settings() {
       {/* VERİ YÖNETİMİ */}
       <Section title="Veri Yönetimi" description="JSON yedek alma / yükleme">
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-          <GhostButton onClick={exportData} accent>
+          <GhostButton onClick={exportData} accent disabled={isDemoMode()} title={isDemoMode() ? "Demo modunda düzenleme yapılamaz" : undefined}>
             <Download style={{ width: 14, height: 14 }} /> Verileri İndir (JSON)
           </GhostButton>
-          <GhostButton onClick={() => fileInputRef.current?.click()}>
+          <GhostButton onClick={() => fileInputRef.current?.click()} disabled={isDemoMode()} title={isDemoMode() ? "Demo modunda düzenleme yapılamaz" : undefined}>
             <Upload style={{ width: 14, height: 14 }} /> Yedekten Yükle
           </GhostButton>
           <input
