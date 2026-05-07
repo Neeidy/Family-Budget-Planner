@@ -33,6 +33,8 @@ import { CSSProperties, useEffect, useRef, useState } from "react";
 import { PorsukCat } from "@/components/PorsukCat";
 import { GlobalSearch } from "@/components/GlobalSearch";
 import { MobileFAB, NotificationsPanel, PageSkeleton, Avatar, type SkeletonPage, type AvatarWho } from "@/components/design";
+import { DemoBanner } from "@/components/DemoBanner";
+import { isDemoMode } from "@/lib/demoMode";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useBudget } from "@/contexts/BudgetContext";
@@ -200,8 +202,11 @@ function DashboardLayoutContent({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [canUndo, undo]);
 
+  const demo = isDemoMode();
+
   return (
     <>
+      {demo && <DemoBanner />}
       <div className="relative" ref={sidebarRef}>
         <Sidebar
           collapsible="icon"

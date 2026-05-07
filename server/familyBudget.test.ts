@@ -21,6 +21,7 @@ function createFamilyContext(person: "Benim" | "Esim" = "Benim"): TrpcContext {
   return {
     user: null,
     family: { person },
+    isGuest: false,
     req: {
       protocol: "https",
       headers: {},
@@ -38,6 +39,7 @@ function createUnauthContext(): TrpcContext {
   return {
     user: null,
     family: null,
+    isGuest: false,
     req: {
       protocol: "https",
       headers: {},

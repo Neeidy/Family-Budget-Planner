@@ -19,6 +19,7 @@ import {
 import type { AvatarWho } from "@/components/design";
 import { formatMoney } from "@/lib/format";
 import { applyPersonFilter } from "@/lib/personFilter";
+import { isDemoMode, demoDisabledProps } from "@/lib/demoMode";
 import { getCategoryMeta } from "@/components/design/CategoryPill";
 import type { Income, Expense, BudgetLimit } from "@/hooks/useBudgetData";
 
@@ -77,6 +78,7 @@ function PageHeader({ tab, onAdd }: { tab: Tab; onAdd: () => void }) {
     tab === "Gelirler" ? "+ Gelir Ekle" :
     tab === "Giderler" ? "+ Gider Ekle" :
                           "+ Limit Ekle";
+  const demoProps = demoDisabledProps(ctaLabel);
   return (
     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12 }}>
       <div>
@@ -90,6 +92,8 @@ function PageHeader({ tab, onAdd }: { tab: Tab; onAdd: () => void }) {
       <button
         type="button"
         onClick={onAdd}
+        disabled={demoProps.disabled}
+        title={demoProps.title}
         style={{
           display: "inline-flex",
           alignItems: "center",
@@ -102,6 +106,7 @@ function PageHeader({ tab, onAdd }: { tab: Tab; onAdd: () => void }) {
           background: "var(--accent-green)",
           color: "oklch(0.15 0.03 155)",
           cursor: "pointer",
+          ...demoProps.style,
         }}
       >
         <Plus style={{ width: 14, height: 14 }} />
@@ -432,13 +437,16 @@ function TypeBadge({ type }: { type: string }) {
 }
 
 function RowActions({ onEdit, onDelete }: { onEdit?: () => void; onDelete: () => void }) {
+  const demo = isDemoMode();
+  const dp = demoDisabledProps();
   return (
     <div style={{ display: "inline-flex", gap: 4, justifyContent: "center" }}>
       {onEdit && (
         <button
           type="button"
           onClick={onEdit}
-          title="Düzenle (yakında)"
+          disabled={demo}
+          title={demo ? dp.title : "Düzenle (yakında)"}
           style={{
             padding: 6,
             borderRadius: 6,
@@ -447,6 +455,7 @@ function RowActions({ onEdit, onDelete }: { onEdit?: () => void; onDelete: () =>
             cursor: "pointer",
             color: "var(--text-tertiary)",
             opacity: 0.7,
+            ...dp.style,
           }}
         >
           <Pencil style={{ width: 14, height: 14 }} />
@@ -455,7 +464,8 @@ function RowActions({ onEdit, onDelete }: { onEdit?: () => void; onDelete: () =>
       <button
         type="button"
         onClick={onDelete}
-        title="Sil"
+        disabled={demo}
+        title={demo ? dp.title : "Sil"}
         style={{
           padding: 6,
           borderRadius: 6,
@@ -463,6 +473,7 @@ function RowActions({ onEdit, onDelete }: { onEdit?: () => void; onDelete: () =>
           background: "transparent",
           cursor: "pointer",
           color: "var(--status-danger)",
+          ...dp.style,
         }}
       >
         <Trash2 style={{ width: 14, height: 14 }} />
@@ -472,13 +483,16 @@ function RowActions({ onEdit, onDelete }: { onEdit?: () => void; onDelete: () =>
 }
 
 function ExpenseRowActions({ expense, onMakeOnce, onEdit, onDelete }: { expense: Expense; onMakeOnce: () => void; onEdit: () => void; onDelete: () => void }) {
+  const demo = isDemoMode();
+  const dp = demoDisabledProps();
   return (
     <div style={{ display: "inline-flex", gap: 4, justifyContent: "center" }}>
       {expense.type === "Sabit" && (
         <button
           type="button"
           onClick={onMakeOnce}
-          title="Tek seferlik yap (Sabit → Değişken)"
+          disabled={demo}
+          title={demo ? dp.title : "Tek seferlik yap (Sabit → Değişken)"}
           style={{
             padding: 6,
             borderRadius: 6,
@@ -486,6 +500,7 @@ function ExpenseRowActions({ expense, onMakeOnce, onEdit, onDelete }: { expense:
             background: "transparent",
             cursor: "pointer",
             color: "var(--status-warning)",
+            ...dp.style,
           }}
         >
           <RotateCw style={{ width: 14, height: 14 }} />
@@ -493,8 +508,9 @@ function ExpenseRowActions({ expense, onMakeOnce, onEdit, onDelete }: { expense:
       )}
       <button
         type="button"
-        title="Düzenle"
         onClick={onEdit}
+        disabled={demo}
+        title={demo ? dp.title : "Düzenle"}
         style={{
           padding: 6,
           borderRadius: 6,
@@ -503,6 +519,7 @@ function ExpenseRowActions({ expense, onMakeOnce, onEdit, onDelete }: { expense:
           cursor: "pointer",
           color: "var(--text-tertiary)",
           opacity: 0.7,
+          ...dp.style,
         }}
       >
         <Pencil style={{ width: 14, height: 14 }} />
@@ -510,7 +527,8 @@ function ExpenseRowActions({ expense, onMakeOnce, onEdit, onDelete }: { expense:
       <button
         type="button"
         onClick={onDelete}
-        title="Sil"
+        disabled={demo}
+        title={demo ? dp.title : "Sil"}
         style={{
           padding: 6,
           borderRadius: 6,
@@ -518,6 +536,7 @@ function ExpenseRowActions({ expense, onMakeOnce, onEdit, onDelete }: { expense:
           background: "transparent",
           cursor: "pointer",
           color: "var(--status-danger)",
+          ...dp.style,
         }}
       >
         <Trash2 style={{ width: 14, height: 14 }} />

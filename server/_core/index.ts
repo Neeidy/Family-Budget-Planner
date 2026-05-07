@@ -80,6 +80,17 @@ async function startServer() {
   });
   app.use("/api/trpc", trpcLimiter);
 
+  // Demo mode detection: tag requests from demo.aileplan.uk before
+  // tRPC context is created. Hostname check uses the X-Forwarded-Host
+  // (set by Cloudflare tunnel) or req.hostname.
+  app.use((req, _res, next) => {
+    const host = (req.headers["x-forwarded-host"] as string | undefined)
+      ?? req.hostname
+      ?? "";
+    (req as any).isGuestRequest = host.startsWith("demo.aileplan.uk");
+    next();
+  });
+
   // registerStorageProxy(app);
   // registerOAuthRoutes(app);
   // tRPC API

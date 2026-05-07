@@ -58,22 +58,26 @@ export function MobileFAB(_props: MobileFABProps) {
       }}>
         {NAV_ITEMS.map((it) => {
           if (it.fab) {
+            const demo = typeof window !== "undefined" && window.location.hostname === "demo.aileplan.uk";
             return (
               <button
                 key="fab"
                 type="button"
                 onClick={handleFab}
                 aria-label="Hızlı ekle"
+                disabled={demo}
+                title={demo ? "Demo modunda düzenleme yapılamaz" : "Hızlı ekle"}
                 style={{
                   width: 56, height: 56, borderRadius: "50%",
                   background: "var(--accent-green)",
                   color: "oklch(0.15 0.03 155)",
                   border: "4px solid var(--bg-surface)",
-                  cursor: "pointer",
+                  cursor: demo ? "not-allowed" : "pointer",
                   marginTop: -28,
                   display: "flex", alignItems: "center", justifyContent: "center",
                   boxShadow: "0 8px 24px -4px var(--accent-green-soft), 0 0 0 0 var(--accent-green-soft)",
                   transition: "transform 100ms",
+                  opacity: demo ? 0.5 : 1,
                 }}
               >
                 <Plus style={{ width: 24, height: 24 }} />

@@ -18,6 +18,7 @@ import {
 import type { AvatarWho, BadgeStatus } from "@/components/design";
 import { formatMoney } from "@/lib/format";
 import { applyPersonFilter } from "@/lib/personFilter";
+import { isDemoMode, demoDisabledProps } from "@/lib/demoMode";
 import type { Debt, Installment, AnnualPayment } from "@/hooks/useBudgetData";
 
 const TABS = ["Borçlar", "Taksitler", "Yıllık Ödemeler"] as const;
@@ -40,6 +41,7 @@ function statusToBadge(s: string): BadgeStatus {
 // ── PageHeader ────────────────────────────────────────────────
 function PageHeader({ tab, onAdd }: { tab: Tab; onAdd: () => void }) {
   const ctaLabel = tab === "Borçlar" ? "Borç Ekle" : tab === "Taksitler" ? "Taksit Ekle" : "Yıllık Ödeme Ekle";
+  const dp = demoDisabledProps();
   return (
     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12 }}>
       <div>
@@ -53,11 +55,14 @@ function PageHeader({ tab, onAdd }: { tab: Tab; onAdd: () => void }) {
       <button
         type="button"
         onClick={onAdd}
+        disabled={dp.disabled}
+        title={dp.title}
         style={{
           display: "inline-flex", alignItems: "center", gap: 6,
           padding: "10px 16px", borderRadius: "var(--r-md)",
           fontSize: 13, fontWeight: 600, border: "none",
           background: "var(--accent-green)", color: "oklch(0.15 0.03 155)", cursor: "pointer",
+          ...dp.style,
         }}
       >
         <Plus style={{ width: 14, height: 14 }} />
@@ -230,10 +235,10 @@ function DebtCard({ debt, onEdit, onDelete }: { debt: Debt; onEdit: () => void; 
         </div>
         <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
           <StatusBadge status={statusToBadge(debt.status)} />
-          <button type="button" title="Düzenle" onClick={onEdit} style={iconBtn("var(--text-tertiary)")}>
+          <button type="button" disabled={isDemoMode()} title={isDemoMode() ? "Demo modunda düzenleme yapılamaz" : "Düzenle"} onClick={onEdit} style={iconBtn("var(--text-tertiary)")}>
             <Pencil style={{ width: 14, height: 14 }} />
           </button>
-          <button type="button" title="Sil" onClick={onDelete} style={iconBtn("var(--status-danger)")}>
+          <button type="button" disabled={isDemoMode()} title={isDemoMode() ? "Demo modunda düzenleme yapılamaz" : "Sil"} onClick={onDelete} style={iconBtn("var(--status-danger)")}>
             <Trash2 style={{ width: 14, height: 14 }} />
           </button>
         </div>
@@ -243,7 +248,8 @@ function DebtCard({ debt, onEdit, onDelete }: { debt: Debt; onEdit: () => void; 
 }
 
 function iconBtn(color: string): React.CSSProperties {
-  return { padding: 6, borderRadius: 6, border: "none", background: "transparent", cursor: "pointer", color };
+  const dp = demoDisabledProps();
+  return { padding: 6, borderRadius: 6, border: "none", background: "transparent", cursor: "pointer", color, ...dp.style };
 }
 
 // ── TAKSİTLER TAB ─────────────────────────────────────────────
@@ -335,10 +341,10 @@ function InstallmentCard({ inst, onEdit, onDelete }: { inst: Installment; onEdit
           Toplam: <span className="hero-num">{formatMoney(inst.totalAmount)}</span>
         </div>
         <div style={{ display: "flex", gap: 4 }}>
-          <button type="button" title="Düzenle" onClick={onEdit} style={iconBtn("var(--text-tertiary)")}>
+          <button type="button" disabled={isDemoMode()} title={isDemoMode() ? "Demo modunda düzenleme yapılamaz" : "Düzenle"} onClick={onEdit} style={iconBtn("var(--text-tertiary)")}>
             <Pencil style={{ width: 14, height: 14 }} />
           </button>
-          <button type="button" title="Sil" onClick={onDelete} style={iconBtn("var(--status-danger)")}>
+          <button type="button" disabled={isDemoMode()} title={isDemoMode() ? "Demo modunda düzenleme yapılamaz" : "Sil"} onClick={onDelete} style={iconBtn("var(--status-danger)")}>
             <Trash2 style={{ width: 14, height: 14 }} />
           </button>
         </div>
@@ -434,10 +440,10 @@ function AnnualPaymentsTab({ onEdit, onDelete }: {
                 </div>
               )}
               <div style={{ display: "flex", justifyContent: "flex-end", gap: 4, paddingTop: 8, borderTop: "1px solid var(--border-faint)" }}>
-                <button type="button" title="Düzenle" onClick={() => onEdit(p)} style={iconBtn("var(--text-tertiary)")}>
+                <button type="button" disabled={isDemoMode()} title={isDemoMode() ? "Demo modunda düzenleme yapılamaz" : "Düzenle"} onClick={() => onEdit(p)} style={iconBtn("var(--text-tertiary)")}>
                   <Pencil style={{ width: 14, height: 14 }} />
                 </button>
-                <button type="button" title="Sil" onClick={() => onDelete(p)} style={iconBtn("var(--status-danger)")}>
+                <button type="button" disabled={isDemoMode()} title={isDemoMode() ? "Demo modunda düzenleme yapılamaz" : "Sil"} onClick={() => onDelete(p)} style={iconBtn("var(--status-danger)")}>
                   <Trash2 style={{ width: 14, height: 14 }} />
                 </button>
               </div>

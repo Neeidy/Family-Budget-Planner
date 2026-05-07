@@ -9,6 +9,7 @@ export type TrpcContext = {
   res: CreateExpressContextOptions["res"];
   user: User | null;
   family: { person: FamilyPerson } | null;
+  isGuest: boolean;
 };
 
 export async function createContext(
@@ -36,10 +37,13 @@ export async function createContext(
     family = null;
   }
 
+  const isGuest = !!(opts.req as { isGuestRequest?: boolean }).isGuestRequest;
+
   return {
     req: opts.req,
     res: opts.res,
     user,
     family,
+    isGuest,
   };
 }

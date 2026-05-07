@@ -8,6 +8,7 @@ import { Avatar, EmptyState, GoalDialog, DeleteConfirmDialog } from "@/component
 import type { AvatarWho } from "@/components/design";
 import { formatMoney, formatMoneyShort } from "@/lib/format";
 import { applyPersonFilter } from "@/lib/personFilter";
+import { isDemoMode, demoDisabledProps } from "@/lib/demoMode";
 import type { SavingsGoal } from "@/hooks/useBudgetData";
 
 type StatusFilter = "Aktif" | "Tamamlanan" | "Tümü";
@@ -45,6 +46,7 @@ function pickColor(owner: string): string {
 
 // ── Header ────────────────────────────────────────────────────
 function PageHeader({ onAdd }: { onAdd: () => void }) {
+  const dp = demoDisabledProps();
   return (
     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12 }}>
       <div>
@@ -57,11 +59,14 @@ function PageHeader({ onAdd }: { onAdd: () => void }) {
       </div>
       <button
         type="button" onClick={onAdd}
+        disabled={dp.disabled}
+        title={dp.title}
         style={{
           display: "inline-flex", alignItems: "center", gap: 6,
           padding: "10px 16px", borderRadius: "var(--r-md)",
           fontSize: 13, fontWeight: 600, border: "none",
           background: "var(--accent-green)", color: "oklch(0.15 0.03 155)", cursor: "pointer",
+          ...dp.style,
         }}
       >
         <Plus style={{ width: 14, height: 14 }} />
@@ -239,12 +244,14 @@ function GoalCard({ goal, mobile, onEdit, onDelete }: { goal: SavingsGoal; mobil
           )}
         </div>
         <div style={{ display: "flex", gap: 4 }}>
-          <button type="button" title="Düzenle" onClick={onEdit}
-            style={{ padding: 6, borderRadius: 6, border: "none", background: "transparent", cursor: "pointer", color: "var(--text-tertiary)" }}>
+          <button type="button" disabled={isDemoMode()}
+            title={isDemoMode() ? "Demo modunda düzenleme yapılamaz" : "Düzenle"} onClick={onEdit}
+            style={{ padding: 6, borderRadius: 6, border: "none", background: "transparent", cursor: "pointer", color: "var(--text-tertiary)", ...demoDisabledProps().style }}>
             <Pencil style={{ width: 14, height: 14 }} />
           </button>
-          <button type="button" title="Sil" onClick={onDelete}
-            style={{ padding: 6, borderRadius: 6, border: "none", background: "transparent", cursor: "pointer", color: "var(--status-danger)" }}>
+          <button type="button" disabled={isDemoMode()}
+            title={isDemoMode() ? "Demo modunda düzenleme yapılamaz" : "Sil"} onClick={onDelete}
+            style={{ padding: 6, borderRadius: 6, border: "none", background: "transparent", cursor: "pointer", color: "var(--status-danger)", ...demoDisabledProps().style }}>
             <Trash2 style={{ width: 14, height: 14 }} />
           </button>
         </div>

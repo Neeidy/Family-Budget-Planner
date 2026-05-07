@@ -33,6 +33,7 @@ function makeCtx(cookieValue?: string): TrpcContext {
   return {
     user: null,
     family: null,
+    isGuest: false,
     req: {
       protocol: "https",
       headers: {

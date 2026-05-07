@@ -38,6 +38,44 @@ const requireFamily = t.middleware(async opts => {
 
 export const familyProtectedProcedure = t.procedure.use(requireFamily);
 
+/**
+ * guestSafeProcedure — endpoints that read budget data.
+ *  - Queries: pass if guest (demo subdomain) OR family-authed; sets ctx.demoMode flag.
+ *  - Mutations: throw FORBIDDEN for guests, require family auth.
+ * Used for familyBudget.get, .history.list, .history.get and the mutations
+ * that should be blocked on demo (.save, .history.restore handled inline).
+ */
+const guestSafe = t.middleware(async ({ ctx, type, next }) => {
+  if (type === "mutation") {
+    if (ctx.isGuest) {
+      throw new TRPCError({ code: "FORBIDDEN", message: "Demo modunda değişiklik yapılamaz" });
+    }
+    if (!ctx.family) {
+      throw new TRPCError({ code: "UNAUTHORIZED", message: "Aile oturumu gerekli" });
+    }
+    return next({ ctx: { ...ctx, family: ctx.family, demoMode: false as const } });
+  }
+  if (ctx.isGuest) return next({ ctx: { ...ctx, demoMode: true as const } });
+  if (ctx.family) return next({ ctx: { ...ctx, family: ctx.family, demoMode: false as const } });
+  throw new TRPCError({ code: "UNAUTHORIZED", message: "Aile oturumu gerekli" });
+});
+
+export const guestSafeProcedure = t.procedure.use(guestSafe);
+
+/**
+ * guestOnlyProcedure — endpoints that exist *only* on the demo subdomain.
+ * Returns NOT_FOUND when not in guest mode. Used for the demo profile
+ * picker and the bypass-login mutation.
+ */
+const guestOnly = t.middleware(async ({ ctx, next }) => {
+  if (!ctx.isGuest) {
+    throw new TRPCError({ code: "NOT_FOUND" });
+  }
+  return next({ ctx });
+});
+
+export const guestOnlyProcedure = t.procedure.use(guestOnly);
+
 export const adminProcedure = t.procedure.use(
   t.middleware(async opts => {
     const { ctx, next } = opts;
