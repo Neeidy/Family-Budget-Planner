@@ -60,7 +60,7 @@
   --color-cat-abonelik: var(--cat-abonelik);
   --color-cat-giyim: var(--cat-giyim);
   --color-cat-spor: var(--cat-spor);
-  --color-cat-cocuk: var(--cat-cocuk);
+  --color-cat-porsuk: var(--cat-porsuk);
   --color-cat-diger: var(--cat-diger);
 
   /* ── Claude Design v4: status colors ── */
@@ -169,7 +169,7 @@
   --cat-abonelik: oklch(0.7 0.2 295);
   --cat-giyim: oklch(0.82 0.16 95);
   --cat-spor: oklch(0.72 0.14 195);
-  --cat-cocuk: oklch(0.78 0.14 215);
+  --cat-porsuk: oklch(0.78 0.14 215);
   --cat-diger: oklch(0.7 0.02 250);
 
   /* Status (consistent across themes) */

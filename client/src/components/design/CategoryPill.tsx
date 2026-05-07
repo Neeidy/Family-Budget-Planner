@@ -21,7 +21,7 @@ const C_EGLENCE = "var(--cat-eglence)";
 const C_ABONELIK = "var(--cat-abonelik)";
 const C_GIYIM = "var(--cat-giyim)";
 const C_SPOR = "var(--cat-spor)";
-const C_COCUK = "var(--cat-cocuk)";
+const C_PORSUK = "var(--cat-porsuk)";
 const C_DIGER = "var(--cat-diger)";
 
 /**
@@ -68,14 +68,15 @@ const CATEGORIES: Record<string, CategoryMeta> = {
   dijitalabonelikler: { name: "Abonelik", emoji: "📺", colorVar: C_ABONELIK },
   streaming: { name: "Streaming", emoji: "📺", colorVar: C_ABONELIK },
 
-  // Giyim & spor & çocuk
+  // Giyim & spor & porsuk (eski 'cocuk' kategorisi -> porsuk olarak rename edildi)
   giyim: { name: "Giyim", emoji: "👕", colorVar: C_GIYIM },
   spor: { name: "Spor", emoji: "⚽", colorVar: C_SPOR },
-  cocuk: { name: "Çocuk", emoji: "👶", colorVar: C_COCUK },
-  okul: { name: "Okul", emoji: "📚", colorVar: C_COCUK },
-  egitim: { name: "Eğitim", emoji: "📚", colorVar: C_COCUK },
-  egitimvegelisim: { name: "Eğitim", emoji: "📚", colorVar: C_COCUK },
-  porsuk: { name: "Porsuk", emoji: "🐈", colorVar: C_COCUK },
+  porsuk: { name: "Porsuk", emoji: "🐈", colorVar: C_PORSUK },
+  // Defansif: backup'tan restore senaryosu için 'Cocuk' gelirse 'Porsuk' gibi render et
+  cocuk: { name: "Porsuk", emoji: "🐈", colorVar: C_PORSUK },
+  okul: { name: "Okul", emoji: "📚", colorVar: C_PORSUK },
+  egitim: { name: "Eğitim", emoji: "📚", colorVar: C_PORSUK },
+  egitimvegelisim: { name: "Eğitim", emoji: "📚", colorVar: C_PORSUK },
 
   // Borç / birikim
   borc: { name: "Borç", emoji: "💳", colorVar: C_DIGER },

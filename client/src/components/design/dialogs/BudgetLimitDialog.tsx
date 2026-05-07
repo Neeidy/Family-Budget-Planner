@@ -20,7 +20,7 @@ const CATEGORIES = [
   { key: "Abonelik", emoji: "📺" },
   { key: "Giyim", emoji: "👕" },
   { key: "Spor", emoji: "⚽" },
-  { key: "Cocuk", emoji: "👶" },
+  { key: "Porsuk", emoji: "🐈" },
   { key: "Diger", emoji: "📦" },
 ] as const;
 
