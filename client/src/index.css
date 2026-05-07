@@ -391,9 +391,9 @@
     position: absolute;
     border-radius: 50%;
     filter: blur(80px);
-    opacity: 0.4;
-    mix-blend-mode: screen;
+    opacity: 0.85;
     pointer-events: none;
+    will-change: transform, opacity;
     transform: translate(calc(var(--mx, 0) * -12px), calc(var(--my, 0) * -12px));
     transition: transform 800ms cubic-bezier(0.2, 0, 0, 1);
   }
