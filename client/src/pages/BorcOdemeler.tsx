@@ -67,18 +67,30 @@ function PageHeader({ tab, onAdd }: { tab: Tab; onAdd: () => void }) {
   );
 }
 
-// ── Hero card ─────────────────────────────────────────────────
-function HeroCard({ label, value, accent }: { label: string; value: string; accent?: string }) {
+// ── Hero card — port of _design/page-borc.jsx:38-57 ─────────────
+function HeroCard({ label, value, accent, subInfo }: {
+  label: string;
+  value: string;
+  accent?: string;
+  subInfo?: React.ReactNode;
+}) {
+  const a = accent ?? "var(--accent-green)";
   return (
-    <div style={{
-      background: "var(--bg-surface)", borderRadius: "var(--r-lg)", boxShadow: "var(--shadow-card)",
-      padding: 28, borderLeft: `4px solid ${accent ?? "var(--accent-green)"}`,
+    <div className="card" style={{
+      position: "relative",
+      background: `linear-gradient(135deg, color-mix(in oklch, ${a} 18%, var(--bg-surface)), var(--bg-surface) 70%)`,
+      padding: 32,
+      borderTop: `2px solid ${a}`,
     }}>
       <div className="section-label">{label}</div>
-      <div className="hero-num" style={{
-        fontSize: "clamp(2.25rem, 4.5vw, 3rem)", fontWeight: 700, marginTop: 10,
-        lineHeight: 1.05, color: accent ?? "var(--text-primary)",
+      <div className="tnum" style={{
+        fontSize: "clamp(2.5rem, 5.5vw, 4.5rem)", fontWeight: 700, marginTop: 8,
+        letterSpacing: "-0.04em", lineHeight: 1.0,
+        color: "var(--text-primary)",
       }}>{value}</div>
+      {subInfo && (
+        <div style={{ fontSize: 13, color: "var(--text-tertiary)", marginTop: 6 }}>{subInfo}</div>
+      )}
     </div>
   );
 }
@@ -107,10 +119,23 @@ function DebtsTab({ globalFilter, onEdit, onDelete }: {
   const totalDebt    = filtered.reduce((s, d) => s + d.totalDebt, 0);
   const totalMonthly = filtered.reduce((s, d) => s + d.monthlyPayment, 0);
   const remaining    = filtered.reduce((s, d) => s + Math.max(0, d.totalDebt - d.monthlyPayment), 0);
+  const activeCount  = filtered.length;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      <HeroCard label="TOPLAM KALAN BORÇ" value={formatMoney(remaining)} accent="var(--status-danger)" />
+      <HeroCard
+        label="TOPLAM KALAN BORÇ"
+        value={formatMoney(remaining)}
+        accent="var(--status-danger)"
+        subInfo={
+          <>
+            {activeCount} aktif borç • Aylık ödeme:{" "}
+            <span className="tnum" style={{ color: "var(--text-secondary)", fontWeight: 600 }}>
+              {formatMoney(totalMonthly)}
+            </span>
+          </>
+        }
+      />
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12 }}>
         <MiniStatCard label="Toplam Borç"     amount={totalDebt}    color="var(--status-danger)" />
