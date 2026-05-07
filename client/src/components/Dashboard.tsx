@@ -1,460 +1,362 @@
-import { useBudget } from '@/contexts/BudgetContext';
-import { usePerson } from '@/contexts/PersonContext';
-import { formatCurrency, formatPercentage, getFinancialStatus } from '@/lib/categories';
-import { TrendingUp, TrendingDown, AlertCircle, Cloud, Shield, Target, Wallet, Activity } from 'lucide-react';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { useMemo } from 'react';
+import { useMemo } from "react";
+import { useLocation } from "wouter";
+import { useBudget } from "@/contexts/BudgetContext";
+import { usePerson } from "@/contexts/PersonContext";
+import { usePersonFilter } from "@/contexts/PersonFilterContext";
+import { useIsMobile } from "@/hooks/useMobile";
+import {
+  Avatar,
+  OwnerCard,
+  SummaryCard,
+  CategoryPill,
+  QuickStatsPill,
+  HealthBubble,
+  TodaySummaryStripCompact,
+} from "@/components/design";
+import type { AvatarWho } from "@/components/design";
+import { TrendingUp, TrendingDown, ArrowRight } from "lucide-react";
+import { formatMoney, formatMoneyShort } from "@/lib/format";
+import { applyPersonFilter } from "@/lib/personFilter";
 
-// Bütçe Sağlık Skoru hesaplama
+// ── Bütçe Sağlık Skoru (preserved scoring logic, used by HealthBubble) ──
 function calcHealthScore(params: {
   savingsRate: number;
   expenseRatio: number;
   hasOverduePayments: boolean;
   debtToIncomeRatio: number;
-  budgetAdherence: number; // planned vs actual uyumu 0-1
-}): { score: number; grade: 'A' | 'B' | 'C' | 'D' | 'F'; label: string; color: string } {
+  budgetAdherence: number;
+}): number {
   let score = 100;
-
-  // Tasarruf oranı (max 30 puan)
-  if (params.savingsRate >= 0.2) score -= 0;
-  else if (params.savingsRate >= 0.1) score -= 10;
+  if      (params.savingsRate >= 0.20) score -= 0;
+  else if (params.savingsRate >= 0.10) score -= 10;
   else if (params.savingsRate >= 0.05) score -= 20;
-  else score -= 30;
-
-  // Gider/gelir oranı (max 25 puan)
-  if (params.expenseRatio <= 0.7) score -= 0;
+  else                                  score -= 30;
+  if      (params.expenseRatio <= 0.70) score -= 0;
   else if (params.expenseRatio <= 0.85) score -= 10;
-  else if (params.expenseRatio <= 1.0) score -= 20;
-  else score -= 25;
-
-  // Gecikmiş ödeme (max 20 puan)
+  else if (params.expenseRatio <= 1.00) score -= 20;
+  else                                   score -= 25;
   if (params.hasOverduePayments) score -= 20;
-
-  // Borç/gelir oranı (max 15 puan)
-  if (params.debtToIncomeRatio <= 0.2) score -= 0;
+  if      (params.debtToIncomeRatio <= 0.20) score -= 0;
   else if (params.debtToIncomeRatio <= 0.35) score -= 8;
-  else score -= 15;
-
-  // Bütçe uyumu (max 10 puan)
+  else                                        score -= 15;
   score -= Math.round((1 - params.budgetAdherence) * 10);
-
-  score = Math.max(0, Math.min(100, score));
-
-  if (score >= 85) return { score, grade: 'A', label: 'Mükemmel', color: '#10B981' };
-  if (score >= 70) return { score, grade: 'B', label: 'İyi', color: '#3B82F6' };
-  if (score >= 55) return { score, grade: 'C', label: 'Orta', color: '#F59E0B' };
-  if (score >= 40) return { score, grade: 'D', label: 'Zayıf', color: '#F97316' };
-  return { score, grade: 'F', label: 'Kritik', color: '#EF4444' };
+  return Math.max(0, Math.min(100, score));
 }
 
+// ── Top categories per owner ──
+function topCategoriesForOwner(
+  expenses: { category: string; amount: number; owner: string }[],
+  owner: "Benim" | "Esim" | "Ev",
+): string[] {
+  const counts = new Map<string, number>();
+  expenses
+    .filter((e) => e.owner === owner)
+    .forEach((e) => counts.set(e.category, (counts.get(e.category) ?? 0) + e.amount));
+  return Array.from(counts.entries())
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(([cat]) => cat);
+}
+
+// ── Map local filter (Tümü/Benim/Esim/Ev) to design-ref filter (tumu/yigit/arzu/ev) ──
+type DesignFilter = "tumu" | "yigit" | "arzu" | "ev";
+const DESIGN_FILTER: Record<string, DesignFilter> = {
+  "Tümü": "tumu",
+  "Benim": "yigit",
+  "Esim":  "arzu",
+  "Ev":    "ev",
+};
+
+// ── Dashboard ─────────────────────────────────────────────────
 export function Dashboard() {
-  const { budgetData, calculateTotals, isSaving } = useBudget();
+  const { budgetData, calculateTotals } = useBudget();
   const { person1Name, person2Name, currentPerson } = usePerson();
-  const activeName = currentPerson === 'Benim' ? person1Name : currentPerson === 'Esim' ? person2Name : null;
-  const activeEmoji = currentPerson === 'Benim' ? '👨' : '👩';
-  const totals = calculateTotals();
-  const status = getFinancialStatus(totals.expenseRatio, totals.remainingActual);
+  const { filter } = usePersonFilter();
+  const [, setLocation] = useLocation();
+  const isMobile = useIsMobile();
+  const mobile = !!isMobile;
 
-  const currentMonth = new Date().getMonth() + 1;
-  const currentYear = new Date().getFullYear();
+  // Person filter applied to data
+  const filteredIncomes  = useMemo(() => applyPersonFilter(budgetData.incomes,  filter), [budgetData.incomes,  filter]);
+  const filteredExpenses = useMemo(() => applyPersonFilter(budgetData.expenses, filter), [budgetData.expenses, filter]);
 
-  // Yıllık ödemeler bu ay
-  const annualPaymentsThisMonth = (budgetData.annualPayments || [])
-    .filter(p => p.paymentMonth === currentMonth)
-    .reduce((sum, p) => sum + p.amount, 0);
-  const annualPaymentsThisMonthList = (budgetData.annualPayments || [])
-    .filter(p => p.paymentMonth === currentMonth);
+  const fullTotals = calculateTotals();
 
-  // Bu ay aktif taksitler
-  const activeInstallments = (budgetData.installments || []).filter(inst => {
-    const totalMonths = inst.startYear * 12 + (inst.startMonth - 1) + (inst.installmentCount - 1);
-    const endYear = Math.floor(totalMonths / 12);
-    const endMonth = (totalMonths % 12) + 1;
-    const afterStart = currentYear > inst.startYear || (currentYear === inst.startYear && currentMonth >= inst.startMonth);
-    const beforeEnd = currentYear < endYear || (currentYear === endYear && currentMonth <= endMonth);
-    return afterStart && beforeEnd;
-  });
-  const totalInstallmentsThisMonth = activeInstallments.reduce((sum, i) => sum + i.monthlyAmount, 0);
+  const filteredTotals = useMemo(() => {
+    const totalIncome  = filteredIncomes.reduce((s, i) => s + i.amount, 0);
+    const totalExpense = filteredExpenses.reduce((s, e) => s + e.amount, 0);
+    const remaining    = totalIncome - totalExpense;
+    const savingsAmount = filteredExpenses.filter((e) => e.type === "Birikim").reduce((s, e) => s + e.amount, 0);
+    const expenseRatio = totalIncome > 0 ? totalExpense / totalIncome : 0;
+    const savingsRate  = totalIncome > 0 ? savingsAmount / totalIncome : 0;
+    return { totalIncome, totalExpense, remaining, savingsAmount, expenseRatio, savingsRate };
+  }, [filteredIncomes, filteredExpenses]);
 
-  // Net Değer hesaplama
+  const activeName = currentPerson === "Benim" ? person1Name : person2Name;
+  const activeWho: AvatarWho = currentPerson === "Benim" ? "yigit" : "arzu";
+
+  // Net Değer (always full data)
   const netWorth = useMemo(() => {
     const totalSavings = (budgetData.savingsGoals || []).reduce((s, g) => s + (g.currentAmount || 0), 0);
-    const totalDebt = (budgetData.debts || []).reduce((s, d) => s + (d.totalDebt || 0), 0);
-    return totalSavings - totalDebt;
-  }, [budgetData]);
+    const totalDebt    = (budgetData.debts || []).reduce((s, d) => s + (d.totalDebt || 0), 0);
+    const monthDelta   = filteredTotals.savingsAmount; // rough proxy "↑ this month"
+    return { netWorth: totalSavings - totalDebt, totalSavings, totalDebt, monthDelta };
+  }, [budgetData.savingsGoals, budgetData.debts, filteredTotals.savingsAmount]);
 
-  const budgetAdherence = 1;
-
-  // Borç/gelir oranı
-  const debtToIncomeRatio = totals.totalActualIncome > 0
-    ? (budgetData.debts || []).reduce((s, d) => s + (d.monthlyPayment || 0), 0) / totals.totalActualIncome
+  const debtToIncomeRatio = filteredTotals.totalIncome > 0
+    ? (budgetData.debts || []).reduce((s, d) => s + (d.monthlyPayment || 0), 0) / filteredTotals.totalIncome
     : 0;
-
-  // Sağlık skoru
-  const healthScore = useMemo(() => calcHealthScore({
-    savingsRate: totals.savingsRate,
-    expenseRatio: totals.expenseRatio,
-    hasOverduePayments: budgetData.expenses.some(e => e.status === 'Gecikti'),
-    debtToIncomeRatio,
-    budgetAdherence,
-  }), [totals, budgetData, debtToIncomeRatio, budgetAdherence]);
-
-  // Bütçe vs Gerçekleşen kategorileri
-  const budgetVsActual = useMemo(() => {
-    const categories = ['Sabit', 'Degisken', 'Borc', 'Birikim'];
-    return categories.map(type => {
-      const planned = budgetData.expenses.filter(e => e.type === type).reduce((s, e) => s + e.amount, 0);
-      const actual = budgetData.expenses.filter(e => e.type === type).reduce((s, e) => s + e.amount, 0);
-      return { type, planned, actual, diff: actual - planned, pct: planned > 0 ? (actual / planned) * 100 : 0 };
-    }).filter(c => c.planned > 0 || c.actual > 0);
-  }, [budgetData]);
-
-  // Yaklaşan yıllık ödemeler (sonraki 3 ay)
-  const upcomingAnnual = useMemo(() => {
-    return (budgetData.annualPayments || []).filter(p => {
-      const diff = p.paymentMonth - currentMonth;
-      return diff > 0 && diff <= 3;
-    });
-  }, [budgetData, currentMonth]);
-
-  const MetricCard = ({ label, value, planned, color, trend }: {
-    label: string; value: number; planned?: number; color: string; trend?: 'up' | 'down' | 'neutral';
-  }) => (
-    <Card className="card-metric card-metric-hover p-3 md:p-6">
-      <div className="flex items-start justify-between">
-        <div className="flex-1">
-          <p className="text-xs md:text-sm text-muted-foreground mb-1 md:mb-2">{label}</p>
-          <p className="text-lg md:text-2xl font-display font-bold" style={{ color }}>
-            {formatCurrency(value)}
-          </p>
-          {planned !== undefined && (
-            <p className="text-xs text-muted-foreground mt-2">Planlanan: {formatCurrency(planned)}</p>
-          )}
-        </div>
-        <div className="ml-4">
-          {trend === 'up' && <TrendingUp className="w-5 h-5 text-green-500" />}
-          {trend === 'down' && <TrendingDown className="w-5 h-5 text-red-500" />}
-        </div>
-      </div>
-    </Card>
+  const healthScore = useMemo(
+    () => calcHealthScore({
+      savingsRate: filteredTotals.savingsRate,
+      expenseRatio: filteredTotals.expenseRatio,
+      hasOverduePayments: filteredExpenses.some((e) => e.status === "Gecikti"),
+      debtToIncomeRatio,
+      budgetAdherence: 1,
+    }),
+    [filteredTotals.savingsRate, filteredTotals.expenseRatio, filteredExpenses, debtToIncomeRatio],
   );
 
-  const ProgressBar = ({ label, actual, planned, color }: {
-    label: string; actual: number; planned: number; color: string;
-  }) => {
-    const percentage = planned > 0 ? (actual / planned) * 100 : 0;
-    const isOverBudget = actual > planned;
-    return (
-      <div className="mb-4">
-        <div className="flex items-center justify-between mb-1.5">
-          <span className="text-sm font-medium">{label}</span>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground">{formatCurrency(actual)} / {formatCurrency(planned)}</span>
-            <Badge variant={isOverBudget ? 'destructive' : 'secondary'} className="text-xs h-5 px-1.5">
-              {percentage.toFixed(0)}%
-            </Badge>
-          </div>
-        </div>
-        <div className="w-full bg-secondary rounded-full h-2 overflow-hidden">
-          <div className="h-full transition-all duration-300" style={{ width: `${Math.min(percentage, 100)}%`, backgroundColor: isOverBudget ? '#EF4444' : color }} />
-        </div>
-        {isOverBudget && <p className="text-xs text-red-600 mt-1">+{formatCurrency(actual - planned)} fazla harcama</p>}
-      </div>
-    );
-  };
+  // Top cats per owner
+  const yigitCats = useMemo(() => topCategoriesForOwner(budgetData.expenses, "Benim"), [budgetData.expenses]);
+  const arzuCats  = useMemo(() => topCategoriesForOwner(budgetData.expenses, "Esim"),  [budgetData.expenses]);
+  const evCats    = useMemo(() => topCategoriesForOwner(budgetData.expenses, "Ev"),    [budgetData.expenses]);
+
+  // QuickStats values (today / month / tomorrow)
+  const todayKey = new Date().toISOString().split("T")[0];
+  const todaySpent = filteredExpenses
+    .filter((e) => e.paymentDay === todayKey)
+    .reduce((s, e) => s + e.amount, 0);
+  const monthBudget = (budgetData.budgetLimits || []).reduce((s, b) => s + b.limit, 0) || 3500;
+  const monthSpent = filteredTotals.totalExpense;
+  const monthRemaining = monthBudget - monthSpent;
+  const tomorrowDue = filteredExpenses
+    .filter((e) => e.status === "Bekliyor")
+    .reduce((s, e) => s + e.amount, 0);
+
+  // Bütçe vs Gerçekleşen — sample categories from design ref + actual data fallback
+  const bvaSamples = useMemo(() => {
+    const sample = [
+      { cat: "konut",   plan: 1500, real: 1380 },
+      { cat: "yiyecek", plan:  600, real:  565 },
+      { cat: "ulasim",  plan:  250, real:  255 },
+      { cat: "eglence", plan:  300, real:  240 },
+      { cat: "saglik",  plan:  320, real:  320 },
+    ];
+    if ((budgetData.budgetLimits ?? []).length === 0) return sample;
+    // Use real data when budget limits exist
+    return (budgetData.budgetLimits ?? []).slice(0, 5).map((bl) => ({
+      cat: bl.category,
+      plan: bl.limit,
+      real: filteredExpenses
+        .filter((e) => e.category === bl.category)
+        .reduce((s, e) => s + e.amount, 0),
+    }));
+  }, [budgetData.budgetLimits, filteredExpenses]);
+
+  const isEmpty = budgetData.incomes.length === 0 && budgetData.expenses.length === 0;
+
+  // Map filter value for design-ref components (controlled by global PersonFilterChips in DashboardLayout)
+  const designFilter: DesignFilter = DESIGN_FILTER[filter] ?? "tumu";
+
+  const goRapor = () => setLocation("/raporlar");
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
+    <div className="fade-up" style={{ display: "flex", flexDirection: "column", gap: mobile ? 16 : 20 }}>
+      {/* Greeting — line-by-line: page-ana.jsx:46-54 */}
       <div>
-        <div className="flex items-center justify-between flex-wrap gap-2">
+        <h1 style={{
+          fontSize: mobile ? 24 : 28, margin: 0,
+          fontWeight: 700, letterSpacing: "-0.02em",
+        }}>
+          Merhaba, {activeName}! <span style={{ display: "inline-block", animation: "wave 1.6s ease-in-out infinite", transformOrigin: "70% 70%" }}>👋</span>
+        </h1>
+        <div style={{ fontSize: 13, color: "var(--text-tertiary)", marginTop: 6 }}>
+          {budgetData.month} {budgetData.year} • <Avatar who={activeWho} size={16}/>
+          <span style={{ verticalAlign: "middle", marginLeft: 4 }}>{activeName} olarak görüntüleniyor</span>
+        </div>
+      </div>
+
+      {/* QUICK STATS PILL — page-ana.jsx:57-62 */}
+      <QuickStatsPill
+        mobile={mobile}
+        todaySpent={todaySpent}
+        monthRemaining={monthRemaining}
+        monthBudget={monthBudget}
+        monthSpent={monthSpent}
+        tomorrowDue={tomorrowDue}
+      />
+
+      {/* Empty info banner — only when entire DB is empty */}
+      {isEmpty && (
+        <div style={{
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          gap: 12, padding: "12px 16px", borderRadius: "var(--r-md)",
+          background: "color-mix(in oklch, var(--owner-yigit) 12%, var(--bg-surface))",
+          border: "1px solid color-mix(in oklch, var(--owner-yigit) 25%, transparent)",
+          flexWrap: "wrap",
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 13, color: "var(--text-secondary)" }}>
+            <span style={{ fontSize: 18 }}>📊</span>
+            <span><strong style={{ color: "var(--text-primary)" }}>Henüz veri yok.</strong> Gelir & Gider sayfasından eklemeye başlayın.</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setLocation("/gelir-gider")}
+            style={{
+              display: "inline-flex", alignItems: "center", gap: 6,
+              padding: "8px 14px", borderRadius: "var(--r-md)",
+              fontSize: 13, fontWeight: 600,
+              background: "var(--accent-green)", color: "oklch(0.15 0.03 155)",
+              border: "none", cursor: "pointer",
+            }}
+          >
+            Başla <ArrowRight style={{ width: 14, height: 14 }} />
+          </button>
+        </div>
+      )}
+
+      {/* HERO 2-col: Net Değer (with HealthBubble inside) + YARIN ÖDENECEK — page-ana.jsx:65-92 */}
+      <div style={{ display: "grid", gridTemplateColumns: mobile ? "1fr" : "1fr 1fr", gap: mobile ? 12 : 16, position: "relative", alignItems: "stretch" }}>
+        <div className="card lift" style={{ position: "relative", overflow: mobile ? "visible" : "hidden" }}>
+          <div className="section-label">NET DEĞER</div>
+          <div className="tnum" style={{ fontSize: mobile ? 44 : 52, fontWeight: 700, marginTop: 8, letterSpacing: "-0.035em", lineHeight: 1.05 }}>
+            {formatMoney(netWorth.netWorth).replace(/,\d{2}/, "")}
+            <span style={{ color: "var(--text-tertiary)", fontSize: "0.5em" }}>{formatMoney(netWorth.netWorth).match(/,\d{2}/)?.[0] ?? ",00"}</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 6 }}>
+            <span className="pill" style={{
+              background: "var(--accent-green-soft)", color: "var(--accent-green)",
+              fontSize: 11, fontWeight: 700, padding: "3px 8px",
+            }}>↑ {formatMoney(netWorth.monthDelta)} bu ay</span>
+          </div>
+          <div style={{ marginTop: 18, display: "flex", flexDirection: "column", gap: 10 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
+              <div style={{ fontSize: 13, color: "var(--text-secondary)", whiteSpace: "nowrap" }}>Toplam Birikim</div>
+              <div className="tnum" style={{ fontSize: 15, fontWeight: 700, color: "var(--accent-green)", flexShrink: 0, whiteSpace: "nowrap" }}>+{formatMoney(netWorth.totalSavings)} ↑</div>
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
+              <div style={{ fontSize: 13, color: "var(--text-secondary)", whiteSpace: "nowrap" }}>Toplam Borç</div>
+              <div className="tnum" style={{ fontSize: 15, fontWeight: 700, color: "var(--status-danger)", flexShrink: 0, whiteSpace: "nowrap" }}>−{formatMoney(netWorth.totalDebt)} ↓</div>
+            </div>
+          </div>
+          {/* Floating HealthBubble inside card */}
+          <HealthBubble score={healthScore} mobile={mobile} onClick={goRapor} />
+        </div>
+
+        <TodaySummaryStripCompact mobile={mobile} filter={designFilter} />
+      </div>
+
+      {/* OWNER CARDS (3-col) — page-ana.jsx:95-103 */}
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: mobile ? "1fr" : "repeat(3, 1fr)",
+        gap: mobile ? 12 : 16,
+      }}>
+        <OwnerCard
+          who="yigit"
+          title={`${person1Name.toLocaleUpperCase("tr-TR")}'İN GİDERLERİ`}
+          amount={formatMoney(fullTotals.myExpenses)}
+          subtitle={`Ev payı: ${formatMoney(fullTotals.homeExpenses / 2)}`}
+          cats={yigitCats.length > 0 ? yigitCats : ["yiyecek", "ulasim", "spor"]}
+        />
+        <OwnerCard
+          who="arzu"
+          title={`${person2Name.toLocaleUpperCase("tr-TR")}'IN GİDERLERİ`}
+          amount={formatMoney(fullTotals.spouseExpenses)}
+          subtitle={`Ev payı: ${formatMoney(fullTotals.homeExpenses / 2)}`}
+          cats={arzuCats.length > 0 ? arzuCats : ["eglence", "abonelik", "yiyecek"]}
+        />
+        <OwnerCard
+          who="ev"
+          title="ORTAK GİDERLER"
+          amount={formatMoney(fullTotals.homeExpenses)}
+          subtitle={`Her biri: ${formatMoney(fullTotals.homeExpenses / 2)}`}
+          cats={evCats.length > 0 ? evCats : ["konut", "saglik", "yiyecek"]}
+        />
+      </div>
+
+      {/* SUMMARY CARDS — page-ana.jsx:106-115 */}
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: mobile ? "1fr 1fr" : "repeat(4, 1fr)",
+        gap: mobile ? 10 : 14,
+      }}>
+        <SummaryCard
+          label="Toplam Gelir"
+          amount={formatMoney(filteredTotals.totalIncome)}
+          color="green"
+          icon={<TrendingUp style={{ width: 14, height: 14 }} />}
+        />
+        <SummaryCard
+          label="Toplam Gider"
+          amount={formatMoney(filteredTotals.totalExpense)}
+          color="red"
+          icon={<TrendingDown style={{ width: 14, height: 14 }} />}
+        />
+        <SummaryCard
+          label="Kalan Para"
+          amount={formatMoney(filteredTotals.remaining)}
+          color={filteredTotals.remaining >= 0 ? "green" : "red"}
+          delta={{ value: filteredTotals.remaining >= 0 ? "↗" : "↘", positive: filteredTotals.remaining >= 0 }}
+        />
+        <SummaryCard
+          label="Tasarruf"
+          amount={formatMoney(filteredTotals.savingsAmount)}
+          color="blue"
+          delta={{ value: "↗", positive: true }}
+        />
+      </div>
+
+      {/* BÜTÇE VS GERÇEKLEŞEN — page-ana.jsx:118-159 */}
+      <div className="card" style={{ position: "relative" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
           <div>
-            <h1 className="text-3xl md:text-4xl font-display font-bold mb-1 flex items-center gap-2">
-              <span role="img" aria-label="panda">🐼</span>
-              {activeName ? `Merhaba, ${activeName}!` : 'ÜK Ailesi Bütçe Sistemi'}
-            </h1>
-            <p className="text-muted-foreground text-sm">
-              {budgetData.month} {budgetData.year}
-              {activeName && <span className="ml-2">• {activeEmoji} {activeName} olarak görüntüleniyor</span>}
-            </p>
+            <div className="section-label">BÜTÇE VS GERÇEKLEŞEN</div>
+            <div style={{ fontSize: 13, color: "var(--text-tertiary)", marginTop: 4 }}>
+              {budgetData.month} ayı kategori karşılaştırması
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            {isSaving ? (
-              <div className="flex items-center gap-1 text-blue-600">
-                <Cloud className="w-4 h-4 animate-pulse" />
-                <span className="text-xs font-medium">Kaydediliyor...</span>
-              </div>
-            ) : (
-              <div className="flex items-center gap-1 text-green-600">
-                <Cloud className="w-4 h-4" />
-                <span className="text-xs font-medium">Bulut Senkron</span>
-              </div>
-            )}
+          <div style={{ display: "flex", gap: 12, fontSize: 11, color: "var(--text-tertiary)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ width: 10, height: 10, borderRadius: 3, background: "var(--bg-tint)" }}/>Plan
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ width: 10, height: 10, borderRadius: 3, background: "var(--accent-green)" }}/>Gerçek
+            </div>
           </div>
         </div>
-      </div>
-
-      {/* Sağlık Skoru + Net Değer */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Bütçe Sağlık Skoru */}
-        <Card className="p-5 md:col-span-2 border-l-4" style={{ borderLeftColor: healthScore.color }}>
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <Shield className="w-5 h-5" style={{ color: healthScore.color }} />
-              <p className="font-display font-bold">Bütçe Sağlık Skoru</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-4xl font-display font-bold" style={{ color: healthScore.color }}>
-                {healthScore.score}
-              </span>
-              <div>
-                <Badge style={{ backgroundColor: healthScore.color, color: 'white' }} className="text-sm font-bold">
-                  {healthScore.grade}
-                </Badge>
-                <p className="text-xs text-muted-foreground mt-0.5">{healthScore.label}</p>
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          {bvaSamples.map((b) => {
+            const max = Math.max(b.plan, b.real, 1);
+            const overBudget = b.real > b.plan;
+            return (
+              <div key={b.cat} style={{
+                display: "grid",
+                gridTemplateColumns: mobile ? "90px 1fr 60px" : "120px 1fr 80px",
+                gap: 12, alignItems: "center",
+              }}>
+                <CategoryPill cat={b.cat} size="sm" />
+                <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                  <div style={{ height: 6, background: "var(--bg-tint)", borderRadius: 999, position: "relative", overflow: "hidden" }}>
+                    <div style={{ width: `${(b.plan / max) * 100}%`, height: "100%", background: "var(--bg-tint)", filter: "brightness(1.4)" }}/>
+                  </div>
+                  <div style={{ height: 8, background: "var(--bg-tint)", borderRadius: 999, position: "relative", overflow: "hidden" }}>
+                    <div style={{
+                      width: `${(b.real / max) * 100}%`,
+                      height: "100%",
+                      background: overBudget ? "var(--status-danger)" : "var(--accent-green)",
+                      transition: "width 800ms ease-out",
+                    }}/>
+                  </div>
+                </div>
+                <div className="tnum" style={{ fontSize: 12, color: "var(--text-secondary)", textAlign: "right" }}>
+                  {formatMoneyShort(b.real)}<span style={{ color: "var(--text-muted)" }}>/{formatMoneyShort(b.plan)}</span>
+                </div>
               </div>
-            </div>
-          </div>
-          {/* Skor çubuğu */}
-          <div className="w-full bg-secondary rounded-full h-3 overflow-hidden">
-            <div
-              className="h-full rounded-full transition-all duration-500"
-              style={{ width: `${healthScore.score}%`, backgroundColor: healthScore.color }}
-            />
-          </div>
-          <div className="flex justify-between text-xs text-muted-foreground mt-1">
-            <span>Kritik</span>
-            <span>Orta</span>
-            <span>Mükemmel</span>
-          </div>
-          {/* Skor faktörleri */}
-          <div className="grid grid-cols-2 gap-2 mt-3">
-            <div className="flex items-center gap-1.5 text-xs">
-              <div className={`w-2 h-2 rounded-full ${totals.savingsRate >= 0.1 ? 'bg-green-500' : 'bg-red-500'}`} />
-              <span>Tasarruf: {formatPercentage(totals.savingsRate)}</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-xs">
-              <div className={`w-2 h-2 rounded-full ${totals.expenseRatio <= 0.85 ? 'bg-green-500' : 'bg-red-500'}`} />
-              <span>Gider/Gelir: {formatPercentage(totals.expenseRatio)}</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-xs">
-              <div className={`w-2 h-2 rounded-full ${!budgetData.expenses.some(e => e.status === 'Gecikti') ? 'bg-green-500' : 'bg-red-500'}`} />
-              <span>Gecikmiş ödeme: {budgetData.expenses.filter(e => e.status === 'Gecikti').length} adet</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-xs">
-              <div className={`w-2 h-2 rounded-full ${budgetAdherence >= 0.8 ? 'bg-green-500' : 'bg-amber-500'}`} />
-              <span>Bütçe uyumu: %{(budgetAdherence * 100).toFixed(0)}</span>
-            </div>
-          </div>
-        </Card>
-
-        {/* Net Değer */}
-        <Card className="p-5">
-          <div className="flex items-center gap-2 mb-3">
-            <Wallet className="w-5 h-5 text-indigo-600" />
-            <p className="font-display font-bold">Net Değer</p>
-          </div>
-          <p className={`text-3xl font-display font-bold mb-3 ${netWorth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-            {formatCurrency(netWorth)}
-          </p>
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Toplam Birikim</span>
-              <span className="font-mono text-green-600">
-                +{formatCurrency((budgetData.savingsGoals || []).reduce((s, g) => s + (g.currentAmount || 0), 0))}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Toplam Borç</span>
-              <span className="font-mono text-red-600">
-                -{formatCurrency((budgetData.debts || []).reduce((s, d) => s + (d.totalDebt || 0), 0))}
-              </span>
-            </div>
-            <div className="h-px bg-border" />
-            <div className="flex justify-between font-medium">
-              <span>Net</span>
-              <span className={`font-mono ${netWorth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                {formatCurrency(netWorth)}
-              </span>
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      {/* Financial Status */}
-      <Card className="p-4 border-l-4" style={{ borderLeftColor: status.color }}>
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm text-muted-foreground mb-0.5">Finansal Durum</p>
-            <p className="text-xl font-display font-bold">{status.icon} {status.status}</p>
-          </div>
-          {status.status === 'Riskli' && <AlertCircle className="w-7 h-7 text-red-500" />}
+            );
+          })}
         </div>
-      </Card>
-
-      {/* Kişi Bazlı Özet */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <Card className="p-4 md:p-5 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
-          <p className="text-xs text-muted-foreground mb-1">{person1Name}'in Giderleri</p>
-          <p className="text-2xl font-display font-bold text-blue-600">{formatCurrency(totals.myExpenses)}</p>
-          <p className="text-xs text-muted-foreground mt-1">Ev payı: {formatCurrency(totals.homeExpenses / 2)}</p>
-        </Card>
-        <Card className="p-4 md:p-5 bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800">
-          <p className="text-xs text-muted-foreground mb-1">{person2Name}'in Giderleri</p>
-          <p className="text-2xl font-display font-bold text-purple-600">{formatCurrency(totals.spouseExpenses)}</p>
-          <p className="text-xs text-muted-foreground mt-1">Ev payı: {formatCurrency(totals.homeExpenses / 2)}</p>
-        </Card>
-        <Card className="p-4 md:p-5 bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800">
-          <p className="text-xs text-muted-foreground mb-1">Sabit Giderler (Ortak)</p>
-          <p className="text-2xl font-display font-bold text-orange-600">{formatCurrency(totals.homeExpenses)}</p>
-          <p className="text-xs text-muted-foreground mt-1">Her biri: {formatCurrency(totals.homeExpenses / 2)}</p>
-        </Card>
-      </div>
-
-      {/* Ana Metrikler */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <MetricCard label="Toplam Gelir" value={totals.totalActualIncome} planned={totals.totalPlannedIncome} color="#10B981" trend={totals.totalActualIncome >= totals.totalPlannedIncome ? 'up' : 'down'} />
-        <MetricCard label="Toplam Gider" value={totals.totalActualExpense} planned={totals.totalPlannedExpense} color="#EF4444" trend={totals.totalActualExpense <= totals.totalPlannedExpense ? 'down' : 'up'} />
-        <MetricCard label="Kalan Para" value={totals.remainingActual} color={totals.remainingActual >= 0 ? '#10B981' : '#EF4444'} trend={totals.remainingActual >= 0 ? 'up' : 'down'} />
-        <MetricCard label="Tasarruf" value={totals.savingsAmount} color="#3B82F6" />
-      </div>
-
-      {/* Bütçe vs Gerçekleşen */}
-      <Card className="p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <Activity className="w-5 h-5 text-primary" />
-          <h2 className="text-lg font-display font-bold">Bütçe vs Gerçekleşen</h2>
-        </div>
-        <div className="space-y-3">
-          <ProgressBar label="Sabit Giderler" actual={totals.fixedExpenses} planned={budgetData.expenses.filter(e => e.type === 'Sabit').reduce((s, e) => s + e.amount, 0)} color="#F97316" />
-          <ProgressBar label="Değişken Giderler" actual={totals.variableExpenses} planned={budgetData.expenses.filter(e => e.type === 'Degisken').reduce((s, e) => s + e.amount, 0)} color="#EF4444" />
-          <ProgressBar label="Borç Ödemeleri" actual={totals.debtPayments} planned={budgetData.expenses.filter(e => e.type === 'Borc').reduce((s, e) => s + e.amount, 0)} color="#F97316" />
-          <ProgressBar label="Birikim / Yatırım" actual={totals.savingsAmount} planned={budgetData.expenses.filter(e => e.type === 'Birikim').reduce((s, e) => s + e.amount, 0)} color="#3B82F6" />
-        </div>
-
-        {/* Bütçe Uyum Özeti */}
-        <div className="mt-4 pt-4 border-t grid grid-cols-2 gap-3">
-          <div className="p-3 bg-secondary rounded-lg">
-            <p className="text-xs text-muted-foreground mb-1">Gider / Gelir Oranı</p>
-            <p className="text-xl font-display font-bold">{formatPercentage(totals.expenseRatio)}</p>
-            <p className="text-xs text-muted-foreground mt-1">{totals.expenseRatio > 0.8 ? '⚠️ Bütçe yüksek' : '✅ Bütçe dengede'}</p>
-          </div>
-          <div className="p-3 bg-secondary rounded-lg">
-            <p className="text-xs text-muted-foreground mb-1">Tasarruf Oranı</p>
-            <p className="text-xl font-display font-bold">{formatPercentage(totals.savingsRate)}</p>
-            <p className="text-xs text-muted-foreground mt-1">{totals.savingsRate >= 0.1 ? '✅ Hedef oranında' : '⚠️ Hedefin altında'}</p>
-          </div>
-        </div>
-      </Card>
-
-      {/* Uyarılar */}
-      <div className="space-y-3">
-        {/* Gecikmiş ödemeler */}
-        {budgetData.expenses.some(e => e.status === 'Gecikti') && (
-          <Card className="p-4 bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800">
-            <div className="flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
-              <div>
-                <p className="font-medium text-red-900 dark:text-red-200">Gecikmiş Ödemeler Var</p>
-                <p className="text-sm text-red-800 dark:text-red-300 mt-1">
-                  {budgetData.expenses.filter(e => e.status === 'Gecikti').length} ödeme gecikmiş durumda. Giderler sayfasını kontrol edin.
-                </p>
-                <div className="mt-2 flex flex-wrap gap-1">
-                  {budgetData.expenses.filter(e => e.status === 'Gecikti').map(e => (
-                    <span key={e.id} className="text-xs bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 px-2 py-0.5 rounded-full">
-                      {e.category}: {formatCurrency(e.amount)}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </Card>
-        )}
-
-        {/* Bu ay taksitler */}
-        {totalInstallmentsThisMonth > 0 && (
-          <Card className="p-4 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
-            <div className="flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
-              <div className="flex-1">
-                <p className="font-medium text-blue-900 dark:text-blue-200">
-                  Bu Ay Taksit Ödemeleri ({activeInstallments.length} ürün)
-                </p>
-                <p className="text-sm text-blue-800 dark:text-blue-300 mt-1">
-                  Toplam {formatCurrency(totalInstallmentsThisMonth)} taksit ödemesi bu ay yapılacak.
-                </p>
-                <div className="mt-2 flex flex-wrap gap-1">
-                  {activeInstallments.map(inst => (
-                    <span key={inst.id} className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-0.5 rounded-full">
-                      {inst.name}: {formatCurrency(inst.monthlyAmount)}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </Card>
-        )}
-
-        {/* Bu ay yıllık ödemeler */}
-        {annualPaymentsThisMonth > 0 && (
-          <Card className="p-4 bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800">
-            <div className="flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-orange-600 shrink-0 mt-0.5" />
-              <div className="flex-1">
-                <p className="font-medium text-orange-900 dark:text-orange-200">Bu Ay Yıllık Ödemeler Var</p>
-                <p className="text-sm text-orange-800 dark:text-orange-300 mt-1">
-                  {formatCurrency(annualPaymentsThisMonth)} tutarında yıllık ödeme bu ay yapılacak.
-                </p>
-                <div className="mt-2 flex flex-wrap gap-1">
-                  {annualPaymentsThisMonthList.map(p => (
-                    <span key={p.id} className="text-xs bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 px-2 py-0.5 rounded-full">
-                      {p.name}: {formatCurrency(p.amount)}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </Card>
-        )}
-
-        {/* Yaklaşan yıllık ödemeler (sonraki 3 ay) */}
-        {upcomingAnnual.length > 0 && (
-          <Card className="p-4 bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800">
-            <div className="flex items-start gap-3">
-              <Target className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-              <div className="flex-1">
-                <p className="font-medium text-amber-900 dark:text-amber-200">Yaklaşan Yıllık Ödemeler (3 Ay)</p>
-                <div className="mt-2 flex flex-wrap gap-1">
-                  {upcomingAnnual.map(p => (
-                    <span key={p.id} className="text-xs bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200 px-2 py-0.5 rounded-full">
-                      {p.name} ({['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'][p.paymentMonth - 1]}): {formatCurrency(p.amount)}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </Card>
-        )}
-
-        {/* Bütçe aşımı uyarısı */}
-        {budgetVsActual.some(c => c.pct > 110) && (
-          <Card className="p-4 bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800">
-            <div className="flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-yellow-600 shrink-0 mt-0.5" />
-              <div>
-                <p className="font-medium text-yellow-900 dark:text-yellow-200">Bütçe Aşımı Tespit Edildi</p>
-                <div className="mt-1 flex flex-wrap gap-1">
-                  {budgetVsActual.filter(c => c.pct > 110).map(c => (
-                    <span key={c.type} className="text-xs bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 px-2 py-0.5 rounded-full">
-                      {c.type}: %{c.pct.toFixed(0)} ({formatCurrency(c.diff)} fazla)
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </Card>
-        )}
       </div>
     </div>
   );

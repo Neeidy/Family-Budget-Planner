@@ -24,10 +24,13 @@ interface BudgetContextType {
   updateSavingsGoal: (id: string, goal: Partial<SavingsGoal>) => void;
   deleteSavingsGoal: (id: string) => void;
   addAnnualPayment: (payment: Omit<AnnualPayment, 'id'>) => void;
+  updateAnnualPayment: (id: string, payment: Partial<AnnualPayment>) => void;
   deleteAnnualPayment: (id: string) => void;
   addBudgetLimit: (limit: Omit<BudgetLimit, 'id'>) => void;
+  updateBudgetLimit: (id: string, limit: Partial<BudgetLimit>) => void;
   deleteBudgetLimit: (id: string) => void;
   addInstallment: (installment: Omit<Installment, 'id'>) => void;
+  updateInstallment: (id: string, installment: Partial<Installment>) => void;
   deleteInstallment: (id: string) => void;
   calculateTotals: () => ReturnType<ReturnType<typeof useBudgetData>['calculateTotals']>;
   getCategorySummary: () => ReturnType<ReturnType<typeof useBudgetData>['getCategorySummary']>;

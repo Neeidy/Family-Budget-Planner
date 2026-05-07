@@ -15,6 +15,7 @@ import { useIsMobile } from "@/hooks/useMobile";
 import { useTheme } from "@/contexts/ThemeContext";
 import { usePerson } from "@/contexts/PersonContext";
 import { usePersonFilter, PersonFilter } from "@/contexts/PersonFilterContext";
+import { PersonFilterChips, type FilterValue } from "@/components/design/PersonFilterChips";
 import {
   LayoutDashboard,
   ArrowLeftRight,
@@ -27,16 +28,15 @@ import {
   Sun,
   Moon,
   LogOut,
-  Search,
 } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { PorsukCat } from "@/components/PorsukCat";
 import { GlobalSearch } from "@/components/GlobalSearch";
-import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { MobileFAB, NotificationsPanel, PageSkeleton, Avatar, type SkeletonPage, type AvatarWho } from "@/components/design";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useBudget } from "@/contexts/BudgetContext";
-import { Undo2 } from "lucide-react";
+import { Undo2, Bell } from "lucide-react";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Ana Sayfa",       path: "/" },
@@ -46,6 +46,15 @@ const menuItems = [
   { icon: BarChart3,       label: "Raporlar",        path: "/raporlar" },
   { icon: Settings,        label: "Ayarlar",         path: "/ayarlar" },
 ];
+
+const SKELETON_PAGE_BY_PATH: Record<string, SkeletonPage> = {
+  "/": "ana",
+  "/gelir-gider": "gelir",
+  "/borc-odemeler": "borc",
+  "/hedef": "birikim",
+  "/raporlar": "rapor",
+  "/ayarlar": "ayar",
+};
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";
 const DEFAULT_WIDTH = 240;
@@ -110,20 +119,25 @@ function DashboardLayoutContent({
   // Aktif kişi bilgisi
   const activeName = currentPerson === 'Benim' ? person1Name : person2Name;
   const activeEmoji = currentPerson === 'Benim' ? '👨' : '👩';
+  const activeWho: AvatarWho = currentPerson === 'Benim' ? 'yigit' : 'arzu';
   const activeColor = currentPerson === 'Benim'
     ? 'text-blue-600 bg-blue-50 dark:bg-blue-900/30'
     : 'text-purple-600 bg-purple-50 dark:bg-purple-900/30';
 
   const { filter: personFilter, setFilter: setPersonFilter } = usePersonFilter();
-  const personFilterOptions: { label: string; value: PersonFilter }[] = [
-    { label: "Tümü", value: "Tümü" },
-    { label: person1Name, value: "Benim" },
-    { label: person2Name, value: "Esim" },
-    { label: "Ev", value: "Ev" },
-  ];
+  const filterToValue = (f: PersonFilter): FilterValue =>
+    f === "Tümü" ? "tumu" : f === "Benim" ? "yigit" : f === "Esim" ? "arzu" : "ev";
+  const valueToFilter = (v: FilterValue): PersonFilter =>
+    v === "tumu" ? "Tümü" : v === "yigit" ? "Benim" : v === "arzu" ? "Esim" : "Ev";
 
   // Sync durumu
   const saveMutation = trpc.familyBudget.save.useMutation();
+
+  // Notifications panel state
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+
+  // Loading skeleton state — derived per-route below from useBudget().isLoaded
+  const skeletonPage = SKELETON_PAGE_BY_PATH[location];
 
   useEffect(() => {
     if (isCollapsed) {
@@ -172,7 +186,7 @@ function DashboardLayoutContent({
     logoutMutation.mutate();
   };
 
-  const { undo, canUndo, undoDescription } = useBudget();
+  const { undo, canUndo, undoDescription, isLoaded } = useBudget();
 
   // Ctrl+Z klavye kısayolu
   useEffect(() => {
@@ -194,42 +208,98 @@ function DashboardLayoutContent({
           className="border-r-0"
           disableTransition={isResizing}
         >
-          <SidebarHeader className="h-16 justify-center border-b">
-            <div className="flex items-center gap-3 px-2 transition-all w-full">
+          {/* Brand header — port of _design/nav.jsx:71-85 */}
+          <SidebarHeader className="border-b" style={{ padding: isCollapsed ? "12px 8px" : "12px 14px" }}>
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              width: "100%",
+            }}>
               <button
                 onClick={toggleSidebar}
-                className="h-8 w-8 flex items-center justify-center hover:bg-accent/20 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring shrink-0"
-                aria-label="Navigasyonu ac/kapat"
+                aria-label="Navigasyonu aç/kapat"
+                style={{
+                  width: 32, height: 32,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  borderRadius: 8,
+                  background: "transparent",
+                  border: "none",
+                  cursor: "pointer",
+                  color: "var(--text-tertiary)",
+                  flexShrink: 0,
+                }}
               >
-                <PanelLeft className="h-4 w-4 text-muted-foreground" />
+                <PanelLeft className="h-4 w-4" />
               </button>
               {!isCollapsed ? (
-                <div className="flex items-center gap-2 min-w-0">
-                  <span className="text-xl" role="img" aria-label="panda">🐼</span>
-                  <span className="font-bold text-sm tracking-tight truncate text-primary" style={{ fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif" }}>
-                    UK Ailesi Butce
-                  </span>
-                </div>
+                <>
+                  <div style={{
+                    width: 38, height: 38, borderRadius: 12,
+                    background: "linear-gradient(135deg, var(--accent-green), var(--owner-yigit))",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontSize: 22,
+                    flexShrink: 0,
+                    boxShadow: "0 4px 12px -4px var(--accent-green-soft)",
+                  }}>🐼</div>
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <div style={{
+                      fontSize: 13, fontWeight: 700, lineHeight: 1.25,
+                      letterSpacing: "-0.01em",
+                      whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+                      color: "var(--text-primary)",
+                    }}>ÜK Ailesi Bütçe</div>
+                    <div style={{
+                      fontSize: 11, color: "var(--text-tertiary)", marginTop: 2,
+                      whiteSpace: "nowrap",
+                    }}>Aile bütçe paneli</div>
+                  </div>
+                </>
               ) : (
-                <span className="text-lg" role="img" aria-label="panda">🐼</span>
+                <div style={{
+                  width: 32, height: 32, borderRadius: 10,
+                  background: "linear-gradient(135deg, var(--accent-green), var(--owner-yigit))",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 18,
+                  flexShrink: 0,
+                }}>🐼</div>
               )}
             </div>
           </SidebarHeader>
 
-          {/* Aktif kisi gostergesi */}
+          {/* Aktif kullanıcı pill — port of _design/nav.jsx:87-104 */}
           {!isCollapsed && currentPerson && (
-            <div className="px-3 py-2 border-b">
-              <div className={`flex items-center justify-between px-2 py-1.5 rounded-lg ${activeColor}`}>
-                <div className="flex items-center gap-2">
-                  <span className="text-base">{activeEmoji}</span>
-                  <span className="text-sm font-semibold">{activeName}</span>
+            <div style={{ padding: "0 14px 16px" }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  padding: "10px 12px",
+                  background: "var(--bg-elevated)",
+                  borderRadius: 14,
+                }}
+              >
+                <Avatar who={activeWho} size={32} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}>
+                    {activeName}
+                  </div>
+                  <div style={{ fontSize: 11, color: "var(--text-tertiary)" }}>Aktif kullanıcı</div>
                 </div>
                 <button
                   onClick={handleSwitchPerson}
-                  className="text-xs opacity-60 hover:opacity-100 transition-opacity flex items-center gap-1"
-                  title="Kisi degistir"
+                  style={{
+                    background: "transparent",
+                    border: "none",
+                    cursor: "pointer",
+                    color: "var(--text-tertiary)",
+                    padding: 4,
+                    borderRadius: 8,
+                  }}
+                  title="Çıkış Yap"
                 >
-                  <LogOut className="w-3 h-3" />
+                  <LogOut className="w-4 h-4" />
                 </button>
               </div>
             </div>
@@ -291,6 +361,14 @@ function DashboardLayoutContent({
                     </>
                   )}
                 </button>
+                <button
+                  onClick={() => setNotificationsOpen(true)}
+                  className="w-full flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-accent/20 transition-colors text-sm font-medium"
+                  aria-label="Bildirimler"
+                >
+                  <Bell className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <span className="text-muted-foreground text-xs">Bildirimler</span>
+                </button>
                 {canUndo && (
                   <button
                     onClick={undo}
@@ -321,6 +399,13 @@ function DashboardLayoutContent({
                     <Moon className="h-4 w-4 text-indigo-500" />
                   )}
                 </button>
+                <button
+                  onClick={() => setNotificationsOpen(true)}
+                  className="h-8 w-8 flex items-center justify-center hover:bg-accent/20 rounded-lg transition-colors"
+                  aria-label="Bildirimler"
+                >
+                  <Bell className="h-4 w-4 text-muted-foreground" />
+                </button>
                 <Cloud className="h-4 w-4 text-muted-foreground" />
               </div>
             )}
@@ -338,71 +423,95 @@ function DashboardLayoutContent({
 
       <PorsukCat />
       <GlobalSearch />
-      {isMobile && <MobileBottomNav />}
+      {isMobile && <MobileFAB onNotifications={() => setNotificationsOpen(true)} />}
+      <NotificationsPanel
+        open={notificationsOpen}
+        onClose={() => setNotificationsOpen(false)}
+        mobile={isMobile}
+      />
       <SidebarInset>
         {isMobile && (
-          <div className="flex border-b h-14 items-center justify-between bg-background/95 px-3 backdrop-blur supports-[backdrop-filter]:backdrop-blur sticky top-0 z-40">
-            <div className="flex items-center gap-2">
-              <SidebarTrigger className="h-9 w-9 rounded-lg bg-background" />
-              <div className="flex items-center gap-2">
-                <span className="text-base" role="img" aria-label="panda">🐼</span>
-                <span className="font-semibold text-sm text-foreground" style={{ fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif" }}>
-                  {activeMenuItem?.label ?? "UK Ailesi Butce"}
-                </span>
+          /* MobileHeader — line-by-line port of _design/nav.jsx:224-267 */
+          <div style={{
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            padding: "14px 18px",
+            background: "var(--bg-base)",
+            borderBottom: "1px solid var(--border-faint)",
+            position: "sticky", top: 0, zIndex: 20,
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <SidebarTrigger className="h-9 w-9 rounded-lg" />
+              {/* Single 32x32 gradient panda box (NO duplicate emoji) */}
+              <div style={{
+                width: 32, height: 32, borderRadius: 10,
+                background: "linear-gradient(135deg, var(--accent-green), var(--owner-yigit))",
+                display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18,
+                flexShrink: 0,
+              }}>🐼</div>
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <div style={{ fontSize: 13, fontWeight: 700, lineHeight: 1.2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", color: "var(--text-primary)" }}>
+                  ÜK Ailesi Bütçe
+                </div>
+                <div style={{ fontSize: 10, color: "var(--text-tertiary)", marginTop: 1, whiteSpace: "nowrap" }}>
+                  {activeMenuItem?.label ?? "Ana Sayfa"}
+                </div>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              {/* Mobilde aktif kisi */}
+            <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+              <button
+                onClick={toggleTheme}
+                style={{
+                  background: "var(--bg-surface)", border: "none",
+                  padding: 8, borderRadius: 10, cursor: "pointer",
+                  color: "var(--text-secondary)",
+                  display: "flex", alignItems: "center",
+                }}
+                aria-label="Tema değiştir"
+              >
+                {theme === 'dark' ? <Sun className="h-4 w-4 text-amber-500" /> : <Moon className="h-4 w-4 text-indigo-500" />}
+              </button>
+              <button
+                onClick={() => setNotificationsOpen(true)}
+                style={{
+                  background: "var(--bg-surface)", border: "none",
+                  padding: 8, borderRadius: 10, cursor: "pointer",
+                  color: "var(--text-secondary)",
+                  position: "relative",
+                  display: "flex", alignItems: "center",
+                }}
+                aria-label="Bildirimler"
+              >
+                <Bell className="h-4 w-4" />
+              </button>
+              {/* Single Avatar — replaces raw 👨/👩 emoji */}
               {currentPerson && (
                 <button
                   onClick={handleSwitchPerson}
-                  className="text-base"
-                  title="Kisi degistir"
+                  style={{ background: "transparent", border: "none", padding: 0, cursor: "pointer", display: "flex", alignItems: "center" }}
+                  title="Kişi değiştir"
+                  aria-label={`${activeName} olarak görüntüleniyor — değiştir`}
                 >
-                  {activeEmoji}
+                  <Avatar who={activeWho} size={32} />
                 </button>
               )}
-              <button
-                onClick={toggleTheme}
-                className="h-8 w-8 flex items-center justify-center hover:bg-accent/20 rounded-lg transition-colors"
-                aria-label="Tema degistir"
-              >
-                {theme === 'dark' ? (
-                  <Sun className="h-4 w-4 text-amber-500" />
-                ) : (
-                  <Moon className="h-4 w-4 text-indigo-500" />
-                )}
-              </button>
-              <Cloud className={`h-4 w-4 ${saveMutation.isPending ? "text-blue-500 animate-pulse" : "text-muted-foreground"}`} />
-              <button
-                onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true, bubbles: true }))}
-                className="h-8 w-8 flex items-center justify-center hover:bg-accent/20 rounded-lg transition-colors"
-                aria-label="Ara"
-              >
-                <Search className="h-4 w-4 text-muted-foreground" />
-              </button>
             </div>
           </div>
         )}
         {/* Global person filter */}
-        <div className="flex items-center gap-2 px-3 md:px-6 pt-3 md:pt-4 pb-0 flex-wrap">
-          {personFilterOptions.map((opt) => (
-            <button
-              key={opt.value}
-              onClick={() => setPersonFilter(opt.value)}
-              className={`px-3 py-1 rounded-full text-xs font-medium transition-all border ${
-                personFilter === opt.value
-                  ? "bg-primary text-primary-foreground border-primary shadow-sm"
-                  : "bg-background text-muted-foreground border-border hover:bg-accent/50"
-              }`}
-            >
-              {opt.label}
-            </button>
-          ))}
+        <div className="px-3 md:px-6 pt-3 md:pt-4 pb-0">
+          <PersonFilterChips
+            value={filterToValue(personFilter)}
+            onChange={(v) => setPersonFilter(valueToFilter(v))}
+            labels={{ yigit: person1Name, arzu: person2Name }}
+          />
         </div>
         <main className="flex-1 p-3 md:p-6 pb-20 md:pb-6">
           <div key={location} className="page-enter">
-            {children}
+            {!isLoaded && skeletonPage ? (
+              <PageSkeleton page={skeletonPage} />
+            ) : (
+              children
+            )}
           </div>
         </main>
       </SidebarInset>

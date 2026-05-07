@@ -19,6 +19,7 @@ import Raporlar from "./pages/Raporlar";
 import Settings from "./pages/Settings";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
+import DesignShowcase from "./pages/DesignShowcase";
 
 function Router() {
   return (
@@ -30,6 +31,7 @@ function Router() {
       <Route path="/raporlar" component={Raporlar} />
       <Route path="/ayarlar" component={Settings} />
       <Route path="/login" component={Login} />
+      <Route path="/dev/design" component={DesignShowcase} />
 
       {/* Redirects from old Turkish paths */}
       <Route path="/gelirler"><Redirect to="/gelir-gider" /></Route>
@@ -128,7 +130,7 @@ function AppContent() {
 function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider defaultTheme="light" switchable={true}>
+      <ThemeProvider defaultTheme="dark" switchable={true}>
         <PersonProvider>
           <BudgetProvider>
             <TooltipProvider>

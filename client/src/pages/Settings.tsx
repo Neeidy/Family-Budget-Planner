@@ -1,35 +1,123 @@
+import { useState, useRef } from "react";
+import { Moon, Sun, LogOut, Check, Download, Upload, KeyRound, Eye, EyeOff, Eye as ViewIcon, RotateCcw, Archive, FileJson, ChevronRight } from "lucide-react";
+import { toast } from "sonner";
 import { useTheme } from "@/contexts/ThemeContext";
 import { usePerson } from "@/contexts/PersonContext";
 import { useBudget } from "@/contexts/BudgetContext";
 import { trpc } from "@/lib/trpc";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Moon, Sun, User, LogOut, Check, Download, Upload, Trash2, FileJson, Archive, KeyRound, Eye, EyeOff, History, RotateCcw } from "lucide-react";
-import { useState, useRef, useMemo } from "react";
-import { toast } from "sonner";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Avatar } from "@/components/design";
+import { formatMoney } from "@/lib/format";
 
+// ── Section card wrapper ──────────────────────────────────────
+function Section({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
+  return (
+    <div className="card">
+      <div style={{ marginBottom: 18 }}>
+        <h2 style={{ fontSize: 16, fontWeight: 700, margin: 0, color: "var(--text-primary)" }}>
+          {title}
+        </h2>
+        {description && (
+          <p style={{ fontSize: 12, color: "var(--text-tertiary)", marginTop: 4 }}>
+            {description}
+          </p>
+        )}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function GhostButton({ onClick, children, danger, accent, disabled, title }: {
+  onClick?: () => void;
+  children: React.ReactNode;
+  danger?: boolean;
+  accent?: boolean;
+  disabled?: boolean;
+  title?: string;
+}) {
+  const color = danger ? "var(--status-danger)" : accent ? "var(--accent-green)" : "var(--text-secondary)";
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={title}
+      disabled={disabled}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 6,
+        padding: "10px 16px",
+        borderRadius: "var(--r-md)",
+        fontSize: 13,
+        fontWeight: 600,
+        border: `1px solid color-mix(in oklch, ${color} 35%, transparent)`,
+        background: `color-mix(in oklch, ${color} 8%, transparent)`,
+        color,
+        cursor: disabled ? "not-allowed" : "pointer",
+        opacity: disabled ? 0.5 : 1,
+        transition: "all 160ms",
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
+function PasswordInput({ value, onChange, show, onToggle, placeholder }: {
+  value: string;
+  onChange: (v: string) => void;
+  show: boolean;
+  onToggle: () => void;
+  placeholder?: string;
+}) {
+  return (
+    <div style={{
+      display: "flex",
+      alignItems: "center",
+      gap: 8,
+      padding: "10px 12px",
+      background: "var(--bg-elevated)",
+      borderRadius: 12,
+      border: "1px solid var(--border-faint)",
+    }}>
+      <input
+        type={show ? "text" : "password"}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        style={{
+          flex: 1, minWidth: 0,
+          background: "transparent", border: "none", outline: "none",
+          color: "var(--text-primary)", fontSize: 14, fontFamily: "inherit",
+        }}
+      />
+      <button
+        type="button"
+        onClick={onToggle}
+        style={{
+          background: "transparent", border: "none", cursor: "pointer",
+          color: "var(--text-tertiary)", padding: 2,
+          display: "flex", alignItems: "center",
+        }}
+      >
+        {show ? <EyeOff style={{ width: 14, height: 14 }} /> : <Eye style={{ width: 14, height: 14 }} />}
+      </button>
+    </div>
+  );
+}
+
+// ── Settings ──────────────────────────────────────────────────
 export default function Settings() {
   const { theme, toggleTheme } = useTheme();
   const { person1Name, person2Name, setPerson1Name, setPerson2Name, currentPerson, setCurrentPerson } = usePerson();
-  const {
-    exportData, importData,
-    saveCurrentMonthToArchive, archive,
-  } = useBudget();
+  const { exportData, importData, saveCurrentMonthToArchive, archive } = useBudget();
 
   const [name1, setName1] = useState(person1Name);
   const [name2, setName2] = useState(person2Name);
   const [saved, setSaved] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Sifre degistirme state
+  // Password state
   const [currentPw, setCurrentPw] = useState("");
   const [newPw, setNewPw] = useState("");
   const [confirmPw, setConfirmPw] = useState("");
@@ -38,14 +126,14 @@ export default function Settings() {
   const [showConfirmPw, setShowConfirmPw] = useState(false);
   const [pwSaved, setPwSaved] = useState(false);
 
-  // Yedek Gecmisi state
+  // History
   const [selectedSnapshotId, setSelectedSnapshotId] = useState<number | null>(null);
   const [showSnapshotModal, setShowSnapshotModal] = useState(false);
 
   const historyQuery = trpc.familyBudget.history.list.useQuery();
   const snapshotQuery = trpc.familyBudget.history.get.useQuery(
     { id: selectedSnapshotId! },
-    { enabled: selectedSnapshotId !== null && showSnapshotModal }
+    { enabled: selectedSnapshotId !== null && showSnapshotModal },
   );
 
   const utils = trpc.useUtils();
@@ -53,13 +141,13 @@ export default function Settings() {
 
   const restoreMutation = trpc.familyBudget.history.restore.useMutation({
     onSuccess: () => {
-      toast.success('Yedek basariyla geri yuklendi!');
+      toast.success("Yedek başarıyla geri yüklendi!");
       utils.familyBudget.get.invalidate();
       utils.familyBudget.history.list.invalidate();
     },
     onError: (err) => {
-      if (err.data?.code === 'CONFLICT') {
-        toast.error('Veri baska cihazdan degisti, sayfa yenileniyor...');
+      if (err.data?.code === "CONFLICT") {
+        toast.error("Veri başka cihazdan değişti, sayfa yenileniyor...");
         utils.familyBudget.get.invalidate();
       } else {
         toast.error(err.message);
@@ -68,6 +156,7 @@ export default function Settings() {
   });
 
   const handleRestore = (id: number) => {
+    if (!confirm("Bu yedek geri yüklensin mi? Mevcut veriler otomatik yedeklenir.")) return;
     const expectedUpdatedAt = currentBudgetQuery.data?.updatedAt
       ? new Date(currentBudgetQuery.data.updatedAt).toISOString()
       : null;
@@ -77,14 +166,11 @@ export default function Settings() {
   const parseSnapshotSummary = (snapshot: string) => {
     try {
       const data = JSON.parse(snapshot);
-      const incomes = JSON.parse(data.incomes ?? '[]');
-      const expenses = JSON.parse(data.expenses ?? '[]');
-      const debts = JSON.parse(data.debts ?? '[]');
-      const savings = JSON.parse(data.savings ?? '[]');
-      const installments = JSON.parse(data.installments ?? '[]');
-      const totalIncome = incomes.reduce((s: number, i: { amount?: number }) => s + (i.amount ?? 0), 0);
+      const incomes  = JSON.parse(data.incomes  ?? "[]");
+      const expenses = JSON.parse(data.expenses ?? "[]");
+      const totalIncome  = incomes.reduce((s: number, i: { amount?: number }) => s + (i.amount ?? 0), 0);
       const totalExpense = expenses.reduce((s: number, i: { amount?: number }) => s + (i.amount ?? 0), 0);
-      return { incomes: incomes.length, expenses: expenses.length, debts: debts.length, savings: savings.length, installments: installments.length, totalIncome, totalExpense };
+      return { incomes: incomes.length, expenses: expenses.length, totalIncome, totalExpense };
     } catch {
       return null;
     }
@@ -97,24 +183,22 @@ export default function Settings() {
       setNewPw("");
       setConfirmPw("");
       setTimeout(() => setPwSaved(false), 3000);
-      toast.success("Sifre basariyla degistirildi!");
+      toast.success("Şifre başarıyla değiştirildi!");
     },
-    onError: (err) => {
-      toast.error(err.message);
-    },
+    onError: (err) => toast.error(err.message),
   });
 
   const handleChangePassword = () => {
     if (!currentPw || !newPw || !confirmPw) {
-      toast.error("Tum alanlari doldurun");
+      toast.error("Tüm alanları doldurun");
       return;
     }
     if (newPw !== confirmPw) {
-      toast.error("Yeni sifreler eslemiyor");
+      toast.error("Yeni şifreler eşleşmiyor");
       return;
     }
     if (newPw.length < 4) {
-      toast.error("Yeni sifre en az 4 karakter olmali");
+      toast.error("Yeni şifre en az 4 karakter olmalı");
       return;
     }
     changePasswordMutation.mutate({ currentPassword: currentPw, newPassword: newPw, confirmPassword: confirmPw });
@@ -136,395 +220,341 @@ export default function Settings() {
       importData(text);
     };
     reader.readAsText(file);
-    // Reset input
-    if (fileInputRef.current) fileInputRef.current.value = '';
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleLogout = () => {
+    if (!confirm("Çıkış yapmak istediğinize emin misiniz?")) return;
+    setCurrentPerson(null);
   };
 
   return (
-    <div className="space-y-6">
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      {/* Header */}
       <div>
-        <h1 className="text-3xl font-display font-bold">Ayarlar</h1>
-        <p className="text-muted-foreground mt-1">
-          Uygulamanin tercihlerini ve yedeklerini yönetin
+        <h1 style={{ fontSize: "clamp(1.5rem, 3.5vw, 2rem)", fontWeight: 700, letterSpacing: "-0.02em", margin: 0, color: "var(--text-primary)" }}>
+          Ayarlar
+        </h1>
+        <p style={{ fontSize: 13, color: "var(--text-tertiary)", marginTop: 6 }}>
+          Profil, görünüm ve yedek tercihlerinizi yönetin
         </p>
       </div>
 
-      {/* Kişi Ayarları */}
-      <Card className="p-6">
-        <h2 className="text-lg font-display font-bold mb-4 flex items-center gap-2">
-          <User className="w-5 h-5 text-primary" />
-          Kişi Ayarları
-        </h2>
-
-        {currentPerson && (
-          <div className="mb-5 p-4 bg-secondary rounded-lg flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className="text-2xl">{currentPerson === 'Benim' ? '👨' : '👩'}</span>
-              <div>
-                <p className="font-medium">Aktif Kişi</p>
-                <p className="text-sm text-muted-foreground">
-                  {currentPerson === 'Benim' ? person1Name : person2Name} olarak giriş yapıldı
-                </p>
-              </div>
-            </div>
-            <Button variant="outline" size="sm" onClick={() => setCurrentPerson(null)} className="gap-2">
-              <LogOut className="w-4 h-4" />
-              Değiştir
-            </Button>
-          </div>
-        )}
-
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label className="flex items-center gap-2 mb-2">
-                <span className="text-blue-600">👨</span>
-                Kişi 1 Adı (Benim)
-              </Label>
-              <Input value={name1} onChange={e => setName1(e.target.value)} placeholder="Yiğit" className="border-blue-200 focus:border-blue-400" />
-            </div>
-            <div>
-              <Label className="flex items-center gap-2 mb-2">
-                <span className="text-purple-600">👩</span>
-                Kişi 2 Adı (Eşim)
-              </Label>
-              <Input value={name2} onChange={e => setName2(e.target.value)} placeholder="Arzu" className="border-purple-200 focus:border-purple-400" />
-            </div>
-          </div>
-          <Button onClick={handleSaveNames} className="gap-2" disabled={!name1.trim() || !name2.trim()}>
-            {saved ? <><Check className="w-4 h-4" />Kaydedildi!</> : 'İsimleri Kaydet'}
-          </Button>
+      {/* PROFİL */}
+      <Section title="Profil" description="Aile üyelerinin görünen isimleri">
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 16 }}>
+          <ProfileCard who="yigit" active={currentPerson === "Benim"} value={name1} onChange={setName1} />
+          <ProfileCard who="arzu"  active={currentPerson === "Esim"}  value={name2} onChange={setName2} />
         </div>
-      </Card>
-
-      {/* Veri Yedekleme */}
-      <Card className="p-6">
-        <h2 className="text-lg font-display font-bold mb-1 flex items-center gap-2">
-          <FileJson className="w-5 h-5 text-green-600" />
-          Veri Yedekleme
-        </h2>
-        <p className="text-sm text-muted-foreground mb-5">
-          Tüm verilerinizi JSON dosyası olarak indirin veya yükleyin. Telefon değişikliği veya tarayıcı temizliği öncesinde mutlaka yedek alın.
-        </p>
-
-        <div className="flex flex-wrap gap-3">
-          <Button onClick={exportData} variant="outline" className="gap-2 border-green-300 text-green-700 hover:bg-green-50 dark:hover:bg-green-900/20">
-            <Download className="w-4 h-4" />
-            Verileri İndir (JSON)
-          </Button>
-
-          <Button
-            variant="outline"
-            className="gap-2 border-blue-300 text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20"
-            onClick={() => fileInputRef.current?.click()}
+        <div style={{ marginTop: 16 }}>
+          <button
+            type="button"
+            onClick={handleSaveNames}
+            disabled={!name1.trim() || !name2.trim()}
+            style={{
+              display: "inline-flex", alignItems: "center", gap: 6,
+              padding: "10px 16px", borderRadius: "var(--r-md)",
+              fontSize: 13, fontWeight: 600, border: "none",
+              background: "var(--accent-green)", color: "oklch(0.15 0.03 155)",
+              cursor: "pointer", opacity: !name1.trim() || !name2.trim() ? 0.5 : 1,
+            }}
           >
-            <Upload className="w-4 h-4" />
-            Yedekten Yükle
-          </Button>
+            {saved ? <><Check style={{ width: 14, height: 14 }} /> Kaydedildi</> : "İsimleri Kaydet"}
+          </button>
+        </div>
+      </Section>
+
+      {/* GÖRÜNÜM */}
+      <Section title="Görünüm" description="Tema ve dil tercihleri">
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <div>
+            <div style={{ fontSize: 12, color: "var(--text-tertiary)", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.08em", fontWeight: 600 }}>
+              Tema
+            </div>
+            <div style={{ display: "inline-flex", padding: 4, background: "var(--bg-elevated)", borderRadius: 999, gap: 2 }}>
+              <ThemeButton label="Açık"     active={theme === "light"} icon={<Sun  style={{ width: 14, height: 14 }} />} onClick={() => theme === "dark" && toggleTheme()} />
+              <ThemeButton label="Karanlık" active={theme === "dark"}  icon={<Moon style={{ width: 14, height: 14 }} />} onClick={() => theme === "light" && toggleTheme()} />
+            </div>
+          </div>
+          <div>
+            <div style={{ fontSize: 12, color: "var(--text-tertiary)", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.08em", fontWeight: 600 }}>
+              Dil
+            </div>
+            <select disabled style={{
+              padding: "10px 14px", borderRadius: "var(--r-md)",
+              fontSize: 13, fontWeight: 600,
+              background: "var(--bg-elevated)",
+              border: "1px solid var(--border-faint)",
+              color: "var(--text-primary)",
+              cursor: "not-allowed",
+              opacity: 0.7,
+            }}>
+              <option>Türkçe</option>
+            </select>
+          </div>
+        </div>
+      </Section>
+
+      {/* VERİ YÖNETİMİ */}
+      <Section title="Veri Yönetimi" description="JSON yedek alma / yükleme">
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+          <GhostButton onClick={exportData} accent>
+            <Download style={{ width: 14, height: 14 }} /> Verileri İndir (JSON)
+          </GhostButton>
+          <GhostButton onClick={() => fileInputRef.current?.click()}>
+            <Upload style={{ width: 14, height: 14 }} /> Yedekten Yükle
+          </GhostButton>
           <input
             ref={fileInputRef}
             type="file"
             accept=".json"
-            className="hidden"
+            style={{ display: "none" }}
             onChange={handleImport}
           />
         </div>
-
-        <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
-          <p className="text-xs text-amber-800 dark:text-amber-200">
-            <strong>Dikkat:</strong> Yedekten yükleme mevcut verilerin üzerine yazar. İşlem geri alınabilir (Ctrl+Z).
-          </p>
-        </div>
-      </Card>
-
-      {/* Ay Arşivi */}
-      <Card className="p-6">
-        <h2 className="text-lg font-display font-bold mb-1 flex items-center gap-2">
-          <Archive className="w-5 h-5 text-indigo-600" />
-          Ay Arşivi
-        </h2>
-        <p className="text-sm text-muted-foreground mb-4">
-          Bu ayın verilerini arşive kaydedin. Arşivlenen aylar "Ay Arşivi" sayfasından görüntülenebilir.
-        </p>
-
-        <div className="flex items-center gap-3 flex-wrap">
-          <Button onClick={saveCurrentMonthToArchive} variant="outline" className="gap-2 border-indigo-300 text-indigo-700 hover:bg-indigo-50 dark:hover:bg-indigo-900/20">
-            <Archive className="w-4 h-4" />
-            Bu Ayı Arşive Kaydet
-          </Button>
-          <span className="text-sm text-muted-foreground">
-            {archive.length > 0 ? `${archive.length} ay arşivlendi` : 'Henüz arşiv yok'}
-          </span>
+        <div style={{
+          marginTop: 14, padding: "10px 14px",
+          borderRadius: "var(--r-md)",
+          background: "color-mix(in oklch, var(--status-warning) 10%, transparent)",
+          border: "1px solid color-mix(in oklch, var(--status-warning) 25%, transparent)",
+          fontSize: 12, color: "var(--status-warning)",
+        }}>
+          ⚠ Yedekten yükleme mevcut verilerin üzerine yazar. İşlem geri alınabilir (Ctrl+Z).
         </div>
 
-        {archive.length > 0 && (
-          <div className="mt-4 flex flex-wrap gap-2">
-            {archive.slice(0, 6).map(a => (
-              <Badge key={a.key} variant="secondary" className="text-xs">
-                {a.monthName} {a.year}
-              </Badge>
-            ))}
-            {archive.length > 6 && (
-              <Badge variant="outline" className="text-xs">+{archive.length - 6} daha</Badge>
-            )}
-          </div>
-        )}
-      </Card>
-
-      {/* Sabit Gider Bilgisi */}
-      <Card className="p-4 bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800">
-        <p className="text-sm text-amber-800 dark:text-amber-200">
-          💡 <strong>Sabit giderler</strong> her ay otomatik olarak bir sonraki aya taşınır.
-          Durdurmak için giderin tipini <strong>Değişken</strong> yapın veya silin (Gelir &amp; Gider → Giderler sekmesindeki &quot;Tek seferlik&quot; butonu).
-        </p>
-      </Card>
-
-      {/* Sifreyi Degistir */}
-      <Card className="p-6">
-        <h2 className="text-lg font-display font-bold mb-1 flex items-center gap-2">
-          <KeyRound className="w-5 h-5 text-rose-600" />
-          Sifreyi Degistir
-        </h2>
-        <p className="text-sm text-muted-foreground mb-5">
-          Aile giris sifresini degistirin. Mevcut sifreyi dogrulamaniz gerekir.
-        </p>
-
-        <div className="space-y-4 max-w-sm">
-          <div>
-            <Label className="mb-1.5 block text-sm">Mevcut Sifre</Label>
-            <div className="relative">
-              <Input
-                type={showCurrentPw ? "text" : "password"}
-                value={currentPw}
-                onChange={e => setCurrentPw(e.target.value)}
-                placeholder="Mevcut sifreyi girin"
-                className="pr-10"
-              />
-              <button
-                type="button"
-                onClick={() => setShowCurrentPw(v => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-              >
-                {showCurrentPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
+        {/* Ay arşivi */}
+        <div style={{ marginTop: 18, paddingTop: 18, borderTop: "1px solid var(--border-faint)" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12 }}>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}>Ay Arşivi</div>
+              <div style={{ fontSize: 12, color: "var(--text-tertiary)", marginTop: 2 }}>
+                {archive.length > 0 ? `${archive.length} ay arşivlendi` : "Henüz arşiv yok"}
+              </div>
             </div>
+            <GhostButton onClick={saveCurrentMonthToArchive}>
+              <Archive style={{ width: 14, height: 14 }} /> Bu Ayı Arşive Kaydet
+            </GhostButton>
           </div>
+        </div>
+      </Section>
 
+      {/* ŞİFRE DEĞİŞTİR */}
+      <Section title="Şifre Değiştir" description="Aile giriş şifresini güncelleyin">
+        <div style={{ display: "flex", flexDirection: "column", gap: 12, maxWidth: 400 }}>
           <div>
-            <Label className="mb-1.5 block text-sm">Yeni Sifre</Label>
-            <div className="relative">
-              <Input
-                type={showNewPw ? "text" : "password"}
-                value={newPw}
-                onChange={e => setNewPw(e.target.value)}
-                placeholder="En az 4 karakter"
-                className="pr-10"
-              />
-              <button
-                type="button"
-                onClick={() => setShowNewPw(v => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-              >
-                {showNewPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
+            <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-tertiary)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+              Mevcut Şifre
             </div>
+            <PasswordInput value={currentPw} onChange={setCurrentPw} show={showCurrentPw} onToggle={() => setShowCurrentPw((v) => !v)} placeholder="Mevcut şifre" />
           </div>
-
           <div>
-            <Label className="mb-1.5 block text-sm">Yeni Sifre (Tekrar)</Label>
-            <div className="relative">
-              <Input
-                type={showConfirmPw ? "text" : "password"}
-                value={confirmPw}
-                onChange={e => setConfirmPw(e.target.value)}
-                placeholder="Yeni sifreyi tekrar girin"
-                className="pr-10"
-                onKeyDown={e => e.key === "Enter" && handleChangePassword()}
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPw(v => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-              >
-                {showConfirmPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
+            <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-tertiary)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+              Yeni Şifre
             </div>
+            <PasswordInput value={newPw} onChange={setNewPw} show={showNewPw} onToggle={() => setShowNewPw((v) => !v)} placeholder="En az 4 karakter" />
           </div>
-
-          <Button
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-tertiary)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+              Yeni Şifre (Tekrar)
+            </div>
+            <PasswordInput value={confirmPw} onChange={setConfirmPw} show={showConfirmPw} onToggle={() => setShowConfirmPw((v) => !v)} placeholder="Tekrar girin" />
+          </div>
+          <button
+            type="button"
             onClick={handleChangePassword}
             disabled={changePasswordMutation.isPending || pwSaved}
-            className="w-full gap-2"
+            style={{
+              display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6,
+              padding: "10px 16px", borderRadius: "var(--r-md)",
+              fontSize: 13, fontWeight: 600, border: "none",
+              background: pwSaved ? "var(--accent-green)" : "var(--owner-yigit)",
+              color: pwSaved ? "oklch(0.15 0.03 155)" : "oklch(0.99 0 0)",
+              cursor: changePasswordMutation.isPending ? "not-allowed" : "pointer",
+              opacity: changePasswordMutation.isPending ? 0.7 : 1,
+            }}
           >
-            {pwSaved ? (
-              <><Check className="w-4 h-4" />Sifre Degistirildi!</>
-            ) : changePasswordMutation.isPending ? (
-              "Degistiriliyor..."
-            ) : (
-              <><KeyRound className="w-4 h-4" />Sifreyi Degistir</>
-            )}
-          </Button>
+            {pwSaved ? <><Check style={{ width: 14, height: 14 }} /> Değiştirildi</> :
+             changePasswordMutation.isPending ? "Değiştiriliyor..." :
+             <><KeyRound style={{ width: 14, height: 14 }} /> Şifreyi Değiştir</>}
+          </button>
         </div>
+      </Section>
 
-        <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
-          <p className="text-xs text-amber-800 dark:text-amber-200">
-            <strong>Not:</strong> Sifre degisikligi sunucu yeniden baslayana kadar gecerlidir. Kalici olmasi icin Manus panelinden FAMILY_PASSWORD_HASH secretini guncelleyin.
-          </p>
-        </div>
-      </Card>
-
-      {/* Tema Ayarları */}
-      <Card className="p-6">
-        <h2 className="text-lg font-display font-bold mb-4">Tema Ayarları</h2>
-        <div className="space-y-4">
-          <div className="p-4 bg-secondary rounded-lg">
-            <p className="text-sm text-muted-foreground mb-2">Mevcut Tema</p>
-            <div className="flex items-center gap-3">
-              {theme === "dark" ? (
-                <><Moon className="w-6 h-6 text-slate-700" /><div><p className="font-display font-bold">Koyu Tema</p><p className="text-sm text-muted-foreground">Gece kullanimi icin optimize edilmis</p></div></>
-              ) : (
-                <><Sun className="w-6 h-6 text-yellow-500" /><div><p className="font-display font-bold">Acik Tema</p><p className="text-sm text-muted-foreground">Gun boyunca kullanim icin optimize edilmis</p></div></>
-              )}
-            </div>
-          </div>
-          <Button onClick={toggleTheme} className="w-full" variant="outline">
-            {theme === "dark" ? <><Sun className="w-4 h-4 mr-2 text-yellow-500" />Acik Temaya Gec</> : <><Moon className="w-4 h-4 mr-2 text-slate-700" />Koyu Temaya Gec</>}
-          </Button>
-        </div>
-      </Card>
-      {/* Yedek Gecmisi */}
-      <Card className="p-6">
-        <h2 className="text-lg font-display font-bold mb-4 flex items-center gap-2">
-          <History className="w-5 h-5 text-primary" />
-          Yedek Gecmisi
-        </h2>
-        <p className="text-sm text-muted-foreground mb-4">
-          Her kayit isleminde otomatik yedek alinir. Son 30 yedek saklanir.
-        </p>
-
+      {/* YEDEK GEÇMİŞİ */}
+      <Section title="Yedek Geçmişi" description="Son 30 yedek otomatik tutulur">
         {historyQuery.isLoading ? (
-          <div className="space-y-2">
-            {[1,2,3].map(i => <Skeleton key={i} className="h-14 w-full" />)}
-          </div>
-        ) : historyQuery.data && historyQuery.data.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            <Archive className="w-10 h-10 mx-auto mb-2 opacity-40" />
-            <p className="text-sm">Henuz yedek bulunmuyor. Veri kaydedildikce otomatik yedek olusur.</p>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {historyQuery.data?.map((item) => (
-              <div key={item.id} className="flex items-center justify-between p-3 rounded-lg border bg-secondary/30 hover:bg-secondary/60 transition-colors">
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium">
-                    {new Date(item.createdAt).toLocaleString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {item.savedBy ? `${item.savedBy === 'Yigit' || item.savedBy === 'Arzu' ? item.savedBy : item.savedBy} tarafindan` : 'Otomatik'}
-                  </p>
-                </div>
-                <div className="flex gap-2 ml-3">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => { setSelectedSnapshotId(item.id); setShowSnapshotModal(true); }}
-                  >
-                    <Eye className="w-3 h-3 mr-1" /> Goruntule
-                  </Button>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button size="sm" variant="outline" className="text-amber-600 border-amber-300 hover:bg-amber-50">
-                        <RotateCcw className="w-3 h-3 mr-1" /> Geri Yukle
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Yedeği Geri Yukle</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          {new Date(item.createdAt).toLocaleString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })} tarihli yedek yuklenecek.
-                          Mevcut veriler otomatik olarak yedeklenecek (geri alabilirsiniz). Devam edilsin mi?
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Iptal</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={() => handleRestore(item.id)}
-                          className="bg-amber-600 hover:bg-amber-700"
-                        >
-                          Evet, Geri Yukle
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </div>
-              </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="skel" style={{ height: 56, borderRadius: 12 }} />
             ))}
           </div>
+        ) : historyQuery.data && historyQuery.data.length > 0 ? (
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {historyQuery.data.map((item) => (
+              <BackupRow
+                key={item.id}
+                item={item}
+                onView={() => { setSelectedSnapshotId(item.id); setShowSnapshotModal(true); }}
+                onRestore={() => handleRestore(item.id)}
+                disabled={restoreMutation.isPending}
+              />
+            ))}
+          </div>
+        ) : (
+          <div style={{ padding: 24, textAlign: "center", color: "var(--text-tertiary)", fontSize: 13 }}>
+            Henüz yedek yok. Veri kaydettiğinizde otomatik yedek oluşur.
+          </div>
         )}
-      </Card>
+      </Section>
 
-      {/* Snapshot Goruntule Modal */}
-      <Dialog open={showSnapshotModal} onOpenChange={setShowSnapshotModal}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Archive className="w-5 h-5" />
-              Yedek Ozeti
-            </DialogTitle>
-          </DialogHeader>
-          {snapshotQuery.isLoading ? (
-            <div className="space-y-2">
-              {[1,2,3,4,5].map(i => <Skeleton key={i} className="h-8 w-full" />)}
+      {/* ÇIKIŞ */}
+      <Section title="Çıkış">
+        <GhostButton onClick={handleLogout} danger>
+          <LogOut style={{ width: 14, height: 14 }} /> Çıkış Yap
+        </GhostButton>
+      </Section>
+
+      {/* Snapshot detail modal */}
+      {showSnapshotModal && (
+        <div
+          onClick={() => setShowSnapshotModal(false)}
+          style={{
+            position: "fixed", inset: 0, zIndex: 200,
+            background: "color-mix(in oklch, var(--bg-base) 60%, transparent)",
+            backdropFilter: "blur(6px)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            padding: 16,
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: "var(--bg-surface)",
+              borderRadius: 20,
+              boxShadow: "var(--shadow-lg)",
+              maxWidth: 480, width: "100%",
+              padding: 24,
+            }}
+          >
+            <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0, color: "var(--text-primary)" }}>Yedek Detayı</h3>
+            <div style={{ marginTop: 14, fontSize: 13, color: "var(--text-secondary)" }}>
+              {snapshotQuery.isLoading ? "Yükleniyor..." : (() => {
+                if (!snapshotQuery.data) return "Veri bulunamadı";
+                const sum = parseSnapshotSummary(snapshotQuery.data.snapshot);
+                if (!sum) return "Veri okunamadı";
+                return (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    <div>Gelir kaydı: <strong>{sum.incomes}</strong></div>
+                    <div>Gider kaydı: <strong>{sum.expenses}</strong></div>
+                    <div>Toplam Gelir: <strong className="hero-num" style={{ color: "var(--accent-green)" }}>{formatMoney(sum.totalIncome)}</strong></div>
+                    <div>Toplam Gider: <strong className="hero-num" style={{ color: "var(--status-danger)" }}>{formatMoney(sum.totalExpense)}</strong></div>
+                  </div>
+                );
+              })()}
             </div>
-          ) : snapshotQuery.data ? (() => {
-            const summary = parseSnapshotSummary(snapshotQuery.data.snapshot);
-            return summary ? (
-              <div className="space-y-3">
-                <p className="text-sm text-muted-foreground">
-                  {new Date(snapshotQuery.data.createdAt).toLocaleString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                  {snapshotQuery.data.savedBy ? ` — ${snapshotQuery.data.savedBy}` : ''}
-                </p>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="p-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
-                    <p className="text-xs text-muted-foreground">Gelir Kaydi</p>
-                    <p className="text-xl font-bold text-green-700 dark:text-green-400">{summary.incomes}</p>
-                    <p className="text-xs text-green-600 dark:text-green-500">{summary.totalIncome.toLocaleString('tr-TR')} ₺</p>
-                  </div>
-                  <div className="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
-                    <p className="text-xs text-muted-foreground">Gider Kaydi</p>
-                    <p className="text-xl font-bold text-red-700 dark:text-red-400">{summary.expenses}</p>
-                    <p className="text-xs text-red-600 dark:text-red-500">{summary.totalExpense.toLocaleString('tr-TR')} ₺</p>
-                  </div>
-                  <div className="p-3 rounded-lg bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800">
-                    <p className="text-xs text-muted-foreground">Borc Kaydi</p>
-                    <p className="text-xl font-bold text-orange-700 dark:text-orange-400">{summary.debts}</p>
-                  </div>
-                  <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
-                    <p className="text-xs text-muted-foreground">Birikim Kaydi</p>
-                    <p className="text-xl font-bold text-blue-700 dark:text-blue-400">{summary.savings}</p>
-                  </div>
-                  {summary.installments > 0 && (
-                    <div className="p-3 rounded-lg bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 col-span-2">
-                      <p className="text-xs text-muted-foreground">Taksit Kaydi</p>
-                      <p className="text-xl font-bold text-purple-700 dark:text-purple-400">{summary.installments}</p>
-                    </div>
-                  )}
-                </div>
-                <div className="pt-2 border-t">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Net Durum</span>
-                    <span className={`font-bold ${summary.totalIncome - summary.totalExpense >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {(summary.totalIncome - summary.totalExpense).toLocaleString('tr-TR')} ₺
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <p className="text-sm text-muted-foreground">Snapshot verisi okunamadi.</p>
-            );
-          })() : null}
-        </DialogContent>
-      </Dialog>
+            <div style={{ marginTop: 18, display: "flex", justifyContent: "flex-end" }}>
+              <GhostButton onClick={() => setShowSnapshotModal(false)}>Kapat</GhostButton>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ProfileCard({ who, active, value, onChange }: { who: "yigit" | "arzu"; active: boolean; value: string; onChange: (v: string) => void }) {
+  const ownerColor = `var(--owner-${who})`;
+  return (
+    <div style={{
+      padding: 16,
+      borderRadius: "var(--r-lg)",
+      background: active ? `color-mix(in oklch, ${ownerColor} 10%, var(--bg-elevated))` : "var(--bg-elevated)",
+      border: active ? `2px solid ${ownerColor}` : "2px solid transparent",
+      display: "flex", alignItems: "center", gap: 14,
+    }}>
+      <Avatar who={who} size={48} />
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <input
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          style={{
+            width: "100%",
+            background: "transparent", border: "none", outline: "none",
+            color: "var(--text-primary)",
+            fontSize: 15, fontWeight: 700, fontFamily: "inherit",
+          }}
+        />
+        {active && (
+          <div style={{ fontSize: 11, color: ownerColor, fontWeight: 600, marginTop: 2 }}>
+            ● Aktif kullanıcı
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ThemeButton({ label, active, icon, onClick }: { label: string; active: boolean; icon: React.ReactNode; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={{
+        display: "inline-flex", alignItems: "center", gap: 6,
+        padding: "8px 14px", borderRadius: 999,
+        fontSize: 12, fontWeight: 600, border: "none",
+        background: active ? "var(--accent-green)" : "transparent",
+        color: active ? "oklch(0.15 0.03 155)" : "var(--text-secondary)",
+        cursor: "pointer",
+      }}
+    >
+      {icon} {label}
+    </button>
+  );
+}
+
+interface BackupItem {
+  id: number;
+  createdAt: string | Date;
+  savedBy: string | null;
+  snapshot?: string;
+}
+
+function BackupRow({ item, onView, onRestore, disabled }: { item: BackupItem; onView: () => void; onRestore: () => void; disabled: boolean }) {
+  const dt = new Date(item.createdAt);
+  const formattedDate = dt.toLocaleString("tr-TR", {
+    day: "2-digit", month: "long", year: "numeric",
+    hour: "2-digit", minute: "2-digit",
+  });
+  const who = item.savedBy === "Benim" ? "yigit" : item.savedBy === "Esim" ? "arzu" : "ev";
+  const name = item.savedBy ?? "Otomatik";
+
+  return (
+    <div style={{
+      display: "flex", alignItems: "center", gap: 12,
+      padding: "12px 16px",
+      background: "var(--bg-elevated)",
+      borderRadius: 12,
+      border: "1px solid var(--border-faint)",
+    }}>
+      <FileJson style={{ width: 18, height: 18, color: "var(--owner-yigit)", flexShrink: 0 }} />
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}>{formattedDate}</div>
+        <div style={{ fontSize: 11, color: "var(--text-tertiary)", display: "flex", alignItems: "center", gap: 4, marginTop: 2 }}>
+          <Avatar who={who as "yigit" | "arzu" | "ev"} size={12} />
+          {name}
+        </div>
+      </div>
+      <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+        <button type="button" onClick={onView} title="Görüntüle"
+          style={{ padding: 6, borderRadius: 6, border: "none", background: "transparent", cursor: "pointer", color: "var(--text-tertiary)" }}>
+          <ViewIcon style={{ width: 14, height: 14 }} />
+        </button>
+        <button type="button" onClick={onRestore} disabled={disabled} title="Geri Yükle"
+          style={{ padding: 6, borderRadius: 6, border: "none", background: "transparent", cursor: disabled ? "not-allowed" : "pointer", color: "var(--status-warning)", opacity: disabled ? 0.5 : 1 }}>
+          <RotateCcw style={{ width: 14, height: 14 }} />
+        </button>
+      </div>
     </div>
   );
 }

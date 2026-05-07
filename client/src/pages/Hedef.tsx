@@ -1,312 +1,420 @@
+import { useState, useMemo, useEffect } from "react";
+import { useSearch, useLocation } from "wouter";
+import { Plus, Trash2, Pencil } from "lucide-react";
 import { useBudget } from "@/contexts/BudgetContext";
-import { usePerson } from "@/contexts/PersonContext";
-import { SavingsGoal } from "@/hooks/useBudgetData";
-import { formatCurrency } from "@/lib/categories";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Trash2, Plus, Target } from "lucide-react";
-import { useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { usePersonFilter } from "@/contexts/PersonFilterContext";
+import { useIsMobile } from "@/hooks/useMobile";
+import { Avatar, EmptyState, GoalDialog, DeleteConfirmDialog } from "@/components/design";
+import type { AvatarWho } from "@/components/design";
+import { formatMoney, formatMoneyShort } from "@/lib/format";
+import { applyPersonFilter } from "@/lib/personFilter";
+import type { SavingsGoal } from "@/hooks/useBudgetData";
 
-type StatusFilter = "Tümü" | "Aktif" | "Tamamlanan";
+type StatusFilter = "Aktif" | "Tamamlanan" | "Tümü";
 
-export default function Hedef() {
-  const { budgetData, addSavingsGoal, deleteSavingsGoal } = useBudget();
-  const { currentPerson, person1Name, person2Name } = usePerson();
-  const [open, setOpen] = useState(false);
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>("Tümü");
-  const defaultOwner = currentPerson === "Benim" ? "Benim" : currentPerson === "Esim" ? "Esim" : "Ev";
+function ownerToWho(o: string): AvatarWho {
+  if (o === "Benim") return "yigit";
+  if (o === "Esim")  return "arzu";
+  return "ev";
+}
 
-  const [formData, setFormData] = useState<Omit<SavingsGoal, "id">>({
-    name: "",
-    targetAmount: 0,
-    currentAmount: 0,
-    monthlyAllocation: 0,
-    targetDate: new Date().toISOString().split("T")[0],
-    owner: defaultOwner,
-    notes: "",
-  });
+function ownerLabel(o: string): string {
+  if (o === "Benim") return "Yigit";
+  if (o === "Esim")  return "Arzu";
+  return "Ortak";
+}
 
-  const handleAddGoal = () => {
-    if (formData.name.trim() && formData.targetAmount > 0) {
-      addSavingsGoal(formData);
-      setFormData({
-        name: "",
-        targetAmount: 0,
-        currentAmount: 0,
-        monthlyAllocation: 0,
-        targetDate: new Date().toISOString().split("T")[0],
-        owner: defaultOwner,
-        notes: "",
-      });
-      setOpen(false);
-    }
-  };
+function pickEmoji(name: string): string {
+  const lower = name.toLocaleLowerCase("tr-TR");
+  if (lower.includes("tatil") || lower.includes("seyahat") || lower.includes("gez")) return "🌴";
+  if (lower.includes("acil")  || lower.includes("fon"))  return "🏥";
+  if (lower.includes("tele")  || lower.includes("phone")) return "📱";
+  if (lower.includes("ev")    || lower.includes("daire") || lower.includes("kira")) return "🏠";
+  if (lower.includes("araç")  || lower.includes("arac")  || lower.includes("oto") || lower.includes("car")) return "🚗";
+  if (lower.includes("eğit")  || lower.includes("egit")  || lower.includes("okul")) return "🎓";
+  if (lower.includes("düğün") || lower.includes("dugun") || lower.includes("evlilik")) return "💍";
+  if (lower.includes("mobil") || lower.includes("eşya")) return "🛋️";
+  return "🎯";
+}
 
-  const getOwnerLabel = (owner: string) => {
-    if (owner === "Benim") return person1Name;
-    if (owner === "Esim") return person2Name;
-    return "Ortak";
-  };
+function pickColor(owner: string): string {
+  if (owner === "Benim") return "var(--owner-yigit)";
+  if (owner === "Esim")  return "var(--owner-arzu)";
+  return "var(--accent-green)";
+}
 
-  const getOwnerColor = (owner: string) => {
-    if (owner === "Benim") return "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300";
-    if (owner === "Esim") return "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300";
-    return "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300";
-  };
+// ── Header ────────────────────────────────────────────────────
+function PageHeader({ onAdd }: { onAdd: () => void }) {
+  return (
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12 }}>
+      <div>
+        <h1 style={{ fontSize: "clamp(1.5rem, 3.5vw, 2rem)", fontWeight: 700, letterSpacing: "-0.02em", margin: 0, color: "var(--text-primary)" }}>
+          Birikim & Hedef
+        </h1>
+        <p style={{ fontSize: 13, color: "var(--text-tertiary)", marginTop: 6 }}>
+          Tasarruf hedeflerinizi takip edin ve birlikte ulaşın
+        </p>
+      </div>
+      <button
+        type="button" onClick={onAdd}
+        style={{
+          display: "inline-flex", alignItems: "center", gap: 6,
+          padding: "10px 16px", borderRadius: "var(--r-md)",
+          fontSize: 13, fontWeight: 600, border: "none",
+          background: "var(--accent-green)", color: "oklch(0.15 0.03 155)", cursor: "pointer",
+        }}
+      >
+        <Plus style={{ width: 14, height: 14 }} />
+        Hedef Ekle
+      </button>
+    </div>
+  );
+}
 
-  const allGoals = budgetData.savingsGoals;
-  const filteredGoals = allGoals.filter((g) => {
-    const done = g.currentAmount >= g.targetAmount;
-    if (statusFilter === "Aktif") return !done;
-    if (statusFilter === "Tamamlanan") return done;
-    return true;
-  });
-
-  const statusTabs: { label: string; value: StatusFilter }[] = [
-    { label: "Tümü", value: "Tümü" },
-    { label: "Aktif", value: "Aktif" },
-    { label: "Tamamlanan", value: "Tamamlanan" },
+// ── StatusFilter chips ────────────────────────────────────────
+function StatusChips({ value, onChange, counts }: { value: StatusFilter; onChange: (v: StatusFilter) => void; counts: Record<StatusFilter, number> }) {
+  const items: Array<{ key: StatusFilter; label: string }> = [
+    { key: "Aktif",      label: "Aktif" },
+    { key: "Tamamlanan", label: "Tamamlanan" },
+    { key: "Tümü",       label: "Tümü" },
   ];
+  return (
+    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+      {items.map((it) => {
+        const active = value === it.key;
+        return (
+          <button
+            key={it.key} type="button" onClick={() => onChange(it.key)}
+            style={{
+              display: "inline-flex", alignItems: "center", gap: 6,
+              padding: "7px 14px", borderRadius: 999,
+              fontSize: 12, fontWeight: 600,
+              border: active ? "none" : "1px solid var(--border-subtle)",
+              background: active ? "var(--accent-green)" : "var(--bg-elevated)",
+              color: active ? "oklch(0.15 0.03 155)" : "var(--text-secondary)",
+              cursor: "pointer", transition: "all 160ms",
+            }}
+          >
+            {it.label}
+            <span style={{ opacity: 0.7, fontVariantNumeric: "tabular-nums" }}>{counts[it.key]}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
 
-  const countFor = (f: StatusFilter) => {
-    if (f === "Tümü") return allGoals.length;
-    const done = f === "Tamamlanan";
-    return allGoals.filter((g) => (g.currentAmount >= g.targetAmount) === done).length;
-  };
-
-  const totalTarget = filteredGoals.reduce((s, g) => s + g.targetAmount, 0);
-  const totalCurrent = filteredGoals.reduce((s, g) => s + g.currentAmount, 0);
-  const totalMonthly = filteredGoals.reduce((s, g) => s + g.monthlyAllocation, 0);
+// ── HeroCard — page-birikim.jsx:30-58 ─────────────────────────
+function HeroCard({
+  totalSaved, monthDelta, totalTarget, activeCount, avgPct, mobile,
+}: {
+  totalSaved: number;
+  monthDelta: number;
+  totalTarget: number;
+  activeCount: number;
+  avgPct: number;
+  mobile: boolean;
+}) {
+  const totalStr = formatMoney(totalSaved);
+  const decMatch = totalStr.match(/,\d{2}$/);
+  const totalMain = decMatch ? totalStr.replace(/,\d{2}$/, "") : totalStr;
+  const totalDecimals = decMatch?.[0] ?? ",00";
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="card" style={{
+      background: `linear-gradient(135deg, color-mix(in oklch, var(--accent-green) 16%, var(--bg-surface)), var(--bg-surface) 70%)`,
+      padding: mobile ? 24 : 32,
+      borderTop: "2px solid var(--accent-green)",
+      position: "relative",
+    }}>
+      <div style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: mobile ? "flex-start" : "center",
+        flexDirection: mobile ? "column" : "row",
+        gap: mobile ? 12 : 0,
+      }}>
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Birikim &amp; Hedef</h1>
-          <p className="text-sm text-muted-foreground">Finansal hedeflerinizi belirleyin ve ilerlemeyi takip edin</p>
+          <div className="section-label">TOPLAM BİRİKİM</div>
+          <div className="tnum" style={{ fontSize: mobile ? 48 : 60, fontWeight: 700, letterSpacing: "-0.035em", marginTop: 8, lineHeight: 1 }}>
+            {totalMain}<span style={{ color: "var(--text-tertiary)", fontSize: "0.45em" }}>{totalDecimals}</span>
+          </div>
+          <div style={{ fontSize: 13, color: "var(--text-tertiary)", marginTop: 8 }}>
+            {activeCount} aktif hedef • <span style={{ color: "var(--accent-green)", fontWeight: 600 }}>%{avgPct}</span> ortalama tamamlanma
+          </div>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button className="gap-2">
-              <Plus className="w-4 h-4" />
-              Hedef Ekle
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Yeni Hedef Ekle</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <label className="text-sm font-medium">Hedef Adı</label>
-                <Input
-                  placeholder="Örn: Tatil, Araç, Acil Fon"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium">Kime Ait?</label>
-                <Select
-                  value={formData.owner}
-                  onValueChange={(v) => setFormData({ ...formData, owner: v as SavingsGoal["owner"] })}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Benim">{person1Name}</SelectItem>
-                    <SelectItem value="Esim">{person2Name}</SelectItem>
-                    <SelectItem value="Ev">Ortak</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium">Hedef Tutar (€)</label>
-                  <Input
-                    type="number"
-                    placeholder="0.00"
-                    value={formData.targetAmount || ""}
-                    onChange={(e) => setFormData({ ...formData, targetAmount: parseFloat(e.target.value) || 0 })}
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Biriken (€)</label>
-                  <Input
-                    type="number"
-                    placeholder="0.00"
-                    value={formData.currentAmount || ""}
-                    onChange={(e) => setFormData({ ...formData, currentAmount: parseFloat(e.target.value) || 0 })}
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="text-sm font-medium">Aylık Ayırılacak (€)</label>
-                <Input
-                  type="number"
-                  placeholder="0.00"
-                  value={formData.monthlyAllocation || ""}
-                  onChange={(e) => setFormData({ ...formData, monthlyAllocation: parseFloat(e.target.value) || 0 })}
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium">Hedef Tarihi</label>
-                <Input
-                  type="date"
-                  value={formData.targetDate}
-                  onChange={(e) => setFormData({ ...formData, targetDate: e.target.value })}
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium">Notlar</label>
-                <Input
-                  placeholder="İsteğe bağlı notlar"
-                  value={formData.notes}
-                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                />
-              </div>
-              <Button onClick={handleAddGoal} className="w-full">
-                Hedef Ekle
-              </Button>
+        <div style={{ display: "flex", gap: 8 }}>
+          <div style={{ padding: 16, background: "var(--bg-elevated)", borderRadius: 14, minWidth: 110 }}>
+            <div style={{ fontSize: 10, fontWeight: 600, color: "var(--text-tertiary)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Bu Ay</div>
+            <div className="tnum" style={{ fontSize: 22, fontWeight: 700, marginTop: 4, color: "var(--accent-green)" }}>+{formatMoneyShort(monthDelta)}</div>
+          </div>
+          <div style={{ padding: 16, background: "var(--bg-elevated)", borderRadius: 14, minWidth: 110 }}>
+            <div style={{ fontSize: 10, fontWeight: 600, color: "var(--text-tertiary)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Hedef</div>
+            <div className="tnum" style={{ fontSize: 22, fontWeight: 700, marginTop: 4 }}>{formatMoneyShort(totalTarget)}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── GoalCard — page-birikim.jsx:73-144 ────────────────────────
+function GoalCard({ goal, mobile, onEdit, onDelete }: { goal: SavingsGoal; mobile: boolean; onEdit: () => void; onDelete: () => void }) {
+  const pct = goal.targetAmount > 0 ? Math.round((goal.currentAmount / goal.targetAmount) * 100) : 0;
+  const color = pickColor(goal.owner);
+  const emoji = pickEmoji(goal.name);
+  const targetDate = goal.targetDate ? new Date(goal.targetDate) : null;
+  const days = targetDate ? Math.max(0, Math.ceil((targetDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24))) : null;
+
+  return (
+    <div className="card lift" style={{
+      position: "relative",
+      padding: mobile ? 20 : 24,
+      borderLeft: `3px solid ${color}`,
+      overflow: "hidden",
+    }}>
+      {/* Soft halo */}
+      <div style={{
+        position: "absolute", top: -40, right: -40,
+        width: 160, height: 160, borderRadius: "50%",
+        background: `radial-gradient(circle, ${color}, transparent 70%)`,
+        opacity: 0.15,
+        pointerEvents: "none",
+      }}/>
+
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", position: "relative" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{
+            width: 52, height: 52, borderRadius: 14,
+            background: `color-mix(in oklch, ${color} 18%, var(--bg-elevated))`,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: 28,
+          }}>{emoji}</div>
+          <div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)" }}>{goal.name}</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 4 }}>
+              <Avatar who={ownerToWho(goal.owner)} size={18}/>
+              <span style={{ fontSize: 12, color: "var(--text-tertiary)" }}>{ownerLabel(goal.owner)}</span>
             </div>
-          </DialogContent>
-        </Dialog>
+          </div>
+        </div>
+        <div style={{ textAlign: "right" }}>
+          <div className="tnum" style={{ fontSize: mobile ? 22 : 26, fontWeight: 700, letterSpacing: "-0.025em", color: "var(--text-primary)" }}>
+            {formatMoneyShort(goal.targetAmount)}
+          </div>
+          <div className="tnum" style={{ fontSize: 12, color: "var(--text-tertiary)" }}>
+            {formatMoneyShort(goal.currentAmount)} biriktirildi
+          </div>
+        </div>
       </div>
 
-      {/* Status Filtresi */}
-      <div className="flex gap-2">
-        {statusTabs.map((tab) => (
-          <button
-            key={tab.value}
-            onClick={() => setStatusFilter(tab.value)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-all border ${
-              statusFilter === tab.value
-                ? "bg-primary text-primary-foreground border-primary shadow-sm"
-                : "bg-background text-muted-foreground border-border hover:bg-accent/50"
-            }`}
-          >
-            {tab.label}
-            <span className="ml-1.5 text-xs opacity-70">({countFor(tab.value)})</span>
+      <div style={{ marginTop: 18 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+          <span style={{ fontSize: 11, color: "var(--text-tertiary)", fontWeight: 600 }}>İLERLEME</span>
+          <span className="tnum" style={{ fontSize: 13, fontWeight: 700, color }}>%{pct}</span>
+        </div>
+        <div style={{ height: 10, background: "var(--bg-tint)", borderRadius: 999, overflow: "hidden" }}>
+          <div style={{
+            width: `${Math.min(100, pct)}%`,
+            height: "100%",
+            background: `linear-gradient(90deg, color-mix(in oklch, ${color} 50%, var(--accent-green)), ${color})`,
+            borderRadius: 999,
+            transition: "width 700ms cubic-bezier(0.2, 0, 0, 1)",
+          }} />
+        </div>
+      </div>
+
+      <div style={{
+        marginTop: 16, paddingTop: 14,
+        borderTop: "1px solid var(--border-faint)",
+        display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8,
+      }}>
+        <div style={{ display: "flex", gap: 12, fontSize: 12, color: "var(--text-tertiary)", flexWrap: "wrap" }}>
+          {days !== null && days > 0 && (
+            <span>📅 <span style={{ color: "var(--text-secondary)", fontWeight: 600 }}>{days}</span> gün kaldı</span>
+          )}
+          {(days === null || days === 0) && <span>♾️ Sürekli</span>}
+          {goal.monthlyAllocation > 0 && (
+            <span>💰 <span className="tnum" style={{ color: "var(--text-secondary)", fontWeight: 600 }}>{formatMoneyShort(goal.monthlyAllocation)}</span>/ay</span>
+          )}
+        </div>
+        <div style={{ display: "flex", gap: 4 }}>
+          <button type="button" title="Düzenle" onClick={onEdit}
+            style={{ padding: 6, borderRadius: 6, border: "none", background: "transparent", cursor: "pointer", color: "var(--text-tertiary)" }}>
+            <Pencil style={{ width: 14, height: 14 }} />
           </button>
-        ))}
+          <button type="button" title="Sil" onClick={onDelete}
+            style={{ padding: 6, borderRadius: 6, border: "none", background: "transparent", cursor: "pointer", color: "var(--status-danger)" }}>
+            <Trash2 style={{ width: 14, height: 14 }} />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── NewGoalCard — page-birikim.jsx:146-183 ────────────────────
+function NewGoalCard({ onClick, mobile }: { onClick: () => void; mobile: boolean }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={{
+        border: "1.5px dashed var(--border-subtle)",
+        background: "transparent",
+        borderRadius: "var(--r-lg)",
+        padding: mobile ? 24 : 36,
+        cursor: "pointer",
+        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10,
+        color: "var(--text-tertiary)",
+        fontFamily: "inherit",
+        transition: "all 200ms",
+        minHeight: 180,
+      }}
+      onMouseEnter={(e) => {
+        const el = e.currentTarget as HTMLButtonElement;
+        el.style.borderColor = "var(--accent-green)";
+        el.style.color = "var(--accent-green)";
+        el.style.background = "var(--accent-green-soft)";
+      }}
+      onMouseLeave={(e) => {
+        const el = e.currentTarget as HTMLButtonElement;
+        el.style.borderColor = "var(--border-subtle)";
+        el.style.color = "var(--text-tertiary)";
+        el.style.background = "transparent";
+      }}
+    >
+      <div style={{
+        width: 44, height: 44, borderRadius: 14,
+        background: "var(--bg-elevated)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+      }}>
+        <Plus style={{ width: 22, height: 22 }} />
+      </div>
+      <div style={{ fontSize: 14, fontWeight: 600 }}>Yeni Hedef Ekle</div>
+      <div style={{ fontSize: 12, color: "var(--text-muted)", textAlign: "center", maxWidth: 220 }}>
+        Tatil, ev, eğitim — birlikte planlayın
+      </div>
+    </button>
+  );
+}
+
+// ── Page entry ────────────────────────────────────────────────
+export default function Hedef() {
+  const { budgetData, deleteSavingsGoal } = useBudget();
+  const { filter } = usePersonFilter();
+  const isMobile = useIsMobile();
+  const mobile = !!isMobile;
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("Aktif");
+  const [goalDialog, setGoalDialog] = useState<{ open: boolean; entity?: SavingsGoal }>({ open: false });
+  const [goalDelete, setGoalDelete] = useState<SavingsGoal | null>(null);
+
+  // Open dialog from MobileFAB QuickAdd via ?action= query param
+  const search = useSearch();
+  const [, setLocation] = useLocation();
+  useEffect(() => {
+    const action = new URLSearchParams(search).get("action");
+    if (action === "add-goal") {
+      setGoalDialog({ open: true });
+      setLocation("/hedef", { replace: true });
+    }
+  }, [search, setLocation]);
+
+  const afterGlobal = useMemo(() => applyPersonFilter(budgetData.savingsGoals ?? [], filter), [budgetData.savingsGoals, filter]);
+
+  const partition = useMemo(() => {
+    const aktif = afterGlobal.filter((g) => g.currentAmount < g.targetAmount);
+    const tamam = afterGlobal.filter((g) => g.currentAmount >= g.targetAmount);
+    return { aktif, tamam };
+  }, [afterGlobal]);
+
+  const counts: Record<StatusFilter, number> = {
+    Aktif:      partition.aktif.length,
+    Tamamlanan: partition.tamam.length,
+    Tümü:       afterGlobal.length,
+  };
+
+  const visible = useMemo(() => {
+    if (statusFilter === "Aktif")      return partition.aktif;
+    if (statusFilter === "Tamamlanan") return partition.tamam;
+    return afterGlobal;
+  }, [statusFilter, partition, afterGlobal]);
+
+  // Hero stats
+  const totalSaved   = afterGlobal.reduce((s, g) => s + g.currentAmount, 0);
+  const totalTarget  = afterGlobal.reduce((s, g) => s + g.targetAmount, 0);
+  const monthDelta   = afterGlobal.reduce((s, g) => s + (g.monthlyAllocation || 0), 0);
+  const activeCount  = partition.aktif.length;
+  const avgPct = afterGlobal.length === 0
+    ? 0
+    : Math.round(
+        afterGlobal.reduce((s, g) => s + (g.targetAmount > 0 ? Math.min(100, (g.currentAmount / g.targetAmount) * 100) : 0), 0) / afterGlobal.length,
+      );
+
+  const openAdd = () => setGoalDialog({ open: true });
+
+  return (
+    <div className="fade-up" style={{ display: "flex", flexDirection: "column", gap: mobile ? 16 : 20 }}>
+      <PageHeader onAdd={openAdd} />
+
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+        <StatusChips value={statusFilter} onChange={setStatusFilter} counts={counts} />
       </div>
 
-      {/* Özet */}
-      {filteredGoals.length > 0 && (
-        <div className="grid grid-cols-3 gap-4">
-          <Card className="p-4">
-            <p className="text-xs text-muted-foreground mb-1">Toplam Hedef</p>
-            <p className="text-xl font-bold text-blue-600">{formatCurrency(totalTarget)}</p>
-          </Card>
-          <Card className="p-4">
-            <p className="text-xs text-muted-foreground mb-1">Toplam Biriken</p>
-            <p className="text-xl font-bold text-green-600">{formatCurrency(totalCurrent)}</p>
-          </Card>
-          <Card className="p-4">
-            <p className="text-xs text-muted-foreground mb-1">Aylık Ayırılan</p>
-            <p className="text-xl font-bold text-primary">{formatCurrency(totalMonthly)}</p>
-          </Card>
-        </div>
-      )}
+      {/* Hero card — TOPLAM BİRİKİM */}
+      <HeroCard
+        totalSaved={totalSaved}
+        monthDelta={monthDelta}
+        totalTarget={totalTarget}
+        activeCount={activeCount}
+        avgPct={avgPct}
+        mobile={mobile}
+      />
 
-      {/* Hedef Listesi */}
-      {filteredGoals.length === 0 ? (
-        <Card className="p-12 text-center">
-          <Target className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-          <p className="text-muted-foreground">
-            {statusFilter === "Tümü" ? "Henüz hedef eklenmemiş" : `${statusFilter} hedef yok`}
-          </p>
-        </Card>
+      {/* Goals grid */}
+      {visible.length === 0 && counts.Tümü === 0 ? (
+        <EmptyState
+          emoji="🎯"
+          title="Henüz hedef yok"
+          description="Yaz tatili, yeni telefon, acil fon — finansal hedef belirleyerek birikim yapmaya başlayın."
+        />
+      ) : visible.length === 0 ? (
+        <EmptyState
+          emoji="🔍"
+          title="Bu filtrede hedef yok"
+          description="Filtreyi değiştirerek diğer hedefleri görebilirsiniz."
+        />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredGoals.map((goal) => {
-            const pct = goal.targetAmount > 0 ? (goal.currentAmount / goal.targetAmount) * 100 : 0;
-            const remaining = goal.targetAmount - goal.currentAmount;
-            const monthsNeeded = goal.monthlyAllocation > 0 ? Math.ceil(remaining / goal.monthlyAllocation) : 0;
-            const done = goal.currentAmount >= goal.targetAmount;
-
-            return (
-              <Card key={goal.id} className={`p-6 ${done ? "border-green-200 bg-green-50/30 dark:bg-green-900/10" : ""}`}>
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-bold text-base">{goal.name}</h3>
-                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getOwnerColor(goal.owner)}`}>
-                        {getOwnerLabel(goal.owner)}
-                      </span>
-                    </div>
-                    {goal.targetDate && (
-                      <p className="text-xs text-muted-foreground">
-                        Hedef: {new Date(goal.targetDate).toLocaleDateString("tr-TR")}
-                      </p>
-                    )}
-                  </div>
-                  <Button variant="ghost" size="sm" onClick={() => deleteSavingsGoal(goal.id)}>
-                    <Trash2 className="w-4 h-4 text-red-500" />
-                  </Button>
-                </div>
-
-                <div className="mb-3">
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-sm text-muted-foreground">İlerleme</span>
-                    <span className="text-sm font-mono font-bold">{pct.toFixed(0)}%</span>
-                  </div>
-                  <div className="w-full bg-secondary rounded-full h-2.5 overflow-hidden">
-                    <div
-                      className={`h-full transition-all ${done ? "bg-green-500" : "bg-primary"}`}
-                      style={{ width: `${Math.min(pct, 100)}%` }}
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-1.5 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Biriken</span>
-                    <span className="font-mono font-medium text-green-600">{formatCurrency(goal.currentAmount)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Hedef</span>
-                    <span className="font-mono font-medium">{formatCurrency(goal.targetAmount)}</span>
-                  </div>
-                  {!done && (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Kalan</span>
-                      <span className="font-mono font-medium text-orange-600">{formatCurrency(remaining)}</span>
-                    </div>
-                  )}
-                  {goal.monthlyAllocation > 0 && (
-                    <div className="flex justify-between pt-1.5 border-t">
-                      <span className="text-muted-foreground">Aylık</span>
-                      <span className="font-mono font-medium">{formatCurrency(goal.monthlyAllocation)}</span>
-                    </div>
-                  )}
-                  {monthsNeeded > 0 && !done && (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Tahmini</span>
-                      <span className="font-mono font-medium text-primary">{monthsNeeded} ay</span>
-                    </div>
-                  )}
-                  {done && (
-                    <div className="mt-2 pt-2 border-t text-center">
-                      <span className="text-sm font-medium text-green-600">✓ Tamamlandı!</span>
-                    </div>
-                  )}
-                </div>
-              </Card>
-            );
-          })}
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: mobile ? "1fr" : "repeat(2, 1fr)",
+          gap: 16,
+        }}>
+          {visible.map((g) => (
+            <GoalCard
+              key={g.id}
+              goal={g}
+              mobile={mobile}
+              onEdit={() => setGoalDialog({ open: true, entity: g })}
+              onDelete={() => setGoalDelete(g)}
+            />
+          ))}
+          <NewGoalCard onClick={openAdd} mobile={mobile} />
         </div>
       )}
+
+      <GoalDialog
+        open={goalDialog.open}
+        onClose={() => setGoalDialog({ open: false })}
+        entity={goalDialog.entity}
+      />
+      <DeleteConfirmDialog
+        open={!!goalDelete}
+        onClose={() => setGoalDelete(null)}
+        onConfirm={() => goalDelete && deleteSavingsGoal(goalDelete.id)}
+        label={goalDelete ? `"${goalDelete.name}" hedefi` : ""}
+        description="Bu birikim hedefi listenizden kaldırılacak."
+      />
     </div>
   );
 }

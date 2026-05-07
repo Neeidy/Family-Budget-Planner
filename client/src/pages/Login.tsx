@@ -1,10 +1,79 @@
-import { useState } from "react";
+import { useState, useCallback, CSSProperties } from "react";
 import { useLocation } from "wouter";
 import { toast } from "sonner";
 import { Loader2, Eye, EyeOff, Sun, Moon } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { usePerson } from "@/contexts/PersonContext";
 import { useTheme } from "@/contexts/ThemeContext";
+import { Avatar } from "@/components/design";
+
+// ── UserSelectButton ─────────────────────────────────────────────
+
+interface UserSelectButtonProps {
+  who: "yigit" | "arzu";
+  person: "Benim" | "Esim";
+  name: string;
+  selected: boolean;
+  onClick: () => void;
+}
+
+function UserSelectButton({ who, name, selected, onClick }: UserSelectButtonProps) {
+  const ownerColor = `var(--owner-${who})`;
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={{
+        padding: 18,
+        borderRadius: 16,
+        border: selected ? `2px solid ${ownerColor}` : "2px solid transparent",
+        background: selected
+          ? `color-mix(in oklch, ${ownerColor} 14%, var(--bg-elevated))`
+          : "var(--bg-elevated)",
+        cursor: "pointer",
+        fontFamily: "inherit",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: 10,
+        transition: "all 200ms",
+        boxShadow: selected ? `0 8px 18px -8px ${ownerColor}` : "none",
+        width: "100%",
+      }}
+    >
+      <div style={{ position: "relative" }}>
+        <Avatar who={who} size={56} />
+        {selected && (
+          <div
+            style={{
+              position: "absolute",
+              bottom: -2,
+              right: -2,
+              width: 22,
+              height: 22,
+              borderRadius: "50%",
+              background: "var(--accent-green)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              border: "2.5px solid var(--bg-surface)",
+              color: "oklch(0.15 0.03 155)",
+              fontSize: 11,
+              fontWeight: 700,
+            }}
+          >
+            ✓
+          </div>
+        )}
+      </div>
+      <div style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)" }}>
+        {name}
+      </div>
+    </button>
+  );
+}
+
+// ── Login ────────────────────────────────────────────────────────
 
 export default function Login() {
   const [, setLocation] = useLocation();
@@ -41,143 +110,288 @@ export default function Login() {
 
   const isLoading = loginMutation.isPending;
 
+  // Parallax — desktop only
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (window.matchMedia("(max-width: 768px)").matches) return;
+    const r = e.currentTarget.getBoundingClientRect();
+    const mx = (e.clientX - r.left) / r.width - 0.5;
+    const my = (e.clientY - r.top) / r.height - 0.5;
+    e.currentTarget.style.setProperty("--mx", String(mx));
+    e.currentTarget.style.setProperty("--my", String(my));
+  }, []);
+
+  const isDark = theme === "dark";
+
+  const containerStyle: CSSProperties = {
+    minHeight: "100vh",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "40px 24px",
+    background: isDark
+      ? "radial-gradient(ellipse at 50% 0%, oklch(0.25 0.02 265) 0%, oklch(0.16 0.018 265) 60%)"
+      : "radial-gradient(ellipse at 50% 0%, oklch(0.98 0.012 80) 0%, oklch(0.93 0.012 80) 60%)",
+    position: "relative",
+    overflow: "hidden",
+  };
+
+  const cardStyle: CSSProperties = {
+    background: "var(--bg-surface)",
+    borderRadius: "var(--r-lg)",
+    boxShadow: "var(--shadow-card)",
+    padding: 24,
+  };
+
+  const selectedName = selectedPerson === "Benim" ? person1Name : selectedPerson === "Esim" ? person2Name : null;
+
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
-      {/* Tema butonu */}
+    <div style={containerStyle} onMouseMove={handleMouseMove}>
+      {/* Theme toggle */}
       <button
+        type="button"
         onClick={toggleTheme}
-        className="absolute top-4 right-4 p-2 rounded-full bg-secondary hover:bg-accent transition-colors"
+        style={{
+          position: "absolute",
+          top: 16,
+          right: 16,
+          zIndex: 10,
+          padding: 8,
+          borderRadius: "50%",
+          background: "var(--bg-elevated)",
+          border: "none",
+          cursor: "pointer",
+          color: "var(--text-secondary)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
         aria-label="Tema değiştir"
       >
-        {theme === "dark" ? (
-          <Sun className="w-5 h-5 text-yellow-500" />
-        ) : (
-          <Moon className="w-5 h-5 text-slate-600" />
-        )}
+        {isDark
+          ? <Sun style={{ width: 18, height: 18, color: "var(--status-warning)" }} />
+          : <Moon style={{ width: 18, height: 18, color: "var(--text-tertiary)" }} />}
       </button>
 
-      {/* Logo ve başlık */}
-      <div className="text-center mb-8">
-        <div className="text-6xl mb-4" role="img" aria-label="panda">🐼</div>
-        <h1 className="text-3xl font-bold text-foreground mb-2">
-          ÜK Ailesi Bütçe Planlayıcısı
-        </h1>
-        <p className="text-muted-foreground">
-          Devam etmek için kim olduğunuzu seçin ve şifreyi girin.
-        </p>
-      </div>
+      {/* Floating orbs */}
+      <div className="login-orb" style={{
+        width: 280, height: 280, top: -40, left: -60,
+        background: "var(--owner-yigit)",
+        animation: "orb-drift-1 14s ease-in-out infinite",
+      }} />
+      <div className="login-orb" style={{
+        width: 320, height: 320, bottom: -80, right: -80,
+        background: "var(--owner-arzu)",
+        animation: "orb-drift-2 18s ease-in-out infinite",
+      }} />
+      <div className="login-orb" style={{
+        width: 240, height: 240, top: -60, right: -40,
+        background: "var(--owner-ev)",
+        animation: "orb-drift-3 16s ease-in-out infinite",
+      }} />
+      <div className="login-orb" style={{
+        width: 260, height: 260, bottom: -60, left: -40,
+        background: "var(--owner-tumu)",
+        animation: "orb-drift-4 20s ease-in-out infinite",
+      }} />
 
-      <form onSubmit={handleSubmit} className="w-full max-w-md space-y-6">
-        {/* Kişi seçimi */}
-        <div className="flex gap-4">
-          {/* Kişi 1 */}
-          <button
-            type="button"
-            onClick={() => setSelectedPerson("Benim")}
-            className={`group flex-1 flex flex-col items-center gap-3 p-6 rounded-2xl border-2 transition-all duration-200 cursor-pointer ${
-              selectedPerson === "Benim"
-                ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-md"
-                : "border-border bg-card hover:border-blue-300 hover:bg-blue-50/50 dark:hover:bg-blue-900/10"
-            }`}
-          >
-            <div
-              className={`w-16 h-16 rounded-full flex items-center justify-center text-3xl transition-transform duration-200 ${
-                selectedPerson === "Benim"
-                  ? "bg-blue-100 dark:bg-blue-900/40 scale-110"
-                  : "bg-blue-50 dark:bg-blue-900/20 group-hover:scale-105"
-              }`}
-            >
-              👨
-            </div>
-            <div className="text-center">
-              <p className="font-bold text-foreground">{person1Name}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">Kendi bütçeni yönet</p>
-            </div>
-            {selectedPerson === "Benim" && (
-              <div className="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center">
-                <div className="w-2 h-2 rounded-full bg-white" />
-              </div>
-            )}
-          </button>
+      {/* Ambient particles drifting upward */}
+      {Array.from({ length: 10 }).map((_, i) => (
+        <div
+          key={i}
+          className="login-particle"
+          style={{
+            left: `${(i * 13 + 7) % 100}%`,
+            bottom: `-${10 + (i * 7) % 30}px`,
+            animation: `particle-rise ${22 + (i % 5) * 2}s linear ${i * 2.3}s infinite`,
+          }}
+        />
+      ))}
 
-          {/* Kişi 2 */}
-          <button
-            type="button"
-            onClick={() => setSelectedPerson("Esim")}
-            className={`group flex-1 flex flex-col items-center gap-3 p-6 rounded-2xl border-2 transition-all duration-200 cursor-pointer ${
-              selectedPerson === "Esim"
-                ? "border-purple-500 bg-purple-50 dark:bg-purple-900/20 shadow-md"
-                : "border-border bg-card hover:border-purple-300 hover:bg-purple-50/50 dark:hover:bg-purple-900/10"
-            }`}
+      {/* Main card group — parallax layer */}
+      <div
+        style={{
+          width: "100%",
+          maxWidth: 460,
+          position: "relative",
+          zIndex: 2,
+          transform: "translate(calc(var(--mx,0) * 8px), calc(var(--my,0) * 8px))",
+          transition: "transform 200ms cubic-bezier(0.2,0,0,1)",
+          display: "flex",
+          flexDirection: "column",
+          gap: 22,
+        }}
+      >
+        {/* Brand block */}
+        <div style={{ textAlign: "center" }}>
+          <div
+            style={{
+              width: 72,
+              height: 72,
+              borderRadius: 22,
+              background: "linear-gradient(135deg, var(--accent-green), var(--owner-yigit))",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 38,
+              margin: "0 auto 16px",
+              boxShadow: "0 12px 32px -8px var(--accent-green-soft), 0 4px 12px rgba(0,0,0,0.25)",
+              transform: "translate(calc(var(--mx,0) * 4px), calc(var(--my,0) * 4px))",
+              transition: "transform 200ms cubic-bezier(0.2,0,0,1)",
+            }}
           >
-            <div
-              className={`w-16 h-16 rounded-full flex items-center justify-center text-3xl transition-transform duration-200 ${
-                selectedPerson === "Esim"
-                  ? "bg-purple-100 dark:bg-purple-900/40 scale-110"
-                  : "bg-purple-50 dark:bg-purple-900/20 group-hover:scale-105"
-              }`}
-            >
-              👩
-            </div>
-            <div className="text-center">
-              <p className="font-bold text-foreground">{person2Name}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">Kendi bütçeni yönet</p>
-            </div>
-            {selectedPerson === "Esim" && (
-              <div className="w-4 h-4 rounded-full bg-purple-500 flex items-center justify-center">
-                <div className="w-2 h-2 rounded-full bg-white" />
-              </div>
-            )}
-          </button>
+            🐼
+          </div>
+          <h1 style={{
+            fontSize: 30,
+            margin: 0,
+            fontWeight: 700,
+            letterSpacing: "-0.025em",
+            color: "var(--text-primary)",
+          }}>
+            ÜK Ailesi Bütçe
+          </h1>
+          <div style={{ fontSize: 13, color: "var(--text-tertiary)", marginTop: 6 }}>
+            Hoş geldiniz, lütfen giriş yapın
+          </div>
         </div>
 
-        {/* Şifre alanı */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-foreground" htmlFor="password">
+        {/* Avatar select card */}
+        <div style={cardStyle}>
+          <div className="section-label" style={{ marginBottom: 12 }}>
+            KİM GİRİŞ YAPIYOR?
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <UserSelectButton
+              who="yigit"
+              person="Benim"
+              name={person1Name}
+              selected={selectedPerson === "Benim"}
+              onClick={() => setSelectedPerson("Benim")}
+            />
+            <UserSelectButton
+              who="arzu"
+              person="Esim"
+              name={person2Name}
+              selected={selectedPerson === "Esim"}
+              onClick={() => setSelectedPerson("Esim")}
+            />
+          </div>
+          {selectedName && (
+            <div style={{ fontSize: 12, color: "var(--text-tertiary)", marginTop: 12, textAlign: "center" }}>
+              <strong style={{ color: "var(--text-secondary)" }}>{selectedName}</strong> olarak giriş yapacaksınız
+            </div>
+          )}
+        </div>
+
+        {/* Password card */}
+        <form onSubmit={handleSubmit} style={cardStyle}>
+          <label style={{
+            display: "block",
+            fontSize: 11,
+            fontWeight: 600,
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+            color: "var(--text-tertiary)",
+            marginBottom: 8,
+          }}>
             Aile Şifresi
           </label>
-          <div className="relative">
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            padding: "12px 14px",
+            background: "var(--bg-elevated)",
+            borderRadius: 12,
+            border: "1px solid var(--border-faint)",
+            marginBottom: 16,
+          }}>
             <input
-              id="password"
               type={showPassword ? "text" : "password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Aile şifresini girin"
-              className="w-full px-4 py-3 pr-12 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+              placeholder="Şifrenizi girin"
               autoComplete="current-password"
               disabled={isLoading}
+              style={{
+                flex: 1,
+                minWidth: 0,
+                background: "transparent",
+                border: "none",
+                outline: "none",
+                color: "var(--text-primary)",
+                fontSize: 15,
+                fontFamily: "inherit",
+                letterSpacing: showPassword ? "normal" : "0.2em",
+              }}
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground transition-colors"
               tabIndex={-1}
+              style={{
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
+                color: "var(--text-tertiary)",
+                padding: 4,
+                display: "flex",
+                alignItems: "center",
+              }}
             >
-              {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              {showPassword
+                ? <EyeOff style={{ width: 16, height: 16 }} />
+                : <Eye style={{ width: 16, height: 16 }} />}
             </button>
           </div>
-        </div>
 
-        {/* Giriş butonu */}
-        <button
-          type="submit"
-          disabled={isLoading || !selectedPerson || !password}
-          className="w-full py-3 px-6 rounded-xl bg-primary text-primary-foreground font-semibold text-base hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2"
-        >
-          {isLoading ? (
-            <>
-              <Loader2 className="w-5 h-5 animate-spin" />
-              Giriş yapılıyor...
-            </>
-          ) : (
-            "Giriş Yap"
-          )}
-        </button>
-      </form>
+          <button
+            type="submit"
+            disabled={isLoading || !selectedPerson || !password}
+            style={{
+              width: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8,
+              padding: "14px 20px",
+              borderRadius: 12,
+              fontSize: 15,
+              fontWeight: 600,
+              fontFamily: "inherit",
+              border: "none",
+              cursor: isLoading || !selectedPerson || !password ? "not-allowed" : "pointer",
+              background: isLoading || !selectedPerson || !password
+                ? "var(--bg-tint)"
+                : "var(--accent-green)",
+              color: isLoading || !selectedPerson || !password
+                ? "var(--text-muted)"
+                : "oklch(0.15 0.03 155)",
+              transition: "all 180ms",
+            }}
+          >
+            {isLoading ? (
+              <>
+                <Loader2 style={{ width: 18, height: 18, animation: "spin 1s linear infinite" }} />
+                Giriş yapılıyor...
+              </>
+            ) : (
+              <>Giriş Yap →</>
+            )}
+          </button>
+        </form>
 
-      <p className="text-xs text-muted-foreground mt-8 text-center max-w-sm">
-        Bu uygulama sadece aile üyelerine özeldir. Şifreyi bilmiyorsanız aile üyelerinizden birinden alın.
-      </p>
+        {/* Footer */}
+        <p style={{
+          fontSize: 11,
+          color: "var(--text-muted)",
+          textAlign: "center",
+          lineHeight: 1.5,
+          padding: "0 12px",
+        }}>
+          🔒 Bu uygulamaya sadece aile üyeleri erişebilir. Şifre bilmiyorsanız aile üyelerinden birine sorun.
+        </p>
+      </div>
     </div>
   );
 }
