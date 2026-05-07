@@ -97,9 +97,9 @@ function HeroCard({ label, value, accent, subInfo }: {
 
 function MiniStatCard({ label, amount, color }: { label: string; amount: number; color?: string }) {
   return (
-    <div style={{ background: "var(--bg-surface)", borderRadius: "var(--r-lg)", boxShadow: "var(--shadow-card)", padding: "16px 20px" }}>
+    <div className="card lift" style={{ padding: "16px 20px" }}>
       <div className="section-label">{label}</div>
-      <div className="hero-num" style={{ fontSize: 22, fontWeight: 700, marginTop: 8, color: color ?? "var(--text-primary)" }}>
+      <div className="tnum" style={{ fontSize: 22, fontWeight: 700, marginTop: 8, color: color ?? "var(--text-primary)" }}>
         {formatMoney(amount)}
       </div>
     </div>
@@ -293,10 +293,7 @@ function InstallmentCard({ inst, onEdit, onDelete }: { inst: Installment; onEdit
   const remainingCount = inst.installmentCount - paid;
 
   return (
-    <div style={{
-      background: "var(--bg-surface)", borderRadius: "var(--r-lg)", boxShadow: "var(--shadow-card)",
-      padding: 20, display: "flex", flexDirection: "column", gap: 12,
-    }}>
+    <div className="card lift" style={{ padding: 20, display: "flex", flexDirection: "column", gap: 12 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)" }}>{inst.name}</div>
@@ -376,10 +373,7 @@ function AnnualPaymentsTab({ onEdit, onDelete }: {
       </div>
 
       {/* 12-month calendar */}
-      <div style={{
-        background: "var(--bg-surface)", borderRadius: "var(--r-lg)", boxShadow: "var(--shadow-card)",
-        padding: 20,
-      }}>
+      <div className="card" style={{ padding: 20 }}>
         <div className="section-label" style={{ marginBottom: 14 }}>YIL TAKVİMİ</div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(72px, 1fr))", gap: 8 }}>
           {MONTHS.map((m, idx) => {

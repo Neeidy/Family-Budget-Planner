@@ -361,10 +361,7 @@ function BudgetLimitsTab({ globalFilter, onAdd, onEdit, onDelete }: {
 function BudgetGaugeCard({ limit, spent, onEdit, onDelete }: { limit: BudgetLimit; spent: number; onEdit: () => void; onDelete: () => void }) {
   const meta = getCategoryMeta(limit.category);
   return (
-    <div style={{
-      background: "var(--bg-surface)",
-      borderRadius: "var(--r-lg)",
-      boxShadow: "var(--shadow-card)",
+    <div className="card lift" style={{
       padding: 20,
       display: "flex",
       flexDirection: "column",
@@ -404,14 +401,9 @@ function BudgetGaugeCard({ limit, spent, onEdit, onDelete }: { limit: BudgetLimi
 // ── Sub-components ────────────────────────────────────────────
 function MiniSummaryCard({ label, amount, accent }: { label: string; amount: number; accent: string }) {
   return (
-    <div style={{
-      background: "var(--bg-surface)",
-      borderRadius: "var(--r-lg)",
-      boxShadow: "var(--shadow-card)",
-      padding: "16px 20px",
-    }}>
+    <div className="card lift" style={{ padding: "16px 20px" }}>
       <div className="section-label">{label}</div>
-      <div className="hero-num" style={{ fontSize: 24, fontWeight: 700, marginTop: 8, color: accent }}>
+      <div className="tnum" style={{ fontSize: 24, fontWeight: 700, marginTop: 8, color: accent }}>
         {formatMoney(amount)}
       </div>
     </div>
@@ -549,12 +541,7 @@ interface Row {
 
 function DataTable({ columns, rows }: { columns: Column[]; rows: Row[] }) {
   return (
-    <div style={{
-      background: "var(--bg-surface)",
-      borderRadius: "var(--r-lg)",
-      boxShadow: "var(--shadow-card)",
-      overflow: "hidden",
-    }}>
+    <div className="card" style={{ padding: 0, overflow: "hidden" }}>
       <div style={{ overflowX: "auto" }}>
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
           <thead>
