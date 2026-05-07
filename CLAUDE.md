@@ -124,6 +124,56 @@ Yeni UI tasarımı `_design/claude-design-v4/` klasöründe Claude Design çıkt
 
 Tasarım entegrasyonu fazlara bölünecek (FIXES.md'deki gibi). İlerleyen prompt'larda her faz spec'i verilecek. Mevcut master/butce.aileplan.uk dokunulmaz — yeni `design-claude-v4` branch'inde çalışılır, test.aileplan.uk preview'i bu branch'e işaret eder.
 
+## Çıktı Formatı (CC için — HER ZAMAN UYGULA)
+
+Kullanıcı çıktıyı kopyalayıp paylaşıyor; mouse ile satır satır seçmek zorunda kalmasın diye RAPOR ve ÖZETLER tek bir kopyalanabilir code block içinde verilir.
+
+### Kural
+
+- **Final raporlar, faz özetleri, durum tabloları, sonuç bildirimleri → TEK CODE BLOCK** (üçlü backtick içinde, dil etiketsiz)
+- **Komut çıktıları, log özetleri, hata listeleri → TEK CODE BLOCK**
+- **Çoklu dosya path / screenshot listesi → TEK CODE BLOCK**
+- Block içinde markdown render etme — başlıkları `===` veya `---` ile ayır, listeleri `-` veya `1.` ile yaz, tablo gerekirse pipe `|` formatında. Hepsi block içinde plain text görünecek.
+
+### İstisna
+
+- Tek satırlık ara durum bildirimi ("Aşama 2 tamam, devam ediyorum") code block dışında olabilir
+- Inline kod referansları (`pnpm test`, `git status`) normal markdown
+- Karşılıklı sohbet, soru-cevap, ara açıklamalar normal markdown
+
+### Yanlış / Doğru örnek
+
+**YANLIŞ** (kullanıcı her başlığı tek tek seçmek zorunda):
+```
+## Aşama 1 tamam
+- Commit: abc123
+- Push: ✓
+
+## Aşama 2 tamam
+- Build: success
+```
+
+**DOĞRU** (tek tıkla copy):
+````
+```
+═══════════════════════════════════════════
+FINAL RAPOR
+═══════════════════════════════════════════
+
+Aşama 1 — .gitignore commit
+  Commit:   abc123
+  Push:     ✓
+
+Aşama 2 — Pre-merge build
+  tsc:      0 hata
+  vitest:   80/80
+  build:    success
+...
+```
+````
+
+Bu kural projenin her CC turunda **otomatik uygulanır**, prompt'ta tekrar belirtilmesine gerek yok.
+
 ## Where to start
 
 1. Read `FIXES.md` end-to-end.

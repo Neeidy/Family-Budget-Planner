@@ -122,3 +122,10 @@ client/public/__manus__/version.json
 
 # Claude Code worktrees (local only)
 /.claude/worktrees/
+
+# Design reference (local only, not part of source)
+/_design/
+
+# Audit screenshots / Playwright artifacts (local only, not part of source)
+/audit/
+/.playwright-mcp/
