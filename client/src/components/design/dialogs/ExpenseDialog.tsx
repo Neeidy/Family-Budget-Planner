@@ -21,7 +21,7 @@ const CATEGORIES: { key: string; label: string; emoji: string }[] = [
   { key: "Abonelik", label: "Abonelik", emoji: "📺" },
   { key: "Giyim", label: "Giyim", emoji: "👕" },
   { key: "Spor", label: "Spor", emoji: "⚽" },
-  { key: "Cocuk", label: "Çocuk", emoji: "👶" },
+  { key: "Porsuk", label: "Porsuk", emoji: "🐈" },
   { key: "Diger", label: "Diğer", emoji: "📦" },
 ];
 

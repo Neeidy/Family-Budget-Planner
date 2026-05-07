@@ -185,6 +185,17 @@ const expenses = [
     owner: "Ev",
     notes: "Yardım kuruluşu, aylık",
   },
+  {
+    id: "demo-e-14",
+    category: "Porsuk",
+    subcategory: "Kedi Maması + Kum",
+    type: "Sabit",
+    amount: 45,
+    paymentDay: "20",
+    status: "Odendi",
+    owner: "Ev",
+    notes: "Kedi: Boncuk (4 yaş, tekir)",
+  },
 ];
 
 const debts = [
@@ -252,12 +263,21 @@ const annualPayments = [
     lastPaymentDate: "2025-09-01",
     notes: "Yağmur öğrenci yıllık",
   },
+  {
+    id: "demo-y-3",
+    name: "Boncuk — yıllık veteriner kontrolü",
+    amount: 95,
+    paymentMonth: 6,
+    lastPaymentDate: "2025-06-12",
+    notes: "Aşı + genel kontrol",
+  },
 ];
 
 const budgetLimits = [
   { id: "demo-l-1", category: "Yiyecek", limit: 500, owner: "Ev" },
   { id: "demo-l-2", category: "Eglence", limit: 120, owner: "Ev" },
   { id: "demo-l-3", category: "Ulasim", limit: 60, owner: "Ev" },
+  { id: "demo-l-4", category: "Porsuk", limit: 80, owner: "Ev" },
 ];
 
 const savingsGoals = [

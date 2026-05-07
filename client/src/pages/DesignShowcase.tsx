@@ -101,7 +101,7 @@ export default function DesignShowcase() {
         <CategoryPill cat="abonelik" size="md" />
         <CategoryPill cat="giyim" size="sm" />
         <CategoryPill cat="spor" size="sm" />
-        <CategoryPill cat="cocuk" size="sm" />
+        <CategoryPill cat="porsuk" size="sm" />
         <CategoryPill cat="diger" size="sm" />
         <CategoryPill cat="bilinmez" size="sm" />
       </Section>
