@@ -10,7 +10,7 @@ interface HealthBubbleProps {
  * Designed to be placed inside a parent with `position: relative` (e.g. NET DEĞER card).
  */
 export function HealthBubble({ score, mobile, onClick }: HealthBubbleProps) {
-  const size = mobile ? 64 : 72;
+  const size = mobile ? 64 : 78;
   const r = size / 2 - 5;
   const c = 2 * Math.PI * r;
   const pct = score / 100;
