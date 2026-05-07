@@ -206,7 +206,6 @@ function DashboardLayoutContent({
 
   return (
     <>
-      {demo && <DemoBanner />}
       <div className="relative" ref={sidebarRef}>
         <Sidebar
           collapsible="icon"
@@ -435,6 +434,7 @@ function DashboardLayoutContent({
         mobile={isMobile}
       />
       <SidebarInset>
+        {demo && <DemoBanner />}
         {isMobile && (
           /* MobileHeader — line-by-line port of _design/nav.jsx:224-267 */
           <div style={{
