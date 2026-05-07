@@ -51,12 +51,9 @@ const trpcClient = trpc.createClient({
   ],
 });
 
-// PWA Service Worker kaydı
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(() => {});
-  });
-}
+// PWA Service Worker — devre dışı (gerçek sw.js yok, SPA fallback
+// index.html dönüyor → MIME error). Tekrar etkinleştirmeden önce
+// public/sw.js eklenmesi lazım.
 
 createRoot(document.getElementById("root")!).render(
   <trpc.Provider client={trpcClient} queryClient={queryClient}>
