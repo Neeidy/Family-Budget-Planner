@@ -130,27 +130,81 @@ function DebtsTab({ globalFilter, onEdit, onDelete }: {
 }
 
 function DebtCard({ debt, onEdit, onDelete }: { debt: Debt; onEdit: () => void; onDelete: () => void }) {
-  const paid = Math.max(0, debt.totalDebt - (debt.totalDebt - debt.monthlyPayment));
   // monthlyPayment is "this month's payment" — rough progress placeholder
-  const paidProgress = debt.totalDebt > 0 ? Math.min(1, debt.monthlyPayment / debt.totalDebt) : 0;
-  const remaining = Math.max(0, debt.totalDebt - debt.monthlyPayment);
+  const paid = Math.min(debt.totalDebt, debt.monthlyPayment);
+  const paidProgress = debt.totalDebt > 0 ? Math.min(1, paid / debt.totalDebt) : 0;
+  const pctPaid = Math.round(paidProgress * 100);
+  const remaining = Math.max(0, debt.totalDebt - paid);
+  const monthsLeft = debt.monthlyPayment > 0 ? Math.ceil(remaining / debt.monthlyPayment) : 0;
+  const ownerLabel = debt.owner === "Benim" ? "Yigit" : debt.owner === "Esim" ? "Arzu" : "Ev";
 
   return (
-    <div style={{
-      background: "var(--bg-surface)", borderRadius: "var(--r-lg)", boxShadow: "var(--shadow-card)",
-      padding: 20, display: "flex", flexDirection: "column", gap: 12,
-    }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-        <LenderIcon lender={debt.name} size={36} />
+    <div className="card lift" style={{ position: "relative", padding: 24 }}>
+      {/* Header — page-borc.jsx:92-112 */}
+      <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 16 }}>
+        <LenderIcon lender={debt.name} size={56} />
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-            {debt.name}
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+            <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-tertiary)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+              {debt.name}
+            </div>
+            <Avatar who={ownerToWho(debt.owner ?? "Ev")} size={20} />
+            <span style={{ fontSize: 12, color: "var(--text-tertiary)" }}>{ownerLabel}</span>
           </div>
-          <div style={{ fontSize: 11, color: "var(--text-tertiary)" }}>
-            <Avatar who={ownerToWho(debt.owner ?? "Ev")} size={12} /> {debt.owner ?? "Ortak"}
+          <div className="tnum" style={{ fontSize: 32, fontWeight: 700, marginTop: 4, letterSpacing: "-0.025em", color: "var(--text-primary)" }}>
+            {formatMoney(debt.totalDebt)}
           </div>
         </div>
-        <div style={{ display: "flex", gap: 4 }}>
+        {debt.dueDate && (
+          <div style={{
+            padding: "6px 12px", borderRadius: 999,
+            background: "var(--bg-elevated)",
+            fontSize: 11, fontWeight: 700,
+            color: "var(--text-secondary)",
+            whiteSpace: "nowrap",
+          }}>
+            <Calendar style={{ width: 11, height: 11, display: "inline", marginRight: 4, verticalAlign: "-1px" }} />
+            {debt.dueDate}
+          </div>
+        )}
+      </div>
+
+      {/* Progress + Ödenen/Kalan */}
+      <div style={{ marginBottom: 8 }}>
+        <div style={{ height: 10, background: "var(--bg-tint)", borderRadius: 999, overflow: "hidden" }}>
+          <div style={{
+            width: `${paidProgress * 100}%`, height: "100%",
+            background: "linear-gradient(90deg, var(--accent-green), color-mix(in oklch, var(--accent-green) 70%, var(--owner-yigit)))",
+            borderRadius: 999,
+            transition: "width 600ms cubic-bezier(0.2, 0, 0, 1)",
+          }} />
+        </div>
+      </div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 12 }}>
+        <span className="tnum" style={{ color: "var(--accent-green)" }}>Ödenen: {formatMoney(paid)} (%{pctPaid})</span>
+        <span className="tnum" style={{ color: "var(--status-danger)", fontWeight: 600 }}>Kalan: {formatMoney(remaining)}</span>
+      </div>
+
+      {/* Bottom metric row — page-borc.jsx:125-145 */}
+      <div style={{
+        marginTop: 16, paddingTop: 14,
+        borderTop: "1px solid var(--border-faint)",
+        display: "flex", justifyContent: "space-between", alignItems: "center",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          <div>
+            <div style={{ fontSize: 10, color: "var(--text-tertiary)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Aylık</div>
+            <div className="tnum" style={{ fontSize: 14, fontWeight: 700, marginTop: 2, color: "var(--text-primary)" }}>{formatMoney(debt.monthlyPayment)}</div>
+          </div>
+          <div>
+            <div style={{ fontSize: 10, color: "var(--text-tertiary)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Bitiş</div>
+            <div style={{ fontSize: 14, fontWeight: 600, marginTop: 2, color: "var(--text-primary)" }}>
+              {monthsLeft > 0 ? `${monthsLeft} ay kaldı` : "—"}
+            </div>
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+          <StatusBadge status={statusToBadge(debt.status)} />
           <button type="button" title="Düzenle" onClick={onEdit} style={iconBtn("var(--text-tertiary)")}>
             <Pencil style={{ width: 14, height: 14 }} />
           </button>
@@ -158,36 +212,6 @@ function DebtCard({ debt, onEdit, onDelete }: { debt: Debt; onEdit: () => void; 
             <Trash2 style={{ width: 14, height: 14 }} />
           </button>
         </div>
-      </div>
-
-      <div className="hero-num" style={{ fontSize: 28, fontWeight: 700, color: "var(--text-primary)", lineHeight: 1 }}>
-        {formatMoney(debt.totalDebt)}
-      </div>
-
-      <div>
-        <div style={{ height: 8, background: "var(--bg-tint)", borderRadius: 999, overflow: "hidden" }}>
-          <div style={{
-            width: `${paidProgress * 100}%`, height: "100%",
-            background: "var(--accent-green)", borderRadius: 999,
-            transition: "width 600ms cubic-bezier(0.2, 0, 0, 1)",
-          }} />
-        </div>
-        <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6, fontSize: 11, color: "var(--text-tertiary)" }}>
-          <span>Ödenen: <span className="hero-num" style={{ color: "var(--accent-green)" }}>{formatMoney(paid)}</span></span>
-          <span>Kalan: <span className="hero-num" style={{ color: "var(--status-danger)" }}>{formatMoney(remaining)}</span></span>
-        </div>
-      </div>
-
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 8, borderTop: "1px solid var(--border-faint)" }}>
-        <div style={{ fontSize: 12, color: "var(--text-tertiary)" }}>
-          {debt.dueDate && (
-            <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
-              <Calendar style={{ width: 12, height: 12 }} />
-              {debt.dueDate}
-            </span>
-          )}
-        </div>
-        <StatusBadge status={statusToBadge(debt.status)} />
       </div>
     </div>
   );
