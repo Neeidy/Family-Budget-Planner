@@ -50,7 +50,9 @@ export function BarChart({ groups, height, mobile = false, domainMax }: BarChart
             }}>
               <span style={{
                 position: "absolute", left: 0, top: -7,
-                fontSize: 10, color: "var(--text-tertiary)",
+                fontSize: 10, fontWeight: 500,
+                fontFamily: "var(--font-mono)",
+                color: "var(--text-muted)",
                 fontVariantNumeric: "tabular-nums",
               }}>
                 {formatYTick(t.val)}
@@ -97,15 +99,19 @@ export function BarChart({ groups, height, mobile = false, domainMax }: BarChart
           left: padLeft, right: 0, bottom: 4,
           display: "flex", gap: mobile ? 6 : 12,
         }}>
-          {groups.map((g, gi) => (
-            <div key={gi} style={{
-              flex: 1, textAlign: "center",
-              fontSize: 10, color: "var(--text-tertiary)",
-              overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-            }}>
-              {g.label}
-            </div>
-          ))}
+          {groups.map((g, gi) => {
+            const isLast = gi === groups.length - 1;
+            return (
+              <div key={gi} style={{
+                flex: 1, textAlign: "center",
+                fontSize: 10, fontWeight: isLast ? 700 : 600,
+                color: isLast ? "var(--text-secondary)" : "var(--text-muted)",
+                overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+              }}>
+                {g.label}
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

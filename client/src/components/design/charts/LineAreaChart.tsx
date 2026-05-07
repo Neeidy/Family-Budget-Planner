@@ -115,34 +115,38 @@ export function LineAreaChart({
         />
       ))}
 
-      {/* Y labels */}
+      {/* Y labels — port of _design/page-rapor.jsx:247-248 */}
       {yLabels && gridLines.map((g, i) => (
         <text
           key={`yl-${i}`}
-          x={pad.left - 8}
+          x={pad.left - 10}
           y={g.y + 4}
           fontSize="10"
+          fontWeight="500"
+          fontFamily="var(--font-mono)"
           textAnchor="end"
-          fill="var(--text-tertiary)"
+          fill="var(--text-muted)"
           style={{ fontVariantNumeric: "tabular-nums" }}
         >
           {formatYTick(g.valY)}
         </text>
       ))}
 
-      {/* X labels */}
+      {/* X labels — port of _design/page-rapor.jsx:259-260 */}
       {xLabels && (
         <g>
           {xLabels.map((label, i) => {
             const x = pad.left + (i / Math.max(1, xLabels.length - 1)) * innerW;
+            const isLast = i === xLabels.length - 1;
             return (
               <text
                 key={`xl-${i}`}
                 x={x}
                 y={height - pad.bottom + 18}
                 fontSize="10"
+                fontWeight={isLast ? 700 : 600}
                 textAnchor="middle"
-                fill="var(--text-tertiary)"
+                fill={isLast ? "var(--text-secondary)" : "var(--text-muted)"}
               >
                 {label}
               </text>
