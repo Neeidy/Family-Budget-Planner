@@ -1,11 +1,11 @@
-import { useState, useEffect, useCallback } from 'react';
-import { nanoid } from 'nanoid';
+import { useState, useEffect, useCallback } from "react";
+import { nanoid } from "nanoid";
 
 export interface Income {
   id: string;
   name: string;
   amount: number;
-  owner: 'Benim' | 'Esim';
+  owner: "Benim" | "Esim";
   date: string;
   notes: string;
 }
@@ -14,11 +14,11 @@ export interface Expense {
   id: string;
   category: string;
   subcategory: string;
-  type: 'Sabit' | 'Degisken' | 'Borc' | 'Birikim';
+  type: "Sabit" | "Degisken" | "Borc" | "Birikim";
   amount: number;
   paymentDay: string;
-  status: 'Odendi' | 'Bekliyor' | 'Gecikti';
-  owner: 'Ev' | 'Benim' | 'Esim';
+  status: "Odendi" | "Bekliyor" | "Gecikti";
+  owner: "Ev" | "Benim" | "Esim";
   notes: string;
 }
 
@@ -28,8 +28,8 @@ export interface Debt {
   totalDebt: number;
   monthlyPayment: number;
   dueDate: string;
-  status: 'Odendi' | 'Bekliyor' | 'Gecikti';
-  owner: 'Benim' | 'Esim' | 'Ev';
+  status: "Odendi" | "Bekliyor" | "Gecikti";
+  owner: "Benim" | "Esim" | "Ev";
   notes: string;
 }
 
@@ -40,7 +40,7 @@ export interface SavingsGoal {
   currentAmount: number;
   monthlyAllocation: number;
   targetDate: string;
-  owner: 'Benim' | 'Esim' | 'Ev';
+  owner: "Benim" | "Esim" | "Ev";
   notes: string;
 }
 
@@ -61,7 +61,7 @@ export interface Installment {
   monthlyAmount: number;
   startYear: number;
   startMonth: number; // 1-12
-  owner: 'Ev' | 'Benim' | 'Esim';
+  owner: "Ev" | "Benim" | "Esim";
   notes: string;
 }
 
@@ -69,7 +69,7 @@ export interface BudgetLimit {
   id: string;
   category: string;
   limit: number;
-  owner: 'Benim' | 'Esim' | 'Ev';
+  owner: "Benim" | "Esim" | "Ev";
 }
 
 export interface BudgetData {
@@ -85,7 +85,7 @@ export interface BudgetData {
 }
 
 const DEFAULT_BUDGET: BudgetData = {
-  month: new Date().toLocaleString('tr-TR', { month: 'long' }),
+  month: new Date().toLocaleString("tr-TR", { month: "long" }),
   year: new Date().getFullYear(),
   incomes: [],
   expenses: [],
@@ -96,7 +96,7 @@ const DEFAULT_BUDGET: BudgetData = {
   installments: [],
 };
 
-const STORAGE_KEY = 'viyana_budget_planner';
+const STORAGE_KEY = "viyana_budget_planner";
 
 export function useBudgetData() {
   const [budgetData, setBudgetData] = useState<BudgetData>(DEFAULT_BUDGET);
@@ -117,7 +117,7 @@ export function useBudgetData() {
         }
         setBudgetData(parsed);
       } catch (e) {
-        console.error('Failed to parse budget data:', e);
+        console.error("Failed to parse budget data:", e);
         setBudgetData(DEFAULT_BUDGET);
       }
     }
@@ -132,7 +132,7 @@ export function useBudgetData() {
   }, [budgetData, isLoaded]);
 
   // Income operations
-  const addIncome = useCallback((income: Omit<Income, 'id'>) => {
+  const addIncome = useCallback((income: Omit<Income, "id">) => {
     setBudgetData(prev => ({
       ...prev,
       incomes: [...prev.incomes, { ...income, id: Date.now().toString() }],
@@ -154,7 +154,7 @@ export function useBudgetData() {
   }, []);
 
   // Expense operations
-  const addExpense = useCallback((expense: Omit<Expense, 'id'>) => {
+  const addExpense = useCallback((expense: Omit<Expense, "id">) => {
     setBudgetData(prev => ({
       ...prev,
       expenses: [...prev.expenses, { ...expense, id: Date.now().toString() }],
@@ -164,7 +164,9 @@ export function useBudgetData() {
   const updateExpense = useCallback((id: string, expense: Partial<Expense>) => {
     setBudgetData(prev => ({
       ...prev,
-      expenses: prev.expenses.map(e => (e.id === id ? { ...e, ...expense } : e)),
+      expenses: prev.expenses.map(e =>
+        e.id === id ? { ...e, ...expense } : e
+      ),
     }));
   }, []);
 
@@ -176,7 +178,7 @@ export function useBudgetData() {
   }, []);
 
   // Debt operations
-  const addDebt = useCallback((debt: Omit<Debt, 'id'>) => {
+  const addDebt = useCallback((debt: Omit<Debt, "id">) => {
     setBudgetData(prev => ({
       ...prev,
       debts: [...prev.debts, { ...debt, id: Date.now().toString() }],
@@ -198,19 +200,27 @@ export function useBudgetData() {
   }, []);
 
   // Savings goals operations
-  const addSavingsGoal = useCallback((goal: Omit<SavingsGoal, 'id'>) => {
+  const addSavingsGoal = useCallback((goal: Omit<SavingsGoal, "id">) => {
     setBudgetData(prev => ({
       ...prev,
-      savingsGoals: [...prev.savingsGoals, { ...goal, id: Date.now().toString() }],
+      savingsGoals: [
+        ...prev.savingsGoals,
+        { ...goal, id: Date.now().toString() },
+      ],
     }));
   }, []);
 
-  const updateSavingsGoal = useCallback((id: string, goal: Partial<SavingsGoal>) => {
-    setBudgetData(prev => ({
-      ...prev,
-      savingsGoals: prev.savingsGoals.map(g => (g.id === id ? { ...g, ...goal } : g)),
-    }));
-  }, []);
+  const updateSavingsGoal = useCallback(
+    (id: string, goal: Partial<SavingsGoal>) => {
+      setBudgetData(prev => ({
+        ...prev,
+        savingsGoals: prev.savingsGoals.map(g =>
+          g.id === id ? { ...g, ...goal } : g
+        ),
+      }));
+    },
+    []
+  );
 
   const deleteSavingsGoal = useCallback((id: string) => {
     setBudgetData(prev => ({
@@ -219,19 +229,27 @@ export function useBudgetData() {
     }));
   }, []);
 
-  const addAnnualPayment = useCallback((payment: Omit<AnnualPayment, 'id'>) => {
+  const addAnnualPayment = useCallback((payment: Omit<AnnualPayment, "id">) => {
     setBudgetData(prev => ({
       ...prev,
-      annualPayments: [...prev.annualPayments, { ...payment, id: Date.now().toString() }],
+      annualPayments: [
+        ...prev.annualPayments,
+        { ...payment, id: Date.now().toString() },
+      ],
     }));
   }, []);
 
-  const updateAnnualPayment = useCallback((id: string, payment: Partial<AnnualPayment>) => {
-    setBudgetData(prev => ({
-      ...prev,
-      annualPayments: prev.annualPayments.map(p => (p.id === id ? { ...p, ...payment } : p)),
-    }));
-  }, []);
+  const updateAnnualPayment = useCallback(
+    (id: string, payment: Partial<AnnualPayment>) => {
+      setBudgetData(prev => ({
+        ...prev,
+        annualPayments: prev.annualPayments.map(p =>
+          p.id === id ? { ...p, ...payment } : p
+        ),
+      }));
+    },
+    []
+  );
 
   const deleteAnnualPayment = useCallback((id: string) => {
     setBudgetData(prev => ({
@@ -250,52 +268,60 @@ export function useBudgetData() {
 
     // Kişi bazlı gelir
     const myIncome = budgetData.incomes
-      .filter(i => i.owner === 'Benim')
+      .filter(i => i.owner === "Benim")
       .reduce((sum, i) => sum + i.amount, 0);
 
     const spouseIncome = budgetData.incomes
-      .filter(i => i.owner === 'Esim')
+      .filter(i => i.owner === "Esim")
       .reduce((sum, i) => sum + i.amount, 0);
 
     const totalActualIncome = myIncome + spouseIncome;
 
     // Ev giderlerini hesapla
     const homeExpenses = budgetData.expenses
-      .filter(e => e.owner === 'Ev')
+      .filter(e => e.owner === "Ev")
       .reduce((sum, e) => sum + e.amount, 0);
 
     // Benim giderlerim + ev payı
-    const myExpenses = budgetData.expenses
-      .filter(e => e.owner === 'Benim')
-      .reduce((sum, e) => sum + e.amount, 0) + (homeExpenses / 2);
+    const myExpenses =
+      budgetData.expenses
+        .filter(e => e.owner === "Benim")
+        .reduce((sum, e) => sum + e.amount, 0) +
+      homeExpenses / 2;
 
     // Eşimin giderleri + ev payı
-    const spouseExpenses = budgetData.expenses
-      .filter(e => e.owner === 'Esim')
-      .reduce((sum, e) => sum + e.amount, 0) + (homeExpenses / 2);
+    const spouseExpenses =
+      budgetData.expenses
+        .filter(e => e.owner === "Esim")
+        .reduce((sum, e) => sum + e.amount, 0) +
+      homeExpenses / 2;
 
-    const totalActualExpense = budgetData.expenses.reduce((sum, e) => sum + e.amount, 0) + annualPaymentsThisMonth;
+    const totalActualExpense =
+      budgetData.expenses.reduce((sum, e) => sum + e.amount, 0) +
+      annualPaymentsThisMonth;
 
     const fixedExpenses = budgetData.expenses
-      .filter(e => e.type === 'Sabit')
+      .filter(e => e.type === "Sabit")
       .reduce((sum, e) => sum + e.amount, 0);
 
     const variableExpenses = budgetData.expenses
-      .filter(e => e.type === 'Degisken')
+      .filter(e => e.type === "Degisken")
       .reduce((sum, e) => sum + e.amount, 0);
 
     const debtPayments = budgetData.expenses
-      .filter(e => e.type === 'Borc')
+      .filter(e => e.type === "Borc")
       .reduce((sum, e) => sum + e.amount, 0);
 
     const savingsAmount = budgetData.expenses
-      .filter(e => e.type === 'Birikim')
+      .filter(e => e.type === "Birikim")
       .reduce((sum, e) => sum + e.amount, 0);
 
     const remainingActual = totalActualIncome - totalActualExpense;
 
-    const savingsRate = totalActualIncome > 0 ? savingsAmount / totalActualIncome : 0;
-    const expenseRatio = totalActualIncome > 0 ? totalActualExpense / totalActualIncome : 0;
+    const savingsRate =
+      totalActualIncome > 0 ? savingsAmount / totalActualIncome : 0;
+    const expenseRatio =
+      totalActualIncome > 0 ? totalActualExpense / totalActualIncome : 0;
 
     return {
       totalPlannedIncome: totalActualIncome,
@@ -336,19 +362,27 @@ export function useBudgetData() {
   }, [budgetData]);
 
   // Installment operations
-  const addInstallment = useCallback((installment: Omit<Installment, 'id'>) => {
+  const addInstallment = useCallback((installment: Omit<Installment, "id">) => {
     setBudgetData(prev => ({
       ...prev,
-      installments: [...(prev.installments || []), { ...installment, id: Date.now().toString() }],
+      installments: [
+        ...(prev.installments || []),
+        { ...installment, id: Date.now().toString() },
+      ],
     }));
   }, []);
 
-  const updateInstallment = useCallback((id: string, installment: Partial<Installment>) => {
-    setBudgetData(prev => ({
-      ...prev,
-      installments: (prev.installments || []).map(i => (i.id === id ? { ...i, ...installment } : i)),
-    }));
-  }, []);
+  const updateInstallment = useCallback(
+    (id: string, installment: Partial<Installment>) => {
+      setBudgetData(prev => ({
+        ...prev,
+        installments: (prev.installments || []).map(i =>
+          i.id === id ? { ...i, ...installment } : i
+        ),
+      }));
+    },
+    []
+  );
 
   const deleteInstallment = useCallback((id: string) => {
     setBudgetData(prev => ({
@@ -357,7 +391,7 @@ export function useBudgetData() {
     }));
   }, []);
 
-  const addBudgetLimit = useCallback((limit: Omit<BudgetLimit, 'id'>) => {
+  const addBudgetLimit = useCallback((limit: Omit<BudgetLimit, "id">) => {
     const newLimit: BudgetLimit = {
       ...limit,
       id: nanoid(),
@@ -368,12 +402,17 @@ export function useBudgetData() {
     }));
   }, []);
 
-  const updateBudgetLimit = useCallback((id: string, limit: Partial<BudgetLimit>) => {
-    setBudgetData(prev => ({
-      ...prev,
-      budgetLimits: prev.budgetLimits.map(l => (l.id === id ? { ...l, ...limit } : l)),
-    }));
-  }, []);
+  const updateBudgetLimit = useCallback(
+    (id: string, limit: Partial<BudgetLimit>) => {
+      setBudgetData(prev => ({
+        ...prev,
+        budgetLimits: prev.budgetLimits.map(l =>
+          l.id === id ? { ...l, ...limit } : l
+        ),
+      }));
+    },
+    []
+  );
 
   const deleteBudgetLimit = useCallback((id: string) => {
     setBudgetData(prev => ({

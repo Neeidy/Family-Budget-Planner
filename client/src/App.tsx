@@ -34,35 +34,89 @@ function Router() {
       <Route path="/dev/design" component={DesignShowcase} />
 
       {/* Redirects from old Turkish paths */}
-      <Route path="/gelirler"><Redirect to="/gelir-gider" /></Route>
-      <Route path="/giderler"><Redirect to="/gelir-gider" /></Route>
-      <Route path="/butce-limitleri"><Redirect to="/gelir-gider" /></Route>
-      <Route path="/borclar"><Redirect to="/borc-odemeler" /></Route>
-      <Route path="/taksitler"><Redirect to="/borc-odemeler" /></Route>
-      <Route path="/yillik-odemeler"><Redirect to="/borc-odemeler" /></Route>
-      <Route path="/odeme-takibi"><Redirect to="/borc-odemeler" /></Route>
-      <Route path="/birikim"><Redirect to="/hedef" /></Route>
-      <Route path="/hedef-planlama"><Redirect to="/hedef" /></Route>
-      <Route path="/analitik"><Redirect to="/raporlar" /></Route>
-      <Route path="/ay-arsivi"><Redirect to="/raporlar" /></Route>
-      <Route path="/benim-butcem"><Redirect to="/" /></Route>
-      <Route path="/esimin-butcesi"><Redirect to="/" /></Route>
+      <Route path="/gelirler">
+        <Redirect to="/gelir-gider" />
+      </Route>
+      <Route path="/giderler">
+        <Redirect to="/gelir-gider" />
+      </Route>
+      <Route path="/butce-limitleri">
+        <Redirect to="/gelir-gider" />
+      </Route>
+      <Route path="/borclar">
+        <Redirect to="/borc-odemeler" />
+      </Route>
+      <Route path="/taksitler">
+        <Redirect to="/borc-odemeler" />
+      </Route>
+      <Route path="/yillik-odemeler">
+        <Redirect to="/borc-odemeler" />
+      </Route>
+      <Route path="/odeme-takibi">
+        <Redirect to="/borc-odemeler" />
+      </Route>
+      <Route path="/birikim">
+        <Redirect to="/hedef" />
+      </Route>
+      <Route path="/hedef-planlama">
+        <Redirect to="/hedef" />
+      </Route>
+      <Route path="/analitik">
+        <Redirect to="/raporlar" />
+      </Route>
+      <Route path="/ay-arsivi">
+        <Redirect to="/raporlar" />
+      </Route>
+      <Route path="/benim-butcem">
+        <Redirect to="/" />
+      </Route>
+      <Route path="/esimin-butcesi">
+        <Redirect to="/" />
+      </Route>
 
       {/* Redirects from English paths */}
-      <Route path="/incomes"><Redirect to="/gelir-gider" /></Route>
-      <Route path="/expenses"><Redirect to="/gelir-gider" /></Route>
-      <Route path="/budget-limits"><Redirect to="/gelir-gider" /></Route>
-      <Route path="/debts"><Redirect to="/borc-odemeler" /></Route>
-      <Route path="/installments"><Redirect to="/borc-odemeler" /></Route>
-      <Route path="/annual"><Redirect to="/borc-odemeler" /></Route>
-      <Route path="/payment-tracking"><Redirect to="/borc-odemeler" /></Route>
-      <Route path="/savings"><Redirect to="/hedef" /></Route>
-      <Route path="/goal-planning"><Redirect to="/hedef" /></Route>
-      <Route path="/analytics"><Redirect to="/raporlar" /></Route>
-      <Route path="/month-archive"><Redirect to="/raporlar" /></Route>
-      <Route path="/my-budget"><Redirect to="/" /></Route>
-      <Route path="/spouse-budget"><Redirect to="/" /></Route>
-      <Route path="/settings"><Redirect to="/ayarlar" /></Route>
+      <Route path="/incomes">
+        <Redirect to="/gelir-gider" />
+      </Route>
+      <Route path="/expenses">
+        <Redirect to="/gelir-gider" />
+      </Route>
+      <Route path="/budget-limits">
+        <Redirect to="/gelir-gider" />
+      </Route>
+      <Route path="/debts">
+        <Redirect to="/borc-odemeler" />
+      </Route>
+      <Route path="/installments">
+        <Redirect to="/borc-odemeler" />
+      </Route>
+      <Route path="/annual">
+        <Redirect to="/borc-odemeler" />
+      </Route>
+      <Route path="/payment-tracking">
+        <Redirect to="/borc-odemeler" />
+      </Route>
+      <Route path="/savings">
+        <Redirect to="/hedef" />
+      </Route>
+      <Route path="/goal-planning">
+        <Redirect to="/hedef" />
+      </Route>
+      <Route path="/analytics">
+        <Redirect to="/raporlar" />
+      </Route>
+      <Route path="/month-archive">
+        <Redirect to="/raporlar" />
+      </Route>
+      <Route path="/my-budget">
+        <Redirect to="/" />
+      </Route>
+      <Route path="/spouse-budget">
+        <Redirect to="/" />
+      </Route>
+      <Route path="/settings">
+        <Redirect to="/ayarlar" />
+      </Route>
 
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
@@ -73,18 +127,21 @@ function Router() {
 function MonthRolloverMount() {
   useMonthRollover();
   // One-time cleanup of legacy localStorage keys
-  if (typeof window !== 'undefined') {
-    localStorage.removeItem('viyana_recurring_templates');
+  if (typeof window !== "undefined") {
+    localStorage.removeItem("viyana_recurring_templates");
   }
   return null;
 }
 
 function AppContent() {
   const [location, setLocation] = useLocation();
-  const { data: familySession, isLoading } = trpc.familyAuth.me.useQuery(undefined, {
-    retry: false,
-    refetchOnWindowFocus: true,
-  });
+  const { data: familySession, isLoading } = trpc.familyAuth.me.useQuery(
+    undefined,
+    {
+      retry: false,
+      refetchOnWindowFocus: true,
+    }
+  );
 
   useEffect(() => {
     if (!isLoading && !familySession && location !== "/login") {

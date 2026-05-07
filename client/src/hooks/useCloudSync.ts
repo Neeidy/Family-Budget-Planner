@@ -1,7 +1,7 @@
-import { useEffect, useRef, useCallback } from 'react';
-import { trpc } from '@/lib/trpc';
-import { BudgetData } from './useBudgetData';
-import { toast } from 'sonner';
+import { useEffect, useRef, useCallback } from "react";
+import { trpc } from "@/lib/trpc";
+import { BudgetData } from "./useBudgetData";
+import { toast } from "sonner";
 
 interface UseCloudSyncOptions {
   budgetData: BudgetData;
@@ -30,11 +30,15 @@ function getDataHash(data: {
   });
 }
 
-export function useCloudSync({ budgetData, setBudgetData, isLoaded }: UseCloudSyncOptions) {
+export function useCloudSync({
+  budgetData,
+  setBudgetData,
+  isLoaded,
+}: UseCloudSyncOptions) {
   // Son kaydedilen verinin hash'i - kaydetme dongusunu onlemek icin
-  const lastSavedHashRef = useRef<string>('__INIT__');
+  const lastSavedHashRef = useRef<string>("__INIT__");
   // Son sunucudan alinan verinin hash'i - gereksiz guncellemeyi onlemek icin
-  const lastCloudHashRef = useRef<string>('__INIT__');
+  const lastCloudHashRef = useRef<string>("__INIT__");
   // Ilk yukleme yapildi mi?
   const initialLoadDoneRef = useRef(false);
   // Kaydetme timer'i
@@ -64,48 +68,53 @@ export function useCloudSync({ budgetData, setBudgetData, isLoaded }: UseCloudSy
   });
 
   const saveMutation = trpc.familyBudget.save.useMutation({
-    onSuccess: (result) => {
+    onSuccess: result => {
       // Sunucudan donen yeni updatedAt'i kaydet
-      if (result && 'updatedAt' in result && result.updatedAt) {
-        lastKnownUpdatedAtRef.current = new Date(result.updatedAt).toISOString();
+      if (result && "updatedAt" in result && result.updatedAt) {
+        lastKnownUpdatedAtRef.current = new Date(
+          result.updatedAt
+        ).toISOString();
       }
     },
-    onError: (error) => {
-      if (error.data?.code === 'CONFLICT') {
-        toast.warning('Veriler başka cihazdan değişti, yeniden yükleniyor...', {
-          description: 'Son değişikliklerinizi tekrar girmeniz gerekebilir.',
+    onError: error => {
+      if (error.data?.code === "CONFLICT") {
+        toast.warning("Veriler başka cihazdan değişti, yeniden yükleniyor...", {
+          description: "Son değişikliklerinizi tekrar girmeniz gerekebilir.",
           duration: 5000,
         });
         // Sunucudan taze veriyi cek
         utils.familyBudget.get.invalidate();
         // lastSavedHash'i sifirla ki bir sonraki polling'de veriyi yuklesin
-        lastSavedHashRef.current = '__CONFLICT__';
+        lastSavedHashRef.current = "__CONFLICT__";
       } else {
-        console.error('[CloudSync] Save failed:', error);
+        console.error("[CloudSync] Save failed:", error);
       }
     },
   });
 
   // Buluttan veriyi parse et
-  const parseCloudData = useCallback((raw: typeof cloudData): BudgetData | null => {
-    if (!raw) return null;
-    try {
-      return {
-        month: budgetData.month,
-        year: budgetData.year,
-        incomes: JSON.parse(raw.incomes || '[]'),
-        expenses: JSON.parse(raw.expenses || '[]'),
-        debts: JSON.parse(raw.debts || '[]'),
-        savingsGoals: JSON.parse(raw.savingsGoals || '[]'),
-        annualPayments: JSON.parse(raw.annualPayments || '[]'),
-        budgetLimits: JSON.parse(raw.budgetLimits || '[]'),
-        installments: JSON.parse((raw as any).installments || '[]'),
-      };
-    } catch (e) {
-      console.error('[CloudSync] Parse error:', e);
-      return null;
-    }
-  }, [budgetData.month, budgetData.year]);
+  const parseCloudData = useCallback(
+    (raw: typeof cloudData): BudgetData | null => {
+      if (!raw) return null;
+      try {
+        return {
+          month: budgetData.month,
+          year: budgetData.year,
+          incomes: JSON.parse(raw.incomes || "[]"),
+          expenses: JSON.parse(raw.expenses || "[]"),
+          debts: JSON.parse(raw.debts || "[]"),
+          savingsGoals: JSON.parse(raw.savingsGoals || "[]"),
+          annualPayments: JSON.parse(raw.annualPayments || "[]"),
+          budgetLimits: JSON.parse(raw.budgetLimits || "[]"),
+          installments: JSON.parse((raw as any).installments || "[]"),
+        };
+      } catch (e) {
+        console.error("[CloudSync] Parse error:", e);
+        return null;
+      }
+    },
+    [budgetData.month, budgetData.year]
+  );
 
   // Buluttan veri geldiginde: updatedAt'i guncelle + ilk yukleme veya farkli veri varsa guncelle
   useEffect(() => {
@@ -115,7 +124,9 @@ export function useCloudSync({ budgetData, setBudgetData, isLoaded }: UseCloudSy
 
     // updatedAt'i her zaman guncelle (optimistic locking icin)
     if (cloudData.updatedAt) {
-      lastKnownUpdatedAtRef.current = new Date(cloudData.updatedAt).toISOString();
+      lastKnownUpdatedAtRef.current = new Date(
+        cloudData.updatedAt
+      ).toISOString();
     }
 
     const parsed = parseCloudData(cloudData);
@@ -132,14 +143,14 @@ export function useCloudSync({ budgetData, setBudgetData, isLoaded }: UseCloudSy
         setBudgetData(parsed);
         lastSavedHashRef.current = cloudHash;
         lastCloudHashRef.current = cloudHash;
-        console.log('[CloudSync] Initial load from cloud');
+        console.log("[CloudSync] Initial load from cloud");
       } else {
         // Sunucuda veri yok - yerel veriyi kullan
         const localHash = getDataHash(budgetData);
         lastSavedHashRef.current = localHash;
         lastCloudHashRef.current = cloudHash;
         lastKnownUpdatedAtRef.current = null; // ilk save icin null
-        console.log('[CloudSync] No cloud data, using local');
+        console.log("[CloudSync] No cloud data, using local");
       }
       return;
     }
@@ -153,7 +164,7 @@ export function useCloudSync({ budgetData, setBudgetData, isLoaded }: UseCloudSy
       if (cloudHash !== localHash) {
         setBudgetData(parsed);
         lastSavedHashRef.current = cloudHash;
-        console.log('[CloudSync] Updated from cloud polling');
+        console.log("[CloudSync] Updated from cloud polling");
       }
     }
   }, [cloudData, isLoaded]);
@@ -183,12 +194,12 @@ export function useCloudSync({ budgetData, setBudgetData, isLoaded }: UseCloudSy
         });
         lastSavedHashRef.current = currentHash;
         lastCloudHashRef.current = currentHash;
-        console.log('[CloudSync] Saved to cloud');
+        console.log("[CloudSync] Saved to cloud");
       } catch (e) {
         // CONFLICT hatasi onError'da handle ediliyor
         // Diger hatalar icin log yeterli
-        if ((e as any)?.data?.code !== 'CONFLICT') {
-          console.error('[CloudSync] Save failed:', e);
+        if ((e as any)?.data?.code !== "CONFLICT") {
+          console.error("[CloudSync] Save failed:", e);
         }
       } finally {
         isSavingRef.current = false;

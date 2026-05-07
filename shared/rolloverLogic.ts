@@ -4,8 +4,18 @@
  */
 
 export const STORED_MONTH_NAMES = [
-  'ocak', 'şubat', 'mart', 'nisan', 'mayıs', 'haziran',
-  'temmuz', 'ağustos', 'eylül', 'ekim', 'kasım', 'aralık',
+  "ocak",
+  "şubat",
+  "mart",
+  "nisan",
+  "mayıs",
+  "haziran",
+  "temmuz",
+  "ağustos",
+  "eylül",
+  "ekim",
+  "kasım",
+  "aralık",
 ];
 
 /**
@@ -13,7 +23,7 @@ export const STORED_MONTH_NAMES = [
  */
 export function parseStoredMonth(monthName: string): number {
   // Use tr locale so uppercase Turkish I (U+0049) → ı (U+0131) correctly
-  const lower = monthName.toLocaleLowerCase('tr-TR');
+  const lower = monthName.toLocaleLowerCase("tr-TR");
   const idx = STORED_MONTH_NAMES.indexOf(lower);
   return idx + 1; // -1 + 1 = 0 when not found
 }
@@ -25,7 +35,7 @@ export function shouldRollover(
   storedYear: number,
   storedMonth: number,
   todayYear: number,
-  todayMonth: number,
+  todayMonth: number
 ): boolean {
   return todayYear * 12 + todayMonth > storedYear * 12 + storedMonth;
 }
@@ -60,11 +70,11 @@ export interface BudgetState {
  */
 export function computeRollover(
   state: BudgetState,
-  newIdFn: () => string = defaultId,
+  newIdFn: () => string = defaultId
 ): BudgetState {
   const sabitExpenses = state.expenses
-    .filter(e => e.type === 'Sabit')
-    .map(e => ({ ...e, id: newIdFn(), status: 'Bekliyor' }));
+    .filter(e => e.type === "Sabit")
+    .map(e => ({ ...e, id: newIdFn(), status: "Bekliyor" }));
 
   return {
     incomes: [],

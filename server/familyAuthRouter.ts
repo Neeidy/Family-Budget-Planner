@@ -46,9 +46,15 @@ export const familyAuthRouter = router({
         });
       }
 
-      const token = await signFamilySession({ person: input.person as FamilyPerson });
+      const token = await signFamilySession({
+        person: input.person as FamilyPerson,
+      });
 
-      ctx.res.cookie(VIYANA_FAMILY_COOKIE, token, getCookieOptions(ENV.isProduction));
+      ctx.res.cookie(
+        VIYANA_FAMILY_COOKIE,
+        token,
+        getCookieOptions(ENV.isProduction)
+      );
 
       return { ok: true, person: input.person } as const;
     }),
@@ -94,18 +100,27 @@ export const familyAuthRouter = router({
     .mutation(async ({ ctx, input }) => {
       // Must be authenticated
       if (!ctx.family) {
-        throw new TRPCError({ code: "UNAUTHORIZED", message: "Oturum açmanız gerekiyor" });
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Oturum açmanız gerekiyor",
+        });
       }
 
       // Passwords must match
       if (input.newPassword !== input.confirmPassword) {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "Yeni şifreler eşleşmiyor" });
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Yeni şifreler eşleşmiyor",
+        });
       }
 
       // Verify current password
       const isValid = verifyPassword(input.currentPassword);
       if (!isValid) {
-        throw new TRPCError({ code: "UNAUTHORIZED", message: "Mevcut şifre hatalı" });
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Mevcut şifre hatalı",
+        });
       }
 
       // Hash new password
@@ -122,7 +137,7 @@ export const familyAuthRouter = router({
    * Returns NOT_FOUND on butce.aileplan.uk (production family domain).
    */
   getDemoProfiles: guestOnlyProcedure.query(() => {
-    return DEMO_PROFILES.map((p) => ({ id: p.id, name: p.name, emoji: p.emoji }));
+    return DEMO_PROFILES.map(p => ({ id: p.id, name: p.name, emoji: p.emoji }));
   }),
 
   /**
@@ -133,12 +148,21 @@ export const familyAuthRouter = router({
   loginAsDemoProfile: guestOnlyProcedure
     .input(z.object({ profileId: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const profile = DEMO_PROFILES.find((p) => p.id === input.profileId);
+      const profile = DEMO_PROFILES.find(p => p.id === input.profileId);
       if (!profile) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Profil bulunamadı" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Profil bulunamadı",
+        });
       }
-      const token = await signFamilySession({ person: profile.person as FamilyPerson });
-      ctx.res.cookie(VIYANA_FAMILY_COOKIE, token, getCookieOptions(ENV.isProduction));
+      const token = await signFamilySession({
+        person: profile.person as FamilyPerson,
+      });
+      ctx.res.cookie(
+        VIYANA_FAMILY_COOKIE,
+        token,
+        getCookieOptions(ENV.isProduction)
+      );
       return { ok: true, person: profile.person, name: profile.name } as const;
     }),
 });

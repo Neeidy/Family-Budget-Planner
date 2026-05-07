@@ -13,7 +13,9 @@ interface BudgetState {
 export function useAutoSync(budgetState: BudgetState | null) {
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSync, setLastSync] = useState<Date | null>(null);
-  const [syncStatus, setSyncStatus] = useState<"idle" | "syncing" | "success" | "error">("idle");
+  const [syncStatus, setSyncStatus] = useState<
+    "idle" | "syncing" | "success" | "error"
+  >("idle");
   const syncTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   // familyBudget API kullan - giriş gerektirmez
   const saveBudgetMutation = trpc.familyBudget.save.useMutation();
@@ -31,12 +33,12 @@ export function useAutoSync(budgetState: BudgetState | null) {
         setSyncStatus("syncing");
 
         await saveBudgetMutation.mutateAsync({
-          incomes: budgetState.incomes || '[]',
-          expenses: budgetState.expenses || '[]',
-          debts: budgetState.debts || '[]',
-          annualPayments: budgetState.annualPayments || '[]',
-          budgetLimits: budgetState.budgetLimits || '[]',
-          savingsGoals: budgetState.savingsGoals || '[]',
+          incomes: budgetState.incomes || "[]",
+          expenses: budgetState.expenses || "[]",
+          debts: budgetState.debts || "[]",
+          annualPayments: budgetState.annualPayments || "[]",
+          budgetLimits: budgetState.budgetLimits || "[]",
+          savingsGoals: budgetState.savingsGoals || "[]",
           expectedUpdatedAt: null,
         });
 

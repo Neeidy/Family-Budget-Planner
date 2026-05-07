@@ -1,11 +1,29 @@
 import { useEffect, useState } from "react";
 import { useBudget } from "@/contexts/BudgetContext";
 import type { AnnualPayment } from "@/hooks/useBudgetData";
-import { DialogShell, Field, TextInput, TextAreaInput, RadioRow, CancelButton, PrimaryButton } from "./DialogShell";
+import {
+  DialogShell,
+  Field,
+  TextInput,
+  TextAreaInput,
+  RadioRow,
+  CancelButton,
+  PrimaryButton,
+} from "./DialogShell";
 
 const MONTHS_TR = [
-  "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
-  "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık",
+  "Ocak",
+  "Şubat",
+  "Mart",
+  "Nisan",
+  "Mayıs",
+  "Haziran",
+  "Temmuz",
+  "Ağustos",
+  "Eylül",
+  "Ekim",
+  "Kasım",
+  "Aralık",
 ];
 
 interface AnnualPaymentDialogProps {
@@ -14,7 +32,11 @@ interface AnnualPaymentDialogProps {
   entity?: AnnualPayment;
 }
 
-export function AnnualPaymentDialog({ open, onClose, entity }: AnnualPaymentDialogProps) {
+export function AnnualPaymentDialog({
+  open,
+  onClose,
+  entity,
+}: AnnualPaymentDialogProps) {
   const { addAnnualPayment, updateAnnualPayment } = useBudget();
   const isEdit = !!entity;
 
@@ -45,7 +67,8 @@ export function AnnualPaymentDialog({ open, onClose, entity }: AnnualPaymentDial
   }, [open, entity]);
 
   const numAmount = parseFloat(amount.replace(",", "."));
-  const valid = name.trim().length > 0 && Number.isFinite(numAmount) && numAmount > 0;
+  const valid =
+    name.trim().length > 0 && Number.isFinite(numAmount) && numAmount > 0;
 
   const handleSave = () => {
     if (!valid) return;
@@ -67,26 +90,57 @@ export function AnnualPaymentDialog({ open, onClose, entity }: AnnualPaymentDial
       onClose={onClose}
       title={isEdit ? "Yıllık Ödemeyi Düzenle" : "Yeni Yıllık Ödeme"}
       width={520}
-      footer={<><CancelButton onClick={onClose} /><PrimaryButton onClick={handleSave} disabled={!valid}>Kaydet</PrimaryButton></>}
+      footer={
+        <>
+          <CancelButton onClick={onClose} />
+          <PrimaryButton onClick={handleSave} disabled={!valid}>
+            Kaydet
+          </PrimaryButton>
+        </>
+      }
     >
       <Field label="Ödeme Adı">
-        <TextInput value={name} onChange={setName} placeholder="Örn. Vergi, Sigorta yenileme" autoFocus />
+        <TextInput
+          value={name}
+          onChange={setName}
+          placeholder="Örn. Vergi, Sigorta yenileme"
+          autoFocus
+        />
       </Field>
       <Field label="Tutar">
-        <TextInput value={amount} onChange={setAmount} prefix="€" placeholder="0,00" type="number" step="0.01" min={0} />
+        <TextInput
+          value={amount}
+          onChange={setAmount}
+          prefix="€"
+          placeholder="0,00"
+          type="number"
+          step="0.01"
+          min={0}
+        />
       </Field>
       <Field label="Ödeme Ayı">
         <RadioRow
           value={paymentMonth}
-          onChange={(v) => setPaymentMonth(v)}
-          options={MONTHS_TR.map((label, i) => ({ value: i + 1, label: label.slice(0, 3) }))}
+          onChange={v => setPaymentMonth(v)}
+          options={MONTHS_TR.map((label, i) => ({
+            value: i + 1,
+            label: label.slice(0, 3),
+          }))}
         />
       </Field>
       <Field label="Son Ödeme Tarihi">
-        <TextInput value={lastPaymentDate} onChange={setLastPaymentDate} type="date" />
+        <TextInput
+          value={lastPaymentDate}
+          onChange={setLastPaymentDate}
+          type="date"
+        />
       </Field>
       <Field label="Notlar (opsiyonel)">
-        <TextAreaInput value={notes} onChange={setNotes} placeholder="Ek bilgi…" />
+        <TextAreaInput
+          value={notes}
+          onChange={setNotes}
+          placeholder="Ek bilgi…"
+        />
       </Field>
     </DialogShell>
   );

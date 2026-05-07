@@ -85,8 +85,8 @@
   --color-text-muted: var(--text-muted);
 
   /* ── Claude Design v4: typography ── */
-  --font-sans: 'Geist', 'Inter', system-ui, -apple-system, sans-serif;
-  --font-mono: 'Geist Mono', 'JetBrains Mono', 'Courier New', monospace;
+  --font-sans: "Geist", "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "Geist Mono", "JetBrains Mono", "Courier New", monospace;
 
   /* ── Claude Design v4: border radius ── */
   --radius-r-sm: var(--r-sm);
@@ -103,49 +103,49 @@
 
 :root {
   /* Primary Colors - Financial Dashboard */
-  --primary: #10B981;
-  --primary-foreground: #F0FDF4;
-  --sidebar-primary: #10B981;
-  --sidebar-primary-foreground: #F0FDF4;
-  
+  --primary: #10b981;
+  --primary-foreground: #f0fdf4;
+  --sidebar-primary: #10b981;
+  --sidebar-primary-foreground: #f0fdf4;
+
   /* Chart Colors - Viyana Palette */
-  --chart-1: #10B981;
-  --chart-2: #EF4444;
-  --chart-3: #3B82F6;
-  --chart-4: #F59E0B;
-  --chart-5: #8B5CF6;
-  
+  --chart-1: #10b981;
+  --chart-2: #ef4444;
+  --chart-3: #3b82f6;
+  --chart-4: #f59e0b;
+  --chart-5: #8b5cf6;
+
   --radius: 0.75rem;
-  --background: #FAFAF9;
-  --foreground: #1F2937;
-  --card: #FFFFFF;
-  --card-foreground: #1F2937;
-  --popover: #FFFFFF;
-  --popover-foreground: #1F2937;
-  --secondary: #F3F4F6;
+  --background: #fafaf9;
+  --foreground: #1f2937;
+  --card: #ffffff;
+  --card-foreground: #1f2937;
+  --popover: #ffffff;
+  --popover-foreground: #1f2937;
+  --secondary: #f3f4f6;
   --secondary-foreground: #374151;
-  --muted: #E5E7EB;
-  --muted-foreground: #6B7280;
-  --accent: #10B981;
-  --accent-foreground: #FFFFFF;
-  --destructive: #EF4444;
-  --destructive-foreground: #FFFFFF;
-  --border: #E5E7EB;
-  --input: #FFFFFF;
-  --ring: #10B981;
-  --sidebar: #FFFFFF;
-  --sidebar-foreground: #1F2937;
-  --sidebar-accent: #10B981;
-  --sidebar-accent-foreground: #FFFFFF;
-  --sidebar-border: #E5E7EB;
-  --sidebar-ring: #10B981;
-  
+  --muted: #e5e7eb;
+  --muted-foreground: #6b7280;
+  --accent: #10b981;
+  --accent-foreground: #ffffff;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #e5e7eb;
+  --input: #ffffff;
+  --ring: #10b981;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #1f2937;
+  --sidebar-accent: #10b981;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #e5e7eb;
+  --sidebar-ring: #10b981;
+
   /* Category Colors */
-  --color-income: #10B981;
-  --color-expense: #EF4444;
-  --color-savings: #3B82F6;
-  --color-debt: #F97316;
-  --color-warning: #F59E0B;
+  --color-income: #10b981;
+  --color-expense: #ef4444;
+  --color-savings: #3b82f6;
+  --color-debt: #f97316;
+  --color-warning: #f59e0b;
   --color-success: #059669;
 
   /* ── Claude Design v4 tokens ─────────────────────────────── */
@@ -179,8 +179,10 @@
 
   /* Shared shadows */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 8px 24px -8px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.25);
-  --shadow-lg: 0 20px 50px -12px rgba(0, 0, 0, 0.65), 0 8px 16px -4px rgba(0, 0, 0, 0.35);
+  --shadow-md:
+    0 8px 24px -8px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.25);
+  --shadow-lg:
+    0 20px 50px -12px rgba(0, 0, 0, 0.65), 0 8px 16px -4px rgba(0, 0, 0, 0.35);
 
   /* Border radius */
   --r-sm: 8px;
@@ -208,42 +210,43 @@
   --accent-green-soft: oklch(0.62 0.17 155 / 0.12);
 
   /* Card shadow — light theme */
-  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px -12px rgba(15, 23, 42, 0.12);
+  --shadow-card:
+    0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px -12px rgba(15, 23, 42, 0.12);
 }
 
 .dark {
-  --primary: #10B981;
-  --primary-foreground: #F0FDF4;
-  --sidebar-primary: #10B981;
-  --sidebar-primary-foreground: #F0FDF4;
-  --background: #0F172A;
-  --foreground: #F1F5F9;
-  --card: #1E293B;
-  --card-foreground: #F1F5F9;
-  --popover: #1E293B;
-  --popover-foreground: #F1F5F9;
+  --primary: #10b981;
+  --primary-foreground: #f0fdf4;
+  --sidebar-primary: #10b981;
+  --sidebar-primary-foreground: #f0fdf4;
+  --background: #0f172a;
+  --foreground: #f1f5f9;
+  --card: #1e293b;
+  --card-foreground: #f1f5f9;
+  --popover: #1e293b;
+  --popover-foreground: #f1f5f9;
   --secondary: #334155;
-  --secondary-foreground: #E2E8F0;
+  --secondary-foreground: #e2e8f0;
   --muted: #475569;
-  --muted-foreground: #CBD5E1;
-  --accent: #10B981;
-  --accent-foreground: #0F172A;
-  --destructive: #EF4444;
-  --destructive-foreground: #0F172A;
+  --muted-foreground: #cbd5e1;
+  --accent: #10b981;
+  --accent-foreground: #0f172a;
+  --destructive: #ef4444;
+  --destructive-foreground: #0f172a;
   --border: #334155;
-  --input: #1E293B;
-  --ring: #10B981;
-  --chart-1: #10B981;
-  --chart-2: #EF4444;
-  --chart-3: #3B82F6;
-  --chart-4: #F59E0B;
-  --chart-5: #8B5CF6;
-  --sidebar: #1E293B;
-  --sidebar-foreground: #F1F5F9;
-  --sidebar-accent: #10B981;
-  --sidebar-accent-foreground: #0F172A;
+  --input: #1e293b;
+  --ring: #10b981;
+  --chart-1: #10b981;
+  --chart-2: #ef4444;
+  --chart-3: #3b82f6;
+  --chart-4: #f59e0b;
+  --chart-5: #8b5cf6;
+  --sidebar: #1e293b;
+  --sidebar-foreground: #f1f5f9;
+  --sidebar-accent: #10b981;
+  --sidebar-accent-foreground: #0f172a;
   --sidebar-border: #334155;
-  --sidebar-ring: #10B981;
+  --sidebar-ring: #10b981;
 
   /* ── Claude Design v4: dark theme overrides ── */
 
@@ -266,7 +269,8 @@
   --accent-green-soft: oklch(0.72 0.18 155 / 0.18);
 
   /* Card shadow — dark */
-  --shadow-card: 0 1px 0 0 oklch(1 0 0 / 0.04) inset, 0 12px 28px -12px rgba(0, 0, 0, 0.55);
+  --shadow-card:
+    0 1px 0 0 oklch(1 0 0 / 0.04) inset, 0 12px 28px -12px rgba(0, 0, 0, 0.55);
 }
 
 @layer base {
@@ -278,9 +282,14 @@
     font-size: 15px;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
-    font-feature-settings: 'ss01', 'cv11';
+    font-feature-settings: "ss01", "cv11";
   }
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-weight: 700;
     letter-spacing: -0.02em;
   }
@@ -290,7 +299,7 @@
   }
   .font-mono {
     font-variant-numeric: tabular-nums;
-    font-feature-settings: 'tnum';
+    font-feature-settings: "tnum";
   }
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),
@@ -332,7 +341,10 @@
     white-space: nowrap;
     vertical-align: middle;
   }
-  .pill > span:first-child { font-size: 12px; line-height: 1; }
+  .pill > span:first-child {
+    font-size: 12px;
+    line-height: 1;
+  }
 
   .section-label {
     font-size: 11px;
@@ -361,29 +373,57 @@
   }
 
   @keyframes skel-shimmer {
-    0%   { background-position: -400px 0; }
-    100% { background-position:  400px 0; }
+    0% {
+      background-position: -400px 0;
+    }
+    100% {
+      background-position: 400px 0;
+    }
   }
 
   @keyframes barGrow {
-    0%   { transform: scaleY(0); }
-    100% { transform: scaleY(1); }
+    0% {
+      transform: scaleY(0);
+    }
+    100% {
+      transform: scaleY(1);
+    }
   }
   @keyframes lineDraw {
-    0%   { stroke-dashoffset: 1000; }
-    100% { stroke-dashoffset: 0; }
+    0% {
+      stroke-dashoffset: 1000;
+    }
+    100% {
+      stroke-dashoffset: 0;
+    }
   }
   @keyframes slideUp {
-    0%   { transform: translateY(100%); opacity: 0; }
-    100% { transform: translateY(0); opacity: 1; }
+    0% {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
   }
   @keyframes fadeIn {
-    0%   { opacity: 0; }
-    100% { opacity: 1; }
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
   }
   @keyframes fadeUp {
-    0%   { transform: translateY(8px); opacity: 0; }
-    100% { transform: translateY(0); opacity: 1; }
+    0% {
+      transform: translateY(8px);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
   }
 
   /* ── Login ambient orb animations ── */
@@ -394,24 +434,79 @@
     opacity: 0.85;
     pointer-events: none;
     will-change: transform, opacity;
-    transform: translate(calc(var(--mx, 0) * -12px), calc(var(--my, 0) * -12px));
+    transform: translate(
+      calc(var(--mx, 0) * -12px),
+      calc(var(--my, 0) * -12px)
+    );
     transition: transform 800ms cubic-bezier(0.2, 0, 0, 1);
   }
   @keyframes orb-drift-1 {
-    0%, 100% { transform: translate(calc(var(--mx,0)*-12px), calc(var(--my,0)*-12px)) scale(1); }
-    50%       { transform: translate(calc(var(--mx,0)*-12px + 40px), calc(var(--my,0)*-12px - 30px)) scale(1.1); }
+    0%,
+    100% {
+      transform: translate(
+          calc(var(--mx, 0) * -12px),
+          calc(var(--my, 0) * -12px)
+        )
+        scale(1);
+    }
+    50% {
+      transform: translate(
+          calc(var(--mx, 0) * -12px + 40px),
+          calc(var(--my, 0) * -12px - 30px)
+        )
+        scale(1.1);
+    }
   }
   @keyframes orb-drift-2 {
-    0%, 100% { transform: translate(calc(var(--mx,0)*-12px), calc(var(--my,0)*-12px)) scale(1); }
-    50%       { transform: translate(calc(var(--mx,0)*-12px - 50px), calc(var(--my,0)*-12px + 40px)) scale(1.08); }
+    0%,
+    100% {
+      transform: translate(
+          calc(var(--mx, 0) * -12px),
+          calc(var(--my, 0) * -12px)
+        )
+        scale(1);
+    }
+    50% {
+      transform: translate(
+          calc(var(--mx, 0) * -12px - 50px),
+          calc(var(--my, 0) * -12px + 40px)
+        )
+        scale(1.08);
+    }
   }
   @keyframes orb-drift-3 {
-    0%, 100% { transform: translate(calc(var(--mx,0)*-12px), calc(var(--my,0)*-12px)) scale(1); }
-    50%       { transform: translate(calc(var(--mx,0)*-12px + 30px), calc(var(--my,0)*-12px + 50px)) scale(0.95); }
+    0%,
+    100% {
+      transform: translate(
+          calc(var(--mx, 0) * -12px),
+          calc(var(--my, 0) * -12px)
+        )
+        scale(1);
+    }
+    50% {
+      transform: translate(
+          calc(var(--mx, 0) * -12px + 30px),
+          calc(var(--my, 0) * -12px + 50px)
+        )
+        scale(0.95);
+    }
   }
   @keyframes orb-drift-4 {
-    0%, 100% { transform: translate(calc(var(--mx,0)*-12px), calc(var(--my,0)*-12px)) scale(1); }
-    50%       { transform: translate(calc(var(--mx,0)*-12px - 40px), calc(var(--my,0)*-12px - 20px)) scale(1.05); }
+    0%,
+    100% {
+      transform: translate(
+          calc(var(--mx, 0) * -12px),
+          calc(var(--my, 0) * -12px)
+        )
+        scale(1);
+    }
+    50% {
+      transform: translate(
+          calc(var(--mx, 0) * -12px - 40px),
+          calc(var(--my, 0) * -12px - 20px)
+        )
+        scale(1.05);
+    }
   }
 
   /* ── Surface utilities ── */
@@ -430,11 +525,15 @@
 
   /* ── Card hover lift (mockup parity, _design/styles.css:220-224) ── */
   .lift {
-    transition: transform 200ms, box-shadow 200ms;
+    transition:
+      transform 200ms,
+      box-shadow 200ms;
   }
   .lift:hover {
     transform: translateY(-2px);
-    box-shadow: 0 18px 40px -16px rgba(0, 0, 0, 0.5), 0 4px 10px rgba(0, 0, 0, 0.18);
+    box-shadow:
+      0 18px 40px -16px rgba(0, 0, 0, 0.5),
+      0 4px 10px rgba(0, 0, 0, 0.18);
   }
 
   /* ── Tabular numerals (financial figures) ── */
@@ -448,33 +547,62 @@
     animation: fade-up 400ms ease-out;
   }
   @keyframes fade-up {
-    0%   { opacity: 0; transform: translateY(8px); }
-    100% { opacity: 1; transform: translateY(0); }
+    0% {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   /* ── Porsuk wave (greeting hand) ── */
   @keyframes porsuk-walk {
-    0%, 100% { transform: rotate(0deg); }
-    50%      { transform: rotate(20deg); }
+    0%,
+    100% {
+      transform: rotate(0deg);
+    }
+    50% {
+      transform: rotate(20deg);
+    }
   }
 
   /* ── Health bubble float ── */
   @keyframes bubble-float {
-    0%, 100% { transform: translateY(0); }
-    50%      { transform: translateY(-3px); }
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-3px);
+    }
   }
 
   /* ── FAB press feedback ── */
   @keyframes fabPress {
-    0%   { transform: scale(1); }
-    50%  { transform: scale(0.92); }
-    100% { transform: scale(1); }
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(0.92);
+    }
+    100% {
+      transform: scale(1);
+    }
   }
 
   /* ── Soft pulse (live dot, sync indicator) ── */
   @keyframes pulse-soft {
-    0%, 100% { opacity: 1;   transform: scale(1); }
-    50%      { opacity: 0.55; transform: scale(0.92); }
+    0%,
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.55;
+      transform: scale(0.92);
+    }
   }
 
   /* ── Sidebar background override — match design system bg-surface ── */
@@ -493,19 +621,42 @@
     pointer-events: none;
   }
   @keyframes particle-rise {
-    0%   { transform: translateY(20px); opacity: 0; }
-    20%  { opacity: 0.4; }
-    80%  { opacity: 0.4; }
-    100% { transform: translateY(-120vh); opacity: 0; }
+    0% {
+      transform: translateY(20px);
+      opacity: 0;
+    }
+    20% {
+      opacity: 0.4;
+    }
+    80% {
+      opacity: 0.4;
+    }
+    100% {
+      transform: translateY(-120vh);
+      opacity: 0;
+    }
   }
 
   /* ── Wave emoji animation (Dashboard greeting) ── */
   @keyframes wave {
-    0%, 60%, 100% { transform: rotate(0deg); }
-    10%, 30%      { transform: rotate(14deg); }
-    20%           { transform: rotate(-8deg); }
-    40%           { transform: rotate(-4deg); }
-    50%           { transform: rotate(10deg); }
+    0%,
+    60%,
+    100% {
+      transform: rotate(0deg);
+    }
+    10%,
+    30% {
+      transform: rotate(14deg);
+    }
+    20% {
+      transform: rotate(-8deg);
+    }
+    40% {
+      transform: rotate(-4deg);
+    }
+    50% {
+      transform: rotate(10deg);
+    }
   }
 
   /* Custom card styles for financial dashboard */
@@ -569,36 +720,74 @@
 
   /* Mobile bottom nav animations */
   @keyframes navIconBounce {
-    0%   { transform: translateY(0) scale(1); }
-    30%  { transform: translateY(-6px) scale(1.18); }
-    55%  { transform: translateY(-2px) scale(1.05); }
-    75%  { transform: translateY(-4px) scale(1.1); }
-    100% { transform: translateY(0) scale(1); }
+    0% {
+      transform: translateY(0) scale(1);
+    }
+    30% {
+      transform: translateY(-6px) scale(1.18);
+    }
+    55% {
+      transform: translateY(-2px) scale(1.05);
+    }
+    75% {
+      transform: translateY(-4px) scale(1.1);
+    }
+    100% {
+      transform: translateY(0) scale(1);
+    }
   }
 
   @keyframes navActiveLine {
-    from { transform: scaleX(0); opacity: 0; }
-    to   { transform: scaleX(1); opacity: 1; }
+    from {
+      transform: scaleX(0);
+      opacity: 0;
+    }
+    to {
+      transform: scaleX(1);
+      opacity: 1;
+    }
   }
 
   @keyframes navRipple {
-    0%   { transform: scale(0); opacity: 0.4; }
-    100% { transform: scale(2.5); opacity: 0; }
+    0% {
+      transform: scale(0);
+      opacity: 0.4;
+    }
+    100% {
+      transform: scale(2.5);
+      opacity: 0;
+    }
   }
 
   @keyframes drawerSlideUp {
-    from { transform: translateY(100%); opacity: 0; }
-    to   { transform: translateY(0);    opacity: 1; }
+    from {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
   }
 
   @keyframes drawerSlideDown {
-    from { transform: translateY(0);    opacity: 1; }
-    to   { transform: translateY(100%); opacity: 0; }
+    from {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateY(100%);
+      opacity: 0;
+    }
   }
 
   @keyframes overlayFadeIn {
-    from { opacity: 0; }
-    to   { opacity: 1; }
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
 
   .nav-icon-active {
@@ -632,7 +821,7 @@
   }
   .card-lift:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px -4px rgba(0,0,0,0.12);
+    box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.12);
   }
 
   @media (min-width: 640px) {

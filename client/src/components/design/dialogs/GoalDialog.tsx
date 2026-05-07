@@ -2,7 +2,15 @@ import { useEffect, useState } from "react";
 import { useBudget } from "@/contexts/BudgetContext";
 import { usePerson } from "@/contexts/PersonContext";
 import type { SavingsGoal } from "@/hooks/useBudgetData";
-import { DialogShell, Field, TextInput, TextAreaInput, RadioRow, CancelButton, PrimaryButton } from "./DialogShell";
+import {
+  DialogShell,
+  Field,
+  TextInput,
+  TextAreaInput,
+  RadioRow,
+  CancelButton,
+  PrimaryButton,
+} from "./DialogShell";
 
 interface GoalDialogProps {
   open: boolean;
@@ -26,7 +34,9 @@ export function GoalDialog({ open, onClose, entity }: GoalDialogProps) {
   const [currentAmount, setCurrentAmount] = useState("0");
   const [monthlyAllocation, setMonthlyAllocation] = useState("");
   const [targetDate, setTargetDate] = useState(fourMonthsLaterISO());
-  const [owner, setOwner] = useState<"Benim" | "Esim" | "Ev">((currentPerson as "Benim" | "Esim" | null) ?? "Ev");
+  const [owner, setOwner] = useState<"Benim" | "Esim" | "Ev">(
+    (currentPerson as "Benim" | "Esim" | null) ?? "Ev"
+  );
   const [notes, setNotes] = useState("");
 
   useEffect(() => {
@@ -53,7 +63,8 @@ export function GoalDialog({ open, onClose, entity }: GoalDialogProps) {
   const numTarget = parseFloat(targetAmount.replace(",", "."));
   const numCurrent = parseFloat(currentAmount.replace(",", "."));
   const numMonthly = parseFloat(monthlyAllocation.replace(",", "."));
-  const valid = name.trim().length > 0 && Number.isFinite(numTarget) && numTarget > 0;
+  const valid =
+    name.trim().length > 0 && Number.isFinite(numTarget) && numTarget > 0;
 
   const handleSave = () => {
     if (!valid) return;
@@ -77,10 +88,22 @@ export function GoalDialog({ open, onClose, entity }: GoalDialogProps) {
       onClose={onClose}
       title={isEdit ? "Hedefi Düzenle" : "Yeni Hedef Ekle"}
       width={540}
-      footer={<><CancelButton onClick={onClose} /><PrimaryButton onClick={handleSave} disabled={!valid}>Kaydet</PrimaryButton></>}
+      footer={
+        <>
+          <CancelButton onClick={onClose} />
+          <PrimaryButton onClick={handleSave} disabled={!valid}>
+            Kaydet
+          </PrimaryButton>
+        </>
+      }
     >
       <Field label="Hedef Adı">
-        <TextInput value={name} onChange={setName} placeholder="Örn. Tatil, Yeni Araç" autoFocus />
+        <TextInput
+          value={name}
+          onChange={setName}
+          placeholder="Örn. Tatil, Yeni Araç"
+          autoFocus
+        />
       </Field>
       <Field label="Kişi">
         <RadioRow
@@ -88,27 +111,55 @@ export function GoalDialog({ open, onClose, entity }: GoalDialogProps) {
           onChange={setOwner}
           options={[
             { value: "Benim", label: person1Name },
-            { value: "Esim",  label: person2Name },
-            { value: "Ev",    label: "Ev" },
+            { value: "Esim", label: person2Name },
+            { value: "Ev", label: "Ev" },
           ]}
         />
       </Field>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
         <Field label="Hedef Tutar">
-          <TextInput value={targetAmount} onChange={setTargetAmount} prefix="€" placeholder="0,00" type="number" step="0.01" min={0} />
+          <TextInput
+            value={targetAmount}
+            onChange={setTargetAmount}
+            prefix="€"
+            placeholder="0,00"
+            type="number"
+            step="0.01"
+            min={0}
+          />
         </Field>
         <Field label="Mevcut Tutar">
-          <TextInput value={currentAmount} onChange={setCurrentAmount} prefix="€" placeholder="0,00" type="number" step="0.01" min={0} />
+          <TextInput
+            value={currentAmount}
+            onChange={setCurrentAmount}
+            prefix="€"
+            placeholder="0,00"
+            type="number"
+            step="0.01"
+            min={0}
+          />
         </Field>
       </div>
       <Field label="Aylık Eklenecek">
-        <TextInput value={monthlyAllocation} onChange={setMonthlyAllocation} prefix="€" placeholder="0,00" type="number" step="0.01" min={0} />
+        <TextInput
+          value={monthlyAllocation}
+          onChange={setMonthlyAllocation}
+          prefix="€"
+          placeholder="0,00"
+          type="number"
+          step="0.01"
+          min={0}
+        />
       </Field>
       <Field label="Hedef Tarih">
         <TextInput value={targetDate} onChange={setTargetDate} type="date" />
       </Field>
       <Field label="Notlar (opsiyonel)">
-        <TextAreaInput value={notes} onChange={setNotes} placeholder="Ek bilgi…" />
+        <TextAreaInput
+          value={notes}
+          onChange={setNotes}
+          placeholder="Ek bilgi…"
+        />
       </Field>
     </DialogShell>
   );

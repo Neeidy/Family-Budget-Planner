@@ -100,9 +100,7 @@
       "compositePrimaryKeys": {
         "budgetData_id": {
           "name": "budgetData_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -196,17 +194,13 @@
       "compositePrimaryKeys": {
         "familyBudget_id": {
           "name": "familyBudget_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "familyBudget_familyId_unique": {
           "name": "familyBudget_familyId_unique",
-          "columns": [
-            "familyId"
-          ]
+          "columns": ["familyId"]
         }
       },
       "checkConstraint": {}
@@ -256,9 +250,7 @@
       "compositePrimaryKeys": {
         "familyBudgetHistory_id": {
           "name": "familyBudgetHistory_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -341,17 +333,13 @@
       "compositePrimaryKeys": {
         "users_id": {
           "name": "users_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "users_openId_unique": {
           "name": "users_openId_unique",
-          "columns": [
-            "openId"
-          ]
+          "columns": ["openId"]
         }
       },
       "checkConstraint": {}

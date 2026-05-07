@@ -2,21 +2,69 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { useLocation } from "wouter";
 import { useBudget } from "@/contexts/BudgetContext";
 
-type CatState = "walking" | "sitting" | "grooming" | "rolling" | "jumping" | "sleeping" | "stretching" | "running";
+type CatState =
+  | "walking"
+  | "sitting"
+  | "grooming"
+  | "rolling"
+  | "jumping"
+  | "sleeping"
+  | "stretching"
+  | "running";
 type Mood = "happy" | "neutral" | "worried" | "angry" | "sleepy";
 
 // Sayfa bazlı tepkiler
 const PAGE_REACTIONS: Record<string, string[]> = {
-  "/": ["Ev bütçesi nasıl gidiyor?", "Bugün ne harcadın?", "Prrr... para sayıyorum 🐾"],
-  "/gelirler": ["Para geliyor! Miyav! 💰", "Maaş günü miyav?", "Prrrr... zengin oluyoruz!"],
-  "/giderler": ["Çok harcama var miyav...", "Bu kadar mı lazım?", "Tasarruf et biraz!"],
-  "/borclar": ["Borç miyav... üzücü 😿", "Borçları öde, özgür ol!", "Miyav... para sıkıntısı"],
-  "/birikim": ["Birikim yapıyoruz! 🐾", "Prrrr... hedef yakın!", "Tasarruf = mutluluk miyav"],
-  "/analitik": ["Grafiklere bakıyorum...", "Sayılar ilginç miyav!", "Analiz modundayım 🔍"],
-  "/taksitler": ["Taksit taksit miyav...", "Kaç taksit kaldı?", "Ödeme planı önemli!"],
-  "/ayarlar": ["Ayarlar mı? Miyav!", "Her şeyi düzeltiyoruz", "Porsuk onaylıyor ✓"],
-  "/ay-arsivi": ["Geçmiş aylar miyav...", "Tarih tekrar eder!", "Arşiv inceliyorum 📚"],
-  "/yillik-odemeler": ["Yıllık ödemeler miyav!", "Büyük giderler geliyor!", "Hazırlıklı ol!"],
+  "/": [
+    "Ev bütçesi nasıl gidiyor?",
+    "Bugün ne harcadın?",
+    "Prrr... para sayıyorum 🐾",
+  ],
+  "/gelirler": [
+    "Para geliyor! Miyav! 💰",
+    "Maaş günü miyav?",
+    "Prrrr... zengin oluyoruz!",
+  ],
+  "/giderler": [
+    "Çok harcama var miyav...",
+    "Bu kadar mı lazım?",
+    "Tasarruf et biraz!",
+  ],
+  "/borclar": [
+    "Borç miyav... üzücü 😿",
+    "Borçları öde, özgür ol!",
+    "Miyav... para sıkıntısı",
+  ],
+  "/birikim": [
+    "Birikim yapıyoruz! 🐾",
+    "Prrrr... hedef yakın!",
+    "Tasarruf = mutluluk miyav",
+  ],
+  "/analitik": [
+    "Grafiklere bakıyorum...",
+    "Sayılar ilginç miyav!",
+    "Analiz modundayım 🔍",
+  ],
+  "/taksitler": [
+    "Taksit taksit miyav...",
+    "Kaç taksit kaldı?",
+    "Ödeme planı önemli!",
+  ],
+  "/ayarlar": [
+    "Ayarlar mı? Miyav!",
+    "Her şeyi düzeltiyoruz",
+    "Porsuk onaylıyor ✓",
+  ],
+  "/ay-arsivi": [
+    "Geçmiş aylar miyav...",
+    "Tarih tekrar eder!",
+    "Arşiv inceliyorum 📚",
+  ],
+  "/yillik-odemeler": [
+    "Yıllık ödemeler miyav!",
+    "Büyük giderler geliyor!",
+    "Hazırlıklı ol!",
+  ],
 };
 
 // Ruh hali mesajları
@@ -28,7 +76,11 @@ const MOOD_MESSAGES: Record<Mood, string[]> = {
   sleepy: ["Zzz... miyav", "Uykuluyum...", "Biraz uyuyayım", "Zzzz... 😴"],
 };
 
-function getMoodFromBudget(totalIncome: number, totalExpense: number, totalDebt: number): Mood {
+function getMoodFromBudget(
+  totalIncome: number,
+  totalExpense: number,
+  totalDebt: number
+): Mood {
   if (totalIncome === 0 && totalExpense === 0) return "sleepy";
   const ratio = totalExpense / (totalIncome || 1);
   if (totalDebt > totalIncome * 3) return "angry";
@@ -79,25 +131,42 @@ export function PorsukCat() {
 
   // Bütçe durumuna göre ruh halini hesapla
   useEffect(() => {
-    const totalIncome = budgetData.incomes.reduce((s, i) => s + (i.amount || 0), 0);
-    const totalExpense = budgetData.expenses.reduce((s, e) => s + (e.amount || 0), 0);
-    const totalDebt = (budgetData.debts || []).reduce((s, d) => s + (d.totalDebt || 0), 0);
+    const totalIncome = budgetData.incomes.reduce(
+      (s, i) => s + (i.amount || 0),
+      0
+    );
+    const totalExpense = budgetData.expenses.reduce(
+      (s, e) => s + (e.amount || 0),
+      0
+    );
+    const totalDebt = (budgetData.debts || []).reduce(
+      (s, d) => s + (d.totalDebt || 0),
+      0
+    );
     const newMood = getMoodFromBudget(totalIncome, totalExpense, totalDebt);
     setMood(newMood);
   }, [budgetData]);
 
-  const pickNextState = (current: CatState): { state: CatState; duration: number } => {
+  const pickNextState = (
+    current: CatState
+  ): { state: CatState; duration: number } => {
     const roll = Math.random();
     const isSleepy = mood === "sleepy";
     const isAngry = mood === "angry";
 
     if (current === "walking" || current === "running") {
-      if (isSleepy && roll < 0.4) return { state: "sleeping", duration: 5000 + Math.random() * 4000 };
-      if (isAngry && roll < 0.3) return { state: "running", duration: 2000 + Math.random() * 1500 };
-      if (roll < 0.25) return { state: "sitting", duration: 3000 + Math.random() * 3000 };
-      if (roll < 0.38) return { state: "grooming", duration: 2000 + Math.random() * 2000 };
-      if (roll < 0.48) return { state: "rolling", duration: 2500 + Math.random() * 2000 };
-      if (roll < 0.55) return { state: "stretching", duration: 2000 + Math.random() * 1500 };
+      if (isSleepy && roll < 0.4)
+        return { state: "sleeping", duration: 5000 + Math.random() * 4000 };
+      if (isAngry && roll < 0.3)
+        return { state: "running", duration: 2000 + Math.random() * 1500 };
+      if (roll < 0.25)
+        return { state: "sitting", duration: 3000 + Math.random() * 3000 };
+      if (roll < 0.38)
+        return { state: "grooming", duration: 2000 + Math.random() * 2000 };
+      if (roll < 0.48)
+        return { state: "rolling", duration: 2500 + Math.random() * 2000 };
+      if (roll < 0.55)
+        return { state: "stretching", duration: 2000 + Math.random() * 1500 };
       return { state: "walking", duration: 4000 + Math.random() * 4000 };
     }
     // After any idle state, go back to walking
@@ -112,10 +181,12 @@ export function PorsukCat() {
       lastTimeRef.current = now;
       stateTimerRef.current += dt;
 
-      const isMoving = stateRef.current === "walking" || stateRef.current === "running";
+      const isMoving =
+        stateRef.current === "walking" || stateRef.current === "running";
       if (isMoving) {
         const speed = stateRef.current === "running" ? 0.18 : 0.06;
-        const newX = posXRef.current + (facingRef.current ? speed * dt : -speed * dt);
+        const newX =
+          posXRef.current + (facingRef.current ? speed * dt : -speed * dt);
         const catWidth = 90;
 
         if (newX > screenWidth + catWidth) {
@@ -139,7 +210,10 @@ export function PorsukCat() {
         stateRef.current = next.state;
         setCatState(next.state);
 
-        if ((next.state === "walking" || next.state === "running") && Math.random() < 0.4) {
+        if (
+          (next.state === "walking" || next.state === "running") &&
+          Math.random() < 0.4
+        ) {
           facingRef.current = !facingRef.current;
           setFacingRight(facingRef.current);
         }
@@ -148,7 +222,7 @@ export function PorsukCat() {
       animFrameRef.current = requestAnimationFrame(loop);
     };
 
-    animFrameRef.current = requestAnimationFrame((now) => {
+    animFrameRef.current = requestAnimationFrame(now => {
       lastTimeRef.current = now;
       loop(now);
     });
@@ -158,12 +232,13 @@ export function PorsukCat() {
 
   const playMeow = useCallback((angry = false) => {
     try {
-      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const ctx = new (window.AudioContext ||
+        (window as any).webkitAudioContext)();
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.connect(gain);
       gain.connect(ctx.destination);
-      osc.type = 'sine';
+      osc.type = "sine";
       if (angry) {
         osc.frequency.setValueAtTime(400, ctx.currentTime);
         osc.frequency.exponentialRampToValueAtTime(700, ctx.currentTime + 0.15);
@@ -251,7 +326,14 @@ export function PorsukCat() {
   const moodEmoji = MOOD_EMOJIS[mood];
 
   // Göz rengi ruh haline göre değişir
-  const eyeColor = mood === "angry" ? "#EF4444" : mood === "worried" ? "#F59E0B" : mood === "happy" ? "#10B981" : "#D4C44A";
+  const eyeColor =
+    mood === "angry"
+      ? "#EF4444"
+      : mood === "worried"
+        ? "#F59E0B"
+        : mood === "happy"
+          ? "#10B981"
+          : "#D4C44A";
 
   const bottomOffset = isRolling || isSleeping ? 8 : isStretching ? 4 : 0;
 
@@ -270,7 +352,7 @@ export function PorsukCat() {
       onClick={handleClick}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      title={`Porsuk - ${mood === 'happy' ? 'Mutlu' : mood === 'worried' ? 'Endişeli' : mood === 'angry' ? 'Sinirli' : mood === 'sleepy' ? 'Uykulu' : 'Sakin'}`}
+      title={`Porsuk - ${mood === "happy" ? "Mutlu" : mood === "worried" ? "Endişeli" : mood === "angry" ? "Sinirli" : mood === "sleepy" ? "Uykulu" : "Sakin"}`}
     >
       {/* Ruh hali badge */}
       {showMoodBadge && (
@@ -290,7 +372,16 @@ export function PorsukCat() {
             animation: "porsukMoodIn 0.3s ease-out",
           }}
         >
-          {moodEmoji} {mood === 'happy' ? 'Mutlu' : mood === 'worried' ? 'Endişeli' : mood === 'angry' ? 'Sinirli' : mood === 'sleepy' ? 'Uykulu' : 'Sakin'}
+          {moodEmoji}{" "}
+          {mood === "happy"
+            ? "Mutlu"
+            : mood === "worried"
+              ? "Endişeli"
+              : mood === "angry"
+                ? "Sinirli"
+                : mood === "sleepy"
+                  ? "Uykulu"
+                  : "Sakin"}
         </div>
       )}
 
@@ -336,7 +427,12 @@ export function PorsukCat() {
       <div
         style={{
           position: "absolute",
-          bottom: isRolling || isSleeping ? 58 : isSitting || isGrooming || isStretching ? 72 : 78,
+          bottom:
+            isRolling || isSleeping
+              ? 58
+              : isSitting || isGrooming || isStretching
+                ? 72
+                : 78,
           left: "50%",
           transform: "translateX(-50%)",
           fontSize: 9,
@@ -361,55 +457,122 @@ export function PorsukCat() {
           animation: isWalking
             ? "porsukWalk 0.4s steps(1) infinite"
             : isRunning
-            ? "porsukRun 0.2s steps(1) infinite"
-            : isJumping
-            ? "porsukJump 0.5s ease-out"
-            : isRolling
-            ? "porsukRoll 1.5s ease-in-out infinite"
-            : isSitting
-            ? "porsukSit 2s ease-in-out infinite"
-            : isGrooming
-            ? "porsukGroom 0.8s ease-in-out infinite"
-            : isSleeping
-            ? "porsukSleep 3s ease-in-out infinite"
-            : isStretching
-            ? "porsukStretch 2s ease-in-out"
-            : "none",
+              ? "porsukRun 0.2s steps(1) infinite"
+              : isJumping
+                ? "porsukJump 0.5s ease-out"
+                : isRolling
+                  ? "porsukRoll 1.5s ease-in-out infinite"
+                  : isSitting
+                    ? "porsukSit 2s ease-in-out infinite"
+                    : isGrooming
+                      ? "porsukGroom 0.8s ease-in-out infinite"
+                      : isSleeping
+                        ? "porsukSleep 3s ease-in-out infinite"
+                        : isStretching
+                          ? "porsukStretch 2s ease-in-out"
+                          : "none",
           display: "block",
         }}
       >
         <defs>
-          <pattern id="tabbyStripe" patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)">
+          <pattern
+            id="tabbyStripe"
+            patternUnits="userSpaceOnUse"
+            width="6"
+            height="6"
+            patternTransform="rotate(45)"
+          >
             <rect width="6" height="6" fill="#8B7355" />
             <rect width="2" height="6" fill="#5C4A2A" />
           </pattern>
         </defs>
 
-        {(isRolling || isSleeping) ? (
+        {isRolling || isSleeping ? (
           // Rolling / Sleeping pose - curled up ball
           <g transform="translate(10, 10)">
             <ellipse cx="35" cy="38" rx="28" ry="22" fill="#8B7355" />
-            <ellipse cx="35" cy="38" rx="28" ry="22" fill="url(#tabbyStripe)" opacity="0.5" />
-            <ellipse cx="35" cy="42" rx="18" ry="12" fill="#C4A882" opacity="0.7" />
+            <ellipse
+              cx="35"
+              cy="38"
+              rx="28"
+              ry="22"
+              fill="url(#tabbyStripe)"
+              opacity="0.5"
+            />
+            <ellipse
+              cx="35"
+              cy="42"
+              rx="18"
+              ry="12"
+              fill="#C4A882"
+              opacity="0.7"
+            />
             <ellipse cx="52" cy="22" rx="16" ry="14" fill="#8B7355" />
-            <ellipse cx="52" cy="22" rx="16" ry="14" fill="url(#tabbyStripe)" opacity="0.4" />
+            <ellipse
+              cx="52"
+              cy="22"
+              rx="16"
+              ry="14"
+              fill="url(#tabbyStripe)"
+              opacity="0.4"
+            />
             <polygon points="42,12 38,2 48,10" fill="#8B7355" />
             <polygon points="43,11 40,4 47,10" fill="#C47A7A" opacity="0.6" />
             <polygon points="60,10 64,1 56,9" fill="#8B7355" />
             <polygon points="60,10 63,3 57,9" fill="#C47A7A" opacity="0.6" />
             {/* Eyes closed */}
-            <path d="M46 22 Q49 20 52 22" stroke="#333" strokeWidth="1.5" fill="none" />
-            <path d="M54 22 Q57 20 60 22" stroke="#333" strokeWidth="1.5" fill="none" />
+            <path
+              d="M46 22 Q49 20 52 22"
+              stroke="#333"
+              strokeWidth="1.5"
+              fill="none"
+            />
+            <path
+              d="M54 22 Q57 20 60 22"
+              stroke="#333"
+              strokeWidth="1.5"
+              fill="none"
+            />
             {/* Sleeping Z */}
             {isSleeping && (
               <>
-                <text x="68" y="8" fontSize="8" fill="#8B5CF6" fontWeight="bold" opacity="0.8">z</text>
-                <text x="74" y="3" fontSize="6" fill="#8B5CF6" fontWeight="bold" opacity="0.6">z</text>
+                <text
+                  x="68"
+                  y="8"
+                  fontSize="8"
+                  fill="#8B5CF6"
+                  fontWeight="bold"
+                  opacity="0.8"
+                >
+                  z
+                </text>
+                <text
+                  x="74"
+                  y="3"
+                  fontSize="6"
+                  fill="#8B5CF6"
+                  fontWeight="bold"
+                  opacity="0.6"
+                >
+                  z
+                </text>
               </>
             )}
             <ellipse cx="52" cy="26" rx="2" ry="1.5" fill="#D4887A" />
-            <path d="M10 50 Q5 30 20 20 Q30 15 35 25" stroke="#7A6245" strokeWidth="7" fill="none" strokeLinecap="round" />
-            <path d="M10 50 Q5 30 20 20 Q30 15 35 25" stroke="#8B7355" strokeWidth="5" fill="none" strokeLinecap="round" />
+            <path
+              d="M10 50 Q5 30 20 20 Q30 15 35 25"
+              stroke="#7A6245"
+              strokeWidth="7"
+              fill="none"
+              strokeLinecap="round"
+            />
+            <path
+              d="M10 50 Q5 30 20 20 Q30 15 35 25"
+              stroke="#8B7355"
+              strokeWidth="5"
+              fill="none"
+              strokeLinecap="round"
+            />
             <ellipse cx="22" cy="56" rx="8" ry="5" fill="#8B7355" />
             <ellipse cx="48" cy="58" rx="8" ry="5" fill="#8B7355" />
           </g>
@@ -417,8 +580,22 @@ export function PorsukCat() {
           // Stretching pose - body elongated, butt up
           <g transform="translate(5, 5)">
             <ellipse cx="40" cy="55" rx="30" ry="12" fill="#8B7355" />
-            <ellipse cx="40" cy="55" rx="30" ry="12" fill="url(#tabbyStripe)" opacity="0.45" />
-            <ellipse cx="40" cy="58" rx="20" ry="7" fill="#C4A882" opacity="0.65" />
+            <ellipse
+              cx="40"
+              cy="55"
+              rx="30"
+              ry="12"
+              fill="url(#tabbyStripe)"
+              opacity="0.45"
+            />
+            <ellipse
+              cx="40"
+              cy="58"
+              rx="20"
+              ry="7"
+              fill="#C4A882"
+              opacity="0.65"
+            />
             {/* Front paws stretched forward */}
             <ellipse cx="18" cy="65" rx="7" ry="4" fill="#7A6245" />
             <ellipse cx="28" cy="67" rx="7" ry="4" fill="#7A6245" />
@@ -427,7 +604,14 @@ export function PorsukCat() {
             <ellipse cx="65" cy="46" rx="7" ry="4" fill="#8B7355" />
             {/* Head low */}
             <ellipse cx="15" cy="48" rx="14" ry="12" fill="#8B7355" />
-            <ellipse cx="15" cy="48" rx="14" ry="12" fill="url(#tabbyStripe)" opacity="0.4" />
+            <ellipse
+              cx="15"
+              cy="48"
+              rx="14"
+              ry="12"
+              fill="url(#tabbyStripe)"
+              opacity="0.4"
+            />
             <polygon points="6,38 3,28 12,36" fill="#8B7355" />
             <polygon points="7,37 5,30 11,35" fill="#C47A7A" opacity="0.6" />
             <polygon points="22,36 25,26 18,35" fill="#8B7355" />
@@ -438,22 +622,62 @@ export function PorsukCat() {
             <ellipse cx="20" cy="47" rx="1.5" ry="3" fill="#1A1A1A" />
             <ellipse cx="15" cy="52" rx="2" ry="1.5" fill="#D4887A" />
             {/* Tail up */}
-            <path d="M72 50 Q82 35 75 20" stroke="#7A6245" strokeWidth="7" fill="none" strokeLinecap="round" />
-            <path d="M72 50 Q82 35 75 20" stroke="#8B7355" strokeWidth="5" fill="none" strokeLinecap="round" />
+            <path
+              d="M72 50 Q82 35 75 20"
+              stroke="#7A6245"
+              strokeWidth="7"
+              fill="none"
+              strokeLinecap="round"
+            />
+            <path
+              d="M72 50 Q82 35 75 20"
+              stroke="#8B7355"
+              strokeWidth="5"
+              fill="none"
+              strokeLinecap="round"
+            />
           </g>
-        ) : (isSitting || isGrooming) ? (
+        ) : isSitting || isGrooming ? (
           // Sitting pose
           <g transform="translate(5, 5)">
             <ellipse cx="40" cy="52" rx="22" ry="20" fill="#8B7355" />
-            <ellipse cx="40" cy="52" rx="22" ry="20" fill="url(#tabbyStripe)" opacity="0.45" />
-            <ellipse cx="40" cy="56" rx="14" ry="12" fill="#C4A882" opacity="0.65" />
+            <ellipse
+              cx="40"
+              cy="52"
+              rx="22"
+              ry="20"
+              fill="url(#tabbyStripe)"
+              opacity="0.45"
+            />
+            <ellipse
+              cx="40"
+              cy="56"
+              rx="14"
+              ry="12"
+              fill="#C4A882"
+              opacity="0.65"
+            />
             <ellipse cx="30" cy="68" rx="7" ry="5" fill="#8B7355" />
             <ellipse cx="50" cy="68" rx="7" ry="5" fill="#8B7355" />
             {isGrooming && (
-              <ellipse cx="55" cy="42" rx="6" ry="4" fill="#8B7355" transform="rotate(-30, 55, 42)" />
+              <ellipse
+                cx="55"
+                cy="42"
+                rx="6"
+                ry="4"
+                fill="#8B7355"
+                transform="rotate(-30, 55, 42)"
+              />
             )}
             <ellipse cx="40" cy="28" rx="18" ry="16" fill="#8B7355" />
-            <ellipse cx="40" cy="28" rx="18" ry="16" fill="url(#tabbyStripe)" opacity="0.4" />
+            <ellipse
+              cx="40"
+              cy="28"
+              rx="18"
+              ry="16"
+              fill="url(#tabbyStripe)"
+              opacity="0.4"
+            />
             <polygon points="26,16 22,4 34,14" fill="#8B7355" />
             <polygon points="27,15 24,6 33,13" fill="#C47A7A" opacity="0.6" />
             <polygon points="52,14 56,3 44,13" fill="#8B7355" />
@@ -468,64 +692,309 @@ export function PorsukCat() {
             {/* Angry eyebrows */}
             {mood === "angry" && (
               <>
-                <line x1="29" y1="22" x2="37" y2="24" stroke="#333" strokeWidth="1.5" />
-                <line x1="43" y1="24" x2="51" y2="22" stroke="#333" strokeWidth="1.5" />
+                <line
+                  x1="29"
+                  y1="22"
+                  x2="37"
+                  y2="24"
+                  stroke="#333"
+                  strokeWidth="1.5"
+                />
+                <line
+                  x1="43"
+                  y1="24"
+                  x2="51"
+                  y2="22"
+                  stroke="#333"
+                  strokeWidth="1.5"
+                />
               </>
             )}
             <ellipse cx="40" cy="33" rx="2.5" ry="2" fill="#D4887A" />
-            <path d="M38 35 Q40 37 42 35" stroke="#9A6655" strokeWidth="1" fill="none" />
-            <line x1="20" y1="32" x2="36" y2="33" stroke="white" strokeWidth="0.8" opacity="0.9" />
-            <line x1="20" y1="35" x2="36" y2="35" stroke="white" strokeWidth="0.8" opacity="0.9" />
-            <line x1="44" y1="33" x2="60" y2="32" stroke="white" strokeWidth="0.8" opacity="0.9" />
-            <line x1="44" y1="35" x2="60" y2="35" stroke="white" strokeWidth="0.8" opacity="0.9" />
-            <path d="M60 60 Q75 45 70 30" stroke="#7A6245" strokeWidth="7" fill="none" strokeLinecap="round" />
-            <path d="M60 60 Q75 45 70 30" stroke="#8B7355" strokeWidth="5" fill="none" strokeLinecap="round" />
+            <path
+              d="M38 35 Q40 37 42 35"
+              stroke="#9A6655"
+              strokeWidth="1"
+              fill="none"
+            />
+            <line
+              x1="20"
+              y1="32"
+              x2="36"
+              y2="33"
+              stroke="white"
+              strokeWidth="0.8"
+              opacity="0.9"
+            />
+            <line
+              x1="20"
+              y1="35"
+              x2="36"
+              y2="35"
+              stroke="white"
+              strokeWidth="0.8"
+              opacity="0.9"
+            />
+            <line
+              x1="44"
+              y1="33"
+              x2="60"
+              y2="32"
+              stroke="white"
+              strokeWidth="0.8"
+              opacity="0.9"
+            />
+            <line
+              x1="44"
+              y1="35"
+              x2="60"
+              y2="35"
+              stroke="white"
+              strokeWidth="0.8"
+              opacity="0.9"
+            />
+            <path
+              d="M60 60 Q75 45 70 30"
+              stroke="#7A6245"
+              strokeWidth="7"
+              fill="none"
+              strokeLinecap="round"
+            />
+            <path
+              d="M60 60 Q75 45 70 30"
+              stroke="#8B7355"
+              strokeWidth="5"
+              fill="none"
+              strokeLinecap="round"
+            />
           </g>
         ) : (
           // Walking / running / jumping pose
           <g transform="translate(5, 5)">
-            <ellipse cx="42" cy={isJumping ? "42" : "48"} rx="24" ry="17" fill="#8B7355" />
-            <ellipse cx="42" cy={isJumping ? "42" : "48"} rx="24" ry="17" fill="url(#tabbyStripe)" opacity="0.45" />
-            <ellipse cx="42" cy={isJumping ? "46" : "52"} rx="14" ry="9" fill="#C4A882" opacity="0.65" />
-            <rect x="28" y={isJumping ? "52" : "58"} width="7" height={isJumping ? "10" : "14"} rx="3" fill="#8B7355" className="porsuk-leg-front" />
-            <rect x="48" y={isJumping ? "52" : "58"} width="7" height={isJumping ? "10" : "14"} rx="3" fill="#8B7355" className="porsuk-leg-back" />
-            <ellipse cx="31" cy={isJumping ? "63" : "72"} rx="5" ry="3.5" fill="#7A6245" />
-            <ellipse cx="51" cy={isJumping ? "63" : "72"} rx="5" ry="3.5" fill="#7A6245" />
-            <ellipse cx="62" cy={isJumping ? "24" : "28"} rx="17" ry="15" fill="#8B7355" />
-            <ellipse cx="62" cy={isJumping ? "24" : "28"} rx="17" ry="15" fill="url(#tabbyStripe)" opacity="0.4" />
+            <ellipse
+              cx="42"
+              cy={isJumping ? "42" : "48"}
+              rx="24"
+              ry="17"
+              fill="#8B7355"
+            />
+            <ellipse
+              cx="42"
+              cy={isJumping ? "42" : "48"}
+              rx="24"
+              ry="17"
+              fill="url(#tabbyStripe)"
+              opacity="0.45"
+            />
+            <ellipse
+              cx="42"
+              cy={isJumping ? "46" : "52"}
+              rx="14"
+              ry="9"
+              fill="#C4A882"
+              opacity="0.65"
+            />
+            <rect
+              x="28"
+              y={isJumping ? "52" : "58"}
+              width="7"
+              height={isJumping ? "10" : "14"}
+              rx="3"
+              fill="#8B7355"
+              className="porsuk-leg-front"
+            />
+            <rect
+              x="48"
+              y={isJumping ? "52" : "58"}
+              width="7"
+              height={isJumping ? "10" : "14"}
+              rx="3"
+              fill="#8B7355"
+              className="porsuk-leg-back"
+            />
+            <ellipse
+              cx="31"
+              cy={isJumping ? "63" : "72"}
+              rx="5"
+              ry="3.5"
+              fill="#7A6245"
+            />
+            <ellipse
+              cx="51"
+              cy={isJumping ? "63" : "72"}
+              rx="5"
+              ry="3.5"
+              fill="#7A6245"
+            />
+            <ellipse
+              cx="62"
+              cy={isJumping ? "24" : "28"}
+              rx="17"
+              ry="15"
+              fill="#8B7355"
+            />
+            <ellipse
+              cx="62"
+              cy={isJumping ? "24" : "28"}
+              rx="17"
+              ry="15"
+              fill="url(#tabbyStripe)"
+              opacity="0.4"
+            />
             <polygon points="50,16 46,4 57,14" fill="#8B7355" />
             <polygon points="51,15 48,6 56,13" fill="#C47A7A" opacity="0.6" />
             <polygon points="73,13 77,2 65,12" fill="#8B7355" />
             <polygon points="73,13 76,4 66,12" fill="#C47A7A" opacity="0.6" />
             {/* Eyes with mood color */}
-            <ellipse cx="56" cy={isJumping ? "23" : "27"} rx="4" ry="4.5" fill={eyeColor} />
-            <ellipse cx="56" cy={isJumping ? "23" : "27"} rx="2" ry="4" fill="#1A1A1A" />
-            <ellipse cx="69" cy={isJumping ? "23" : "27"} rx="4" ry="4.5" fill={eyeColor} />
-            <ellipse cx="69" cy={isJumping ? "23" : "27"} rx="2" ry="4" fill="#1A1A1A" />
-            <ellipse cx="55" cy={isJumping ? "22" : "26"} rx="1" ry="1" fill="white" />
-            <ellipse cx="68" cy={isJumping ? "22" : "26"} rx="1" ry="1" fill="white" />
+            <ellipse
+              cx="56"
+              cy={isJumping ? "23" : "27"}
+              rx="4"
+              ry="4.5"
+              fill={eyeColor}
+            />
+            <ellipse
+              cx="56"
+              cy={isJumping ? "23" : "27"}
+              rx="2"
+              ry="4"
+              fill="#1A1A1A"
+            />
+            <ellipse
+              cx="69"
+              cy={isJumping ? "23" : "27"}
+              rx="4"
+              ry="4.5"
+              fill={eyeColor}
+            />
+            <ellipse
+              cx="69"
+              cy={isJumping ? "23" : "27"}
+              rx="2"
+              ry="4"
+              fill="#1A1A1A"
+            />
+            <ellipse
+              cx="55"
+              cy={isJumping ? "22" : "26"}
+              rx="1"
+              ry="1"
+              fill="white"
+            />
+            <ellipse
+              cx="68"
+              cy={isJumping ? "22" : "26"}
+              rx="1"
+              ry="1"
+              fill="white"
+            />
             {/* Angry eyebrows */}
             {mood === "angry" && (
               <>
-                <line x1="52" y1={isJumping ? "18" : "22"} x2="60" y2={isJumping ? "20" : "24"} stroke="#333" strokeWidth="1.5" />
-                <line x1="65" y1={isJumping ? "20" : "24"} x2="73" y2={isJumping ? "18" : "22"} stroke="#333" strokeWidth="1.5" />
+                <line
+                  x1="52"
+                  y1={isJumping ? "18" : "22"}
+                  x2="60"
+                  y2={isJumping ? "20" : "24"}
+                  stroke="#333"
+                  strokeWidth="1.5"
+                />
+                <line
+                  x1="65"
+                  y1={isJumping ? "20" : "24"}
+                  x2="73"
+                  y2={isJumping ? "18" : "22"}
+                  stroke="#333"
+                  strokeWidth="1.5"
+                />
               </>
             )}
-            <ellipse cx="62" cy={isJumping ? "29" : "33"} rx="2.5" ry="2" fill="#D4887A" />
-            <path d={`M60 ${isJumping ? 31 : 35} Q62 ${isJumping ? 33 : 37} 64 ${isJumping ? 31 : 35}`} stroke="#9A6655" strokeWidth="1" fill="none" />
-            <line x1="42" y1={isJumping ? "31" : "32"} x2="58" y2={isJumping ? "32" : "33"} stroke="white" strokeWidth="0.8" opacity="0.9" />
-            <line x1="42" y1={isJumping ? "34" : "35"} x2="58" y2={isJumping ? "34" : "35"} stroke="white" strokeWidth="0.8" opacity="0.9" />
-            <line x1="66" y1={isJumping ? "32" : "33"} x2="82" y2={isJumping ? "31" : "32"} stroke="white" strokeWidth="0.8" opacity="0.9" />
-            <line x1="66" y1={isJumping ? "34" : "35"} x2="82" y2={isJumping ? "34" : "35"} stroke="white" strokeWidth="0.8" opacity="0.9" />
+            <ellipse
+              cx="62"
+              cy={isJumping ? "29" : "33"}
+              rx="2.5"
+              ry="2"
+              fill="#D4887A"
+            />
+            <path
+              d={`M60 ${isJumping ? 31 : 35} Q62 ${isJumping ? 33 : 37} 64 ${isJumping ? 31 : 35}`}
+              stroke="#9A6655"
+              strokeWidth="1"
+              fill="none"
+            />
+            <line
+              x1="42"
+              y1={isJumping ? "31" : "32"}
+              x2="58"
+              y2={isJumping ? "32" : "33"}
+              stroke="white"
+              strokeWidth="0.8"
+              opacity="0.9"
+            />
+            <line
+              x1="42"
+              y1={isJumping ? "34" : "35"}
+              x2="58"
+              y2={isJumping ? "34" : "35"}
+              stroke="white"
+              strokeWidth="0.8"
+              opacity="0.9"
+            />
+            <line
+              x1="66"
+              y1={isJumping ? "32" : "33"}
+              x2="82"
+              y2={isJumping ? "31" : "32"}
+              stroke="white"
+              strokeWidth="0.8"
+              opacity="0.9"
+            />
+            <line
+              x1="66"
+              y1={isJumping ? "34" : "35"}
+              x2="82"
+              y2={isJumping ? "34" : "35"}
+              stroke="white"
+              strokeWidth="0.8"
+              opacity="0.9"
+            />
             {/* Running speed lines */}
             {isRunning && (
               <>
-                <line x1="0" y1="40" x2="15" y2="40" stroke="#aaa" strokeWidth="1.5" opacity="0.5" />
-                <line x1="0" y1="50" x2="12" y2="50" stroke="#aaa" strokeWidth="1" opacity="0.4" />
+                <line
+                  x1="0"
+                  y1="40"
+                  x2="15"
+                  y2="40"
+                  stroke="#aaa"
+                  strokeWidth="1.5"
+                  opacity="0.5"
+                />
+                <line
+                  x1="0"
+                  y1="50"
+                  x2="12"
+                  y2="50"
+                  stroke="#aaa"
+                  strokeWidth="1"
+                  opacity="0.4"
+                />
               </>
             )}
-            <path d={isJumping ? "M20 40 Q5 25 15 10" : "M18 50 Q5 38 12 22"} stroke="#7A6245" strokeWidth="7" fill="none" strokeLinecap="round" />
-            <path d={isJumping ? "M20 40 Q5 25 15 10" : "M18 50 Q5 38 12 22"} stroke="#8B7355" strokeWidth="5" fill="none" strokeLinecap="round" />
+            <path
+              d={isJumping ? "M20 40 Q5 25 15 10" : "M18 50 Q5 38 12 22"}
+              stroke="#7A6245"
+              strokeWidth="7"
+              fill="none"
+              strokeLinecap="round"
+            />
+            <path
+              d={isJumping ? "M20 40 Q5 25 15 10" : "M18 50 Q5 38 12 22"}
+              stroke="#8B7355"
+              strokeWidth="5"
+              fill="none"
+              strokeLinecap="round"
+            />
           </g>
         )}
       </svg>

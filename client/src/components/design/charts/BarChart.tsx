@@ -24,16 +24,24 @@ function formatYTick(v: number): string {
   return `€${Math.round(v)}`;
 }
 
-export function BarChart({ groups, height, mobile = false, domainMax }: BarChartProps) {
-  const allValues = groups.flatMap((g) => g.bars.flatMap((b) => [b.value, b.max]));
+export function BarChart({
+  groups,
+  height,
+  mobile = false,
+  domainMax,
+}: BarChartProps) {
+  const allValues = groups.flatMap(g => g.bars.flatMap(b => [b.value, b.max]));
   const max = domainMax ?? Math.max(1, ...allValues);
 
-  const padTop    = mobile ? 24 : 32;
+  const padTop = mobile ? 24 : 32;
   const padBottom = 28;
-  const padLeft   = 44;
-  const innerH    = height - padTop - padBottom;
+  const padLeft = 44;
+  const innerH = height - padTop - padBottom;
 
-  const ticks = [0, 0.25, 0.5, 0.75, 1].map((t) => ({ frac: t, val: max * (1 - t) }));
+  const ticks = [0, 0.25, 0.5, 0.75, 1].map(t => ({
+    frac: t,
+    val: max * (1 - t),
+  }));
 
   return (
     <div style={{ width: "100%", overflow: "hidden" }}>
@@ -41,20 +49,29 @@ export function BarChart({ groups, height, mobile = false, domainMax }: BarChart
         {/* Y-axis labels + gridlines */}
         <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
           {ticks.map((t, i) => (
-            <div key={i} style={{
-              position: "absolute",
-              left: 0, right: 0,
-              top: padTop + t.frac * innerH,
-              borderTop: "1px dashed var(--border-faint)",
-              opacity: 0.6,
-            }}>
-              <span style={{
-                position: "absolute", left: 0, top: -7,
-                fontSize: 10, fontWeight: 500,
-                fontFamily: "var(--font-mono)",
-                color: "var(--text-muted)",
-                fontVariantNumeric: "tabular-nums",
-              }}>
+            <div
+              key={i}
+              style={{
+                position: "absolute",
+                left: 0,
+                right: 0,
+                top: padTop + t.frac * innerH,
+                borderTop: "1px dashed var(--border-faint)",
+                opacity: 0.6,
+              }}
+            >
+              <span
+                style={{
+                  position: "absolute",
+                  left: 0,
+                  top: -7,
+                  fontSize: 10,
+                  fontWeight: 500,
+                  fontFamily: "var(--font-mono)",
+                  color: "var(--text-muted)",
+                  fontVariantNumeric: "tabular-nums",
+                }}
+              >
                 {formatYTick(t.val)}
               </span>
             </div>
@@ -62,16 +79,31 @@ export function BarChart({ groups, height, mobile = false, domainMax }: BarChart
         </div>
 
         {/* Groups */}
-        <div style={{
-          position: "absolute",
-          left: padLeft, right: 0,
-          top: padTop, bottom: padBottom,
-          display: "flex",
-          alignItems: "flex-end",
-          gap: mobile ? 6 : 12,
-        }}>
+        <div
+          style={{
+            position: "absolute",
+            left: padLeft,
+            right: 0,
+            top: padTop,
+            bottom: padBottom,
+            display: "flex",
+            alignItems: "flex-end",
+            gap: mobile ? 6 : 12,
+          }}
+        >
           {groups.map((g, gi) => (
-            <div key={gi} style={{ flex: 1, display: "flex", alignItems: "flex-end", justifyContent: "center", gap: 4, height: "100%", position: "relative" }}>
+            <div
+              key={gi}
+              style={{
+                flex: 1,
+                display: "flex",
+                alignItems: "flex-end",
+                justifyContent: "center",
+                gap: 4,
+                height: "100%",
+                position: "relative",
+              }}
+            >
               {g.bars.map((b, bi) => {
                 const h = (b.value / max) * 100;
                 return (
@@ -94,20 +126,32 @@ export function BarChart({ groups, height, mobile = false, domainMax }: BarChart
         </div>
 
         {/* X-axis labels */}
-        <div style={{
-          position: "absolute",
-          left: padLeft, right: 0, bottom: 4,
-          display: "flex", gap: mobile ? 6 : 12,
-        }}>
+        <div
+          style={{
+            position: "absolute",
+            left: padLeft,
+            right: 0,
+            bottom: 4,
+            display: "flex",
+            gap: mobile ? 6 : 12,
+          }}
+        >
           {groups.map((g, gi) => {
             const isLast = gi === groups.length - 1;
             return (
-              <div key={gi} style={{
-                flex: 1, textAlign: "center",
-                fontSize: 10, fontWeight: isLast ? 700 : 600,
-                color: isLast ? "var(--text-secondary)" : "var(--text-muted)",
-                overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-              }}>
+              <div
+                key={gi}
+                style={{
+                  flex: 1,
+                  textAlign: "center",
+                  fontSize: 10,
+                  fontWeight: isLast ? 700 : 600,
+                  color: isLast ? "var(--text-secondary)" : "var(--text-muted)",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                }}
+              >
                 {g.label}
               </div>
             );

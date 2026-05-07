@@ -39,46 +39,52 @@ vi.mock("../drizzle/schema", () => ({
 vi.mock("./db", async () => {
   const HISTORY_MAX = 30;
 
-  const saveFamilyBudget = vi.fn(async (
-    familyId: string,
-    data: Record<string, string>,
-    expectedUpdatedAt: string | null,
-    savedBy: string | null = null
-  ) => {
-    // Simulate snapshot before save
-    const existing = snapshotStore.filter(s => s.familyId === familyId);
-    if (existing.length > 0 && expectedUpdatedAt !== null) {
-      // Save snapshot of previous state
-      const snap = {
-        id: nextId++,
-        familyId,
-        snapshot: JSON.stringify(data),
-        savedBy,
-        createdAt: new Date(),
-      };
-      snapshotStore.push(snap);
+  const saveFamilyBudget = vi.fn(
+    async (
+      familyId: string,
+      data: Record<string, string>,
+      expectedUpdatedAt: string | null,
+      savedBy: string | null = null
+    ) => {
+      // Simulate snapshot before save
+      const existing = snapshotStore.filter(s => s.familyId === familyId);
+      if (existing.length > 0 && expectedUpdatedAt !== null) {
+        // Save snapshot of previous state
+        const snap = {
+          id: nextId++,
+          familyId,
+          snapshot: JSON.stringify(data),
+          savedBy,
+          createdAt: new Date(),
+        };
+        snapshotStore.push(snap);
 
-      // Enforce max 30
-      const familySnaps = snapshotStore.filter(s => s.familyId === familyId);
-      if (familySnaps.length > HISTORY_MAX) {
-        const sorted = [...familySnaps].sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
-        const toDelete = sorted.slice(0, familySnaps.length - HISTORY_MAX);
-        snapshotStore = snapshotStore.filter(s => !toDelete.find(d => d.id === s.id));
+        // Enforce max 30
+        const familySnaps = snapshotStore.filter(s => s.familyId === familyId);
+        if (familySnaps.length > HISTORY_MAX) {
+          const sorted = [...familySnaps].sort(
+            (a, b) => a.createdAt.getTime() - b.createdAt.getTime()
+          );
+          const toDelete = sorted.slice(0, familySnaps.length - HISTORY_MAX);
+          snapshotStore = snapshotStore.filter(
+            s => !toDelete.find(d => d.id === s.id)
+          );
+        }
+      } else if (existing.length === 0) {
+        // First save — snapshot it
+        const snap = {
+          id: nextId++,
+          familyId,
+          snapshot: JSON.stringify(data),
+          savedBy,
+          createdAt: new Date(),
+        };
+        snapshotStore.push(snap);
       }
-    } else if (existing.length === 0) {
-      // First save — snapshot it
-      const snap = {
-        id: nextId++,
-        familyId,
-        snapshot: JSON.stringify(data),
-        savedBy,
-        createdAt: new Date(),
-      };
-      snapshotStore.push(snap);
-    }
 
-    return { updatedAt: new Date() };
-  });
+      return { updatedAt: new Date() };
+    }
+  );
 
   const listFamilyBudgetHistory = vi.fn(async (familyId: string) => {
     return snapshotStore
@@ -87,27 +93,33 @@ vi.mock("./db", async () => {
       .slice(0, 30);
   });
 
-  const getFamilyBudgetSnapshot = vi.fn(async (familyId: string, id: number) => {
-    const snap = snapshotStore.find(s => s.id === id);
-    if (!snap) return null;
-    if (snap.familyId !== familyId) return null;
-    return snap;
-  });
+  const getFamilyBudgetSnapshot = vi.fn(
+    async (familyId: string, id: number) => {
+      const snap = snapshotStore.find(s => s.id === id);
+      if (!snap) return null;
+      if (snap.familyId !== familyId) return null;
+      return snap;
+    }
+  );
 
   return { saveFamilyBudget, listFamilyBudgetHistory, getFamilyBudgetSnapshot };
 });
 
-import { saveFamilyBudget, listFamilyBudgetHistory, getFamilyBudgetSnapshot } from "./db";
+import {
+  saveFamilyBudget,
+  listFamilyBudgetHistory,
+  getFamilyBudgetSnapshot,
+} from "./db";
 
 const SAMPLE_DATA = {
-  incomes: '[]',
-  expenses: '[]',
-  debts: '[]',
-  savings: '[]',
-  annualPayments: '[]',
-  budgetLimits: '[]',
-  savingsGoals: '[]',
-  installments: '[]',
+  incomes: "[]",
+  expenses: "[]",
+  debts: "[]",
+  savings: "[]",
+  annualPayments: "[]",
+  budgetLimits: "[]",
+  savingsGoals: "[]",
+  installments: "[]",
 };
 
 describe("familyBudgetHistory", () => {
@@ -126,7 +138,12 @@ describe("familyBudgetHistory", () => {
     expect(after1.length).toBe(1);
 
     // Second save
-    await saveFamilyBudget(familyId, { ...SAMPLE_DATA, incomes: '[{"id":"1","amount":1000}]' }, new Date().toISOString(), "Arzu");
+    await saveFamilyBudget(
+      familyId,
+      { ...SAMPLE_DATA, incomes: '[{"id":"1","amount":1000}]' },
+      new Date().toISOString(),
+      "Arzu"
+    );
     const after2 = await listFamilyBudgetHistory(familyId);
     expect(after2.length).toBe(2);
   });
@@ -139,7 +156,12 @@ describe("familyBudgetHistory", () => {
 
     // 30 more saves (total 31 snapshots would be created)
     for (let i = 0; i < 30; i++) {
-      await saveFamilyBudget(familyId, SAMPLE_DATA, new Date().toISOString(), "Yigit");
+      await saveFamilyBudget(
+        familyId,
+        SAMPLE_DATA,
+        new Date().toISOString(),
+        "Yigit"
+      );
     }
 
     const history = await listFamilyBudgetHistory(familyId);
@@ -155,7 +177,12 @@ describe("familyBudgetHistory", () => {
     const countBefore = before.length;
 
     // Restore (which internally calls saveFamilyBudget again, creating another snapshot)
-    await saveFamilyBudget(familyId, SAMPLE_DATA, new Date().toISOString(), "Arzu");
+    await saveFamilyBudget(
+      familyId,
+      SAMPLE_DATA,
+      new Date().toISOString(),
+      "Arzu"
+    );
     const after = await listFamilyBudgetHistory(familyId);
 
     expect(after.length).toBeGreaterThan(countBefore);
@@ -210,7 +237,8 @@ function createFamilyContextForHistory(): TrpcContext {
 describe("familyBudget.history.restore — CONFLICT senaryosu", () => {
   it("eski expectedUpdatedAt ile restore reddedilir (CONFLICT)", async () => {
     // Mock getFamilyBudgetSnapshot to return a valid snapshot
-    const { getFamilyBudgetSnapshot: mockGetSnap, saveFamilyBudget: mockSave } = await import("./db");
+    const { getFamilyBudgetSnapshot: mockGetSnap, saveFamilyBudget: mockSave } =
+      await import("./db");
     vi.mocked(mockGetSnap).mockResolvedValueOnce({
       id: 1,
       familyId: "uk-family-budget-2026",
@@ -219,7 +247,10 @@ describe("familyBudget.history.restore — CONFLICT senaryosu", () => {
       createdAt: new Date(),
     });
     // saveFamilyBudget returns CONFLICT
-    vi.mocked(mockSave).mockResolvedValueOnce({ conflict: true, serverUpdatedAt: new Date() });
+    vi.mocked(mockSave).mockResolvedValueOnce({
+      conflict: true,
+      serverUpdatedAt: new Date(),
+    });
 
     const ctx = createFamilyContextForHistory();
     const caller = appRouter.createCaller(ctx);

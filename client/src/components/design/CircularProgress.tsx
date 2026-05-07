@@ -15,9 +15,9 @@ interface CircularProgressProps {
 }
 
 function deriveColor(progress: number): string {
-  if (progress > 1)    return "var(--status-danger)";
+  if (progress > 1) return "var(--status-danger)";
   if (progress >= 0.95) return "var(--status-danger)";
-  if (progress >= 0.7)  return "var(--status-warning)";
+  if (progress >= 0.7) return "var(--status-warning)";
   return "var(--status-success)";
 }
 
@@ -48,7 +48,14 @@ export function CircularProgress({
   const dashOffset = circ - Math.min(1, animated) * circ;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: 10,
+      }}
+    >
       <div style={{ position: "relative", width: size, height: size }}>
         <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
           {/* Track */}
@@ -71,7 +78,10 @@ export function CircularProgress({
             fill="none"
             strokeDasharray={circ}
             strokeDashoffset={dashOffset}
-            style={{ transition: "stroke-dashoffset 800ms cubic-bezier(0.2, 0, 0, 1), stroke 300ms" }}
+            style={{
+              transition:
+                "stroke-dashoffset 800ms cubic-bezier(0.2, 0, 0, 1), stroke 300ms",
+            }}
           />
         </svg>
         <div
@@ -84,7 +94,9 @@ export function CircularProgress({
             justifyContent: "center",
           }}
         >
-          <div style={{ fontSize: Math.round(size * 0.32), lineHeight: 1 }}>{emoji}</div>
+          <div style={{ fontSize: Math.round(size * 0.32), lineHeight: 1 }}>
+            {emoji}
+          </div>
           <div
             className="hero-num"
             style={{
@@ -100,8 +112,19 @@ export function CircularProgress({
       </div>
 
       <div style={{ textAlign: "center", maxWidth: size + 40 }}>
-        <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)" }}>{label}</div>
-        <div className="hero-num" style={{ fontSize: 12, color: "var(--text-tertiary)", marginTop: 2 }}>
+        <div
+          style={{
+            fontSize: 14,
+            fontWeight: 600,
+            color: "var(--text-primary)",
+          }}
+        >
+          {label}
+        </div>
+        <div
+          className="hero-num"
+          style={{ fontSize: 12, color: "var(--text-tertiary)", marginTop: 2 }}
+        >
           {formatMoney(value)} / {formatMoney(max)}
         </div>
         <div
@@ -113,8 +136,8 @@ export function CircularProgress({
             color: isOver
               ? "var(--status-danger)"
               : progress >= 0.95
-              ? "var(--status-warning)"
-              : "var(--accent-green)",
+                ? "var(--status-warning)"
+                : "var(--accent-green)",
           }}
         >
           {isOver

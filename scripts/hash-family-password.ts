@@ -6,28 +6,41 @@
  * The hash algorithm MUST match server/auth/familyAuth.ts → hashPassword()
  * which uses HMAC-SHA256 with salt "viyana-family-salt-2026".
  */
-import { createHmac } from 'crypto';
-import { createInterface } from 'readline';
+import { createHmac } from "crypto";
+import { createInterface } from "readline";
 
-const PASSWORD_SALT = 'viyana-family-salt-2026';
+const PASSWORD_SALT = "viyana-family-salt-2026";
 
 const plaintext = process.argv[2];
 
 if (!plaintext) {
-  console.error('Kullanım: pnpm tsx scripts/hash-family-password.ts <şifre>');
+  console.error("Kullanım: pnpm tsx scripts/hash-family-password.ts <şifre>");
   process.exit(1);
 }
 
 // ─── Weak-password detection ─────────────────────────────────────────────────
 
-const BANNED_SUBSTRINGS = ['viyana', 'vienna', 'budget', 'family', 'password', '123'];
+const BANNED_SUBSTRINGS = [
+  "viyana",
+  "vienna",
+  "budget",
+  "family",
+  "password",
+  "123",
+];
 
 function isWeak(pw: string): { weak: boolean; reason: string } {
   if (pw.length < 12) {
-    return { weak: true, reason: `Çok kısa (${pw.length} karakter) — en az 12 karakter önerilir` };
+    return {
+      weak: true,
+      reason: `Çok kısa (${pw.length} karakter) — en az 12 karakter önerilir`,
+    };
   }
   if (/^[a-zA-Z0-9]+$/.test(pw)) {
-    return { weak: true, reason: 'Yalnızca harf ve rakam içeriyor — özel karakter ekleyin' };
+    return {
+      weak: true,
+      reason: "Yalnızca harf ve rakam içeriyor — özel karakter ekleyin",
+    };
   }
   const lower = pw.toLowerCase();
   for (const sub of BANNED_SUBSTRINGS) {
@@ -35,7 +48,7 @@ function isWeak(pw: string): { weak: boolean; reason: string } {
       return { weak: true, reason: `Yaygın kelime içeriyor: "${sub}"` };
     }
   }
-  return { weak: false, reason: '' };
+  return { weak: false, reason: "" };
 }
 
 async function confirmWeak(reason: string): Promise<boolean> {
@@ -43,11 +56,11 @@ async function confirmWeak(reason: string): Promise<boolean> {
   return new Promise(resolve => {
     process.stderr.write(
       `\x1b[31m⚠️  Zayıf şifre uyarısı: ${reason}\x1b[0m\n` +
-      `Yine de devam etmek istiyor musunuz? [evet/hayır] `,
+        `Yine de devam etmek istiyor musunuz? [evet/hayır] `
     );
-    rl.question('', answer => {
+    rl.question("", answer => {
       rl.close();
-      resolve(answer.trim().toLowerCase() === 'evet');
+      resolve(answer.trim().toLowerCase() === "evet");
     });
   });
 }
@@ -57,12 +70,14 @@ async function main() {
   if (check.weak) {
     const confirmed = await confirmWeak(check.reason);
     if (!confirmed) {
-      console.error('İptal edildi.');
+      console.error("İptal edildi.");
       process.exit(1);
     }
   }
 
-  const hash = createHmac('sha256', PASSWORD_SALT).update(plaintext).digest('hex');
+  const hash = createHmac("sha256", PASSWORD_SALT)
+    .update(plaintext)
+    .digest("hex");
   console.log(hash);
 }
 
