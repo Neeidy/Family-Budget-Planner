@@ -8,16 +8,15 @@ import {
   Avatar,
   OwnerCard,
   SummaryCard,
-  PersonFilterChips,
   CategoryPill,
   QuickStatsPill,
   HealthBubble,
   TodaySummaryStripCompact,
 } from "@/components/design";
-import type { AvatarWho, FilterValue } from "@/components/design";
+import type { AvatarWho } from "@/components/design";
 import { TrendingUp, TrendingDown, ArrowRight } from "lucide-react";
 import { formatMoney, formatMoneyShort } from "@/lib/format";
-import { FILTER_TO_LOCAL, LOCAL_TO_FILTER, applyPersonFilter } from "@/lib/personFilter";
+import { applyPersonFilter } from "@/lib/personFilter";
 
 // ── Bütçe Sağlık Skoru (preserved scoring logic, used by HealthBubble) ──
 function calcHealthScore(params: {
@@ -72,7 +71,7 @@ const DESIGN_FILTER: Record<string, DesignFilter> = {
 export function Dashboard() {
   const { budgetData, calculateTotals } = useBudget();
   const { person1Name, person2Name, currentPerson } = usePerson();
-  const { filter, setFilter } = usePersonFilter();
+  const { filter } = usePersonFilter();
   const [, setLocation] = useLocation();
   const isMobile = useIsMobile();
   const mobile = !!isMobile;
@@ -157,9 +156,7 @@ export function Dashboard() {
 
   const isEmpty = budgetData.incomes.length === 0 && budgetData.expenses.length === 0;
 
-  // Map filter values for design-ref components
-  const fazBFilter: FilterValue = LOCAL_TO_FILTER[filter];
-  const handleFilterChange = (v: FilterValue) => setFilter(FILTER_TO_LOCAL[v]);
+  // Map filter value for design-ref components (controlled by global PersonFilterChips in DashboardLayout)
   const designFilter: DesignFilter = DESIGN_FILTER[filter] ?? "tumu";
 
   const goRapor = () => setLocation("/raporlar");
@@ -179,12 +176,6 @@ export function Dashboard() {
           <span style={{ verticalAlign: "middle", marginLeft: 4 }}>{activeName} olarak görüntüleniyor</span>
         </div>
       </div>
-
-      {/* Person filter (preserved — controls all derived data) */}
-      <PersonFilterChips value={fazBFilter} onChange={handleFilterChange} labels={{
-        yigit: person1Name,
-        arzu:  person2Name,
-      }} />
 
       {/* QUICK STATS PILL — page-ana.jsx:57-62 */}
       <QuickStatsPill
