@@ -20,8 +20,11 @@ interface PersonContextType {
 
 // Display names are stored in localStorage (labels only, not auth)
 const NAMES_STORAGE_KEY = 'uk_ailesi_names';
-const DEFAULT_PERSON1 = 'Yigit';
-const DEFAULT_PERSON2 = 'Arzu';
+const isDemoHost = typeof window !== 'undefined'
+  && window.location.hostname === 'demo.aileplan.uk';
+// Demo subdomain shows the showcase couple instead of the real family names.
+const DEFAULT_PERSON1 = isDemoHost ? 'Kerem'  : 'Yigit';
+const DEFAULT_PERSON2 = isDemoHost ? 'Yağmur' : 'Arzu';
 
 const PersonContext = createContext<PersonContextType | null>(null);
 
