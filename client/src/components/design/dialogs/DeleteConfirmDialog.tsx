@@ -8,7 +8,13 @@ interface DeleteConfirmDialogProps {
   description?: string;
 }
 
-export function DeleteConfirmDialog({ open, onClose, onConfirm, label, description }: DeleteConfirmDialogProps) {
+export function DeleteConfirmDialog({
+  open,
+  onClose,
+  onConfirm,
+  label,
+  description,
+}: DeleteConfirmDialogProps) {
   return (
     <DialogShell
       open={open}
@@ -18,13 +24,26 @@ export function DeleteConfirmDialog({ open, onClose, onConfirm, label, descripti
       footer={
         <>
           <CancelButton onClick={onClose} />
-          <DangerButton onClick={() => { onConfirm(); onClose(); }}>Sil</DangerButton>
+          <DangerButton
+            onClick={() => {
+              onConfirm();
+              onClose();
+            }}
+          >
+            Sil
+          </DangerButton>
         </>
       }
     >
-      <div style={{ fontSize: 14, color: "var(--text-secondary)", lineHeight: 1.5 }}>
-        <strong style={{ color: "var(--text-primary)" }}>{label}</strong> kalıcı olarak silinecek.{" "}
-        {description ? <>{description} </> : null}
+      <div
+        style={{
+          fontSize: 14,
+          color: "var(--text-secondary)",
+          lineHeight: 1.5,
+        }}
+      >
+        <strong style={{ color: "var(--text-primary)" }}>{label}</strong> kalıcı
+        olarak silinecek. {description ? <>{description} </> : null}
         Bu işlem geri alınamaz, ancak son silme Ctrl+Z ile geri alınabilir.
       </div>
     </DialogShell>

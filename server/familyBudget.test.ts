@@ -53,7 +53,17 @@ function createUnauthContext(): TrpcContext {
 const mockFamilyBudgetRow = {
   id: 1,
   familyId: "uk-family-budget-2026",
-  incomes: JSON.stringify([{ id: "1", name: "Salary", planned: 5000, actual: 5000, owner: "Benim", date: "2026-01-01", notes: "" }]),
+  incomes: JSON.stringify([
+    {
+      id: "1",
+      name: "Salary",
+      planned: 5000,
+      actual: 5000,
+      owner: "Benim",
+      date: "2026-01-01",
+      notes: "",
+    },
+  ]),
   expenses: JSON.stringify([]),
   debts: JSON.stringify([]),
   savings: JSON.stringify([]),
@@ -88,7 +98,9 @@ describe("familyBudget router — existing tests", () => {
 
   it("familyBudget.get rejects unauthenticated callers", async () => {
     const caller = appRouter.createCaller(createUnauthContext());
-    await expect(caller.familyBudget.get()).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+    await expect(caller.familyBudget.get()).rejects.toMatchObject({
+      code: "UNAUTHORIZED",
+    });
   });
 
   it("familyBudget.save rejects unauthenticated callers", async () => {
@@ -196,7 +208,9 @@ describe("familyBudget.save — optimistic locking (Dalga 2)", () => {
   });
 
   it("first save (DB empty) with expectedUpdatedAt: null succeeds", async () => {
-    vi.mocked(saveFamilyBudget).mockResolvedValue({ updatedAt: new Date("2026-01-01T00:00:00.000Z") });
+    vi.mocked(saveFamilyBudget).mockResolvedValue({
+      updatedAt: new Date("2026-01-01T00:00:00.000Z"),
+    });
 
     const ctx = createFamilyContext();
     const caller = appRouter.createCaller(ctx);

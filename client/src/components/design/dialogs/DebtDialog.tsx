@@ -2,7 +2,15 @@ import { useEffect, useState } from "react";
 import { useBudget } from "@/contexts/BudgetContext";
 import { usePerson } from "@/contexts/PersonContext";
 import type { Debt } from "@/hooks/useBudgetData";
-import { DialogShell, Field, TextInput, TextAreaInput, RadioRow, CancelButton, PrimaryButton } from "./DialogShell";
+import {
+  DialogShell,
+  Field,
+  TextInput,
+  TextAreaInput,
+  RadioRow,
+  CancelButton,
+  PrimaryButton,
+} from "./DialogShell";
 
 interface DebtDialogProps {
   open: boolean;
@@ -25,8 +33,12 @@ export function DebtDialog({ open, onClose, entity }: DebtDialogProps) {
   const [totalDebt, setTotalDebt] = useState("");
   const [monthlyPayment, setMonthlyPayment] = useState("");
   const [dueDate, setDueDate] = useState(todayPlusYearISO());
-  const [status, setStatus] = useState<"Odendi" | "Bekliyor" | "Gecikti">("Bekliyor");
-  const [owner, setOwner] = useState<"Benim" | "Esim" | "Ev">((currentPerson as "Benim" | "Esim" | null) ?? "Ev");
+  const [status, setStatus] = useState<"Odendi" | "Bekliyor" | "Gecikti">(
+    "Bekliyor"
+  );
+  const [owner, setOwner] = useState<"Benim" | "Esim" | "Ev">(
+    (currentPerson as "Benim" | "Esim" | null) ?? "Ev"
+  );
   const [notes, setNotes] = useState("");
 
   useEffect(() => {
@@ -52,7 +64,12 @@ export function DebtDialog({ open, onClose, entity }: DebtDialogProps) {
 
   const numTotal = parseFloat(totalDebt.replace(",", "."));
   const numMonthly = parseFloat(monthlyPayment.replace(",", "."));
-  const valid = name.trim().length > 0 && Number.isFinite(numTotal) && numTotal > 0 && Number.isFinite(numMonthly) && numMonthly > 0;
+  const valid =
+    name.trim().length > 0 &&
+    Number.isFinite(numTotal) &&
+    numTotal > 0 &&
+    Number.isFinite(numMonthly) &&
+    numMonthly > 0;
 
   const handleSave = () => {
     if (!valid) return;
@@ -75,10 +92,22 @@ export function DebtDialog({ open, onClose, entity }: DebtDialogProps) {
       open={open}
       onClose={onClose}
       title={isEdit ? "Borcu Düzenle" : "Yeni Borç Ekle"}
-      footer={<><CancelButton onClick={onClose} /><PrimaryButton onClick={handleSave} disabled={!valid}>Kaydet</PrimaryButton></>}
+      footer={
+        <>
+          <CancelButton onClick={onClose} />
+          <PrimaryButton onClick={handleSave} disabled={!valid}>
+            Kaydet
+          </PrimaryButton>
+        </>
+      }
     >
       <Field label="Borç Adı">
-        <TextInput value={name} onChange={setName} placeholder="Örn. Kredi Kartı" autoFocus />
+        <TextInput
+          value={name}
+          onChange={setName}
+          placeholder="Örn. Kredi Kartı"
+          autoFocus
+        />
       </Field>
       <Field label="Kişi">
         <RadioRow
@@ -86,17 +115,33 @@ export function DebtDialog({ open, onClose, entity }: DebtDialogProps) {
           onChange={setOwner}
           options={[
             { value: "Benim", label: person1Name },
-            { value: "Esim",  label: person2Name },
-            { value: "Ev",    label: "Ev" },
+            { value: "Esim", label: person2Name },
+            { value: "Ev", label: "Ev" },
           ]}
         />
       </Field>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
         <Field label="Toplam Tutar">
-          <TextInput value={totalDebt} onChange={setTotalDebt} prefix="€" placeholder="0,00" type="number" step="0.01" min={0} />
+          <TextInput
+            value={totalDebt}
+            onChange={setTotalDebt}
+            prefix="€"
+            placeholder="0,00"
+            type="number"
+            step="0.01"
+            min={0}
+          />
         </Field>
         <Field label="Aylık Ödeme">
-          <TextInput value={monthlyPayment} onChange={setMonthlyPayment} prefix="€" placeholder="0,00" type="number" step="0.01" min={0} />
+          <TextInput
+            value={monthlyPayment}
+            onChange={setMonthlyPayment}
+            prefix="€"
+            placeholder="0,00"
+            type="number"
+            step="0.01"
+            min={0}
+          />
         </Field>
       </div>
       <Field label="Vade">
@@ -107,14 +152,18 @@ export function DebtDialog({ open, onClose, entity }: DebtDialogProps) {
           value={status}
           onChange={setStatus}
           options={[
-            { value: "Odendi",   label: "Ödendi"   },
+            { value: "Odendi", label: "Ödendi" },
             { value: "Bekliyor", label: "Bekliyor" },
-            { value: "Gecikti",  label: "Gecikti"  },
+            { value: "Gecikti", label: "Gecikti" },
           ]}
         />
       </Field>
       <Field label="Notlar (opsiyonel)">
-        <TextAreaInput value={notes} onChange={setNotes} placeholder="Ek bilgi…" />
+        <TextAreaInput
+          value={notes}
+          onChange={setNotes}
+          placeholder="Ek bilgi…"
+        />
       </Field>
     </DialogShell>
   );

@@ -4,7 +4,12 @@ import { Plus, Trash2, Pencil } from "lucide-react";
 import { useBudget } from "@/contexts/BudgetContext";
 import { usePersonFilter } from "@/contexts/PersonFilterContext";
 import { useIsMobile } from "@/hooks/useMobile";
-import { Avatar, EmptyState, GoalDialog, DeleteConfirmDialog } from "@/components/design";
+import {
+  Avatar,
+  EmptyState,
+  GoalDialog,
+  DeleteConfirmDialog,
+} from "@/components/design";
 import type { AvatarWho } from "@/components/design";
 import { formatMoney, formatMoneyShort } from "@/lib/format";
 import { applyPersonFilter } from "@/lib/personFilter";
@@ -15,32 +20,54 @@ type StatusFilter = "Aktif" | "Tamamlanan" | "Tümü";
 
 function ownerToWho(o: string): AvatarWho {
   if (o === "Benim") return "yigit";
-  if (o === "Esim")  return "arzu";
+  if (o === "Esim") return "arzu";
   return "ev";
 }
 
 function ownerLabel(o: string): string {
   if (o === "Benim") return "Yigit";
-  if (o === "Esim")  return "Arzu";
+  if (o === "Esim") return "Arzu";
   return "Ortak";
 }
 
 function pickEmoji(name: string): string {
   const lower = name.toLocaleLowerCase("tr-TR");
-  if (lower.includes("tatil") || lower.includes("seyahat") || lower.includes("gez")) return "🌴";
-  if (lower.includes("acil")  || lower.includes("fon"))  return "🏥";
-  if (lower.includes("tele")  || lower.includes("phone")) return "📱";
-  if (lower.includes("ev")    || lower.includes("daire") || lower.includes("kira")) return "🏠";
-  if (lower.includes("araç")  || lower.includes("arac")  || lower.includes("oto") || lower.includes("car")) return "🚗";
-  if (lower.includes("eğit")  || lower.includes("egit")  || lower.includes("okul")) return "🎓";
-  if (lower.includes("düğün") || lower.includes("dugun") || lower.includes("evlilik")) return "💍";
+  if (
+    lower.includes("tatil") ||
+    lower.includes("seyahat") ||
+    lower.includes("gez")
+  )
+    return "🌴";
+  if (lower.includes("acil") || lower.includes("fon")) return "🏥";
+  if (lower.includes("tele") || lower.includes("phone")) return "📱";
+  if (lower.includes("ev") || lower.includes("daire") || lower.includes("kira"))
+    return "🏠";
+  if (
+    lower.includes("araç") ||
+    lower.includes("arac") ||
+    lower.includes("oto") ||
+    lower.includes("car")
+  )
+    return "🚗";
+  if (
+    lower.includes("eğit") ||
+    lower.includes("egit") ||
+    lower.includes("okul")
+  )
+    return "🎓";
+  if (
+    lower.includes("düğün") ||
+    lower.includes("dugun") ||
+    lower.includes("evlilik")
+  )
+    return "💍";
   if (lower.includes("mobil") || lower.includes("eşya")) return "🛋️";
   return "🎯";
 }
 
 function pickColor(owner: string): string {
   if (owner === "Benim") return "var(--owner-yigit)";
-  if (owner === "Esim")  return "var(--owner-arzu)";
+  if (owner === "Esim") return "var(--owner-arzu)";
   return "var(--accent-green)";
 }
 
@@ -48,24 +75,50 @@ function pickColor(owner: string): string {
 function PageHeader({ onAdd }: { onAdd: () => void }) {
   const dp = demoDisabledProps();
   return (
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12 }}>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "flex-start",
+        flexWrap: "wrap",
+        gap: 12,
+      }}
+    >
       <div>
-        <h1 style={{ fontSize: "clamp(1.5rem, 3.5vw, 2rem)", fontWeight: 700, letterSpacing: "-0.02em", margin: 0, color: "var(--text-primary)" }}>
+        <h1
+          style={{
+            fontSize: "clamp(1.5rem, 3.5vw, 2rem)",
+            fontWeight: 700,
+            letterSpacing: "-0.02em",
+            margin: 0,
+            color: "var(--text-primary)",
+          }}
+        >
           Birikim & Hedef
         </h1>
-        <p style={{ fontSize: 13, color: "var(--text-tertiary)", marginTop: 6 }}>
+        <p
+          style={{ fontSize: 13, color: "var(--text-tertiary)", marginTop: 6 }}
+        >
           Tasarruf hedeflerinizi takip edin ve birlikte ulaşın
         </p>
       </div>
       <button
-        type="button" onClick={onAdd}
+        type="button"
+        onClick={onAdd}
         disabled={dp.disabled}
         title={dp.title}
         style={{
-          display: "inline-flex", alignItems: "center", gap: 6,
-          padding: "10px 16px", borderRadius: "var(--r-md)",
-          fontSize: 13, fontWeight: 600, border: "none",
-          background: "var(--accent-green)", color: "oklch(0.15 0.03 155)", cursor: "pointer",
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 6,
+          padding: "10px 16px",
+          borderRadius: "var(--r-md)",
+          fontSize: 13,
+          fontWeight: 600,
+          border: "none",
+          background: "var(--accent-green)",
+          color: "oklch(0.15 0.03 155)",
+          cursor: "pointer",
           ...dp.style,
         }}
       >
@@ -77,31 +130,48 @@ function PageHeader({ onAdd }: { onAdd: () => void }) {
 }
 
 // ── StatusFilter chips ────────────────────────────────────────
-function StatusChips({ value, onChange, counts }: { value: StatusFilter; onChange: (v: StatusFilter) => void; counts: Record<StatusFilter, number> }) {
+function StatusChips({
+  value,
+  onChange,
+  counts,
+}: {
+  value: StatusFilter;
+  onChange: (v: StatusFilter) => void;
+  counts: Record<StatusFilter, number>;
+}) {
   const items: Array<{ key: StatusFilter; label: string }> = [
-    { key: "Aktif",      label: "Aktif" },
+    { key: "Aktif", label: "Aktif" },
     { key: "Tamamlanan", label: "Tamamlanan" },
-    { key: "Tümü",       label: "Tümü" },
+    { key: "Tümü", label: "Tümü" },
   ];
   return (
     <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-      {items.map((it) => {
+      {items.map(it => {
         const active = value === it.key;
         return (
           <button
-            key={it.key} type="button" onClick={() => onChange(it.key)}
+            key={it.key}
+            type="button"
+            onClick={() => onChange(it.key)}
             style={{
-              display: "inline-flex", alignItems: "center", gap: 6,
-              padding: "7px 14px", borderRadius: 999,
-              fontSize: 12, fontWeight: 600,
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "7px 14px",
+              borderRadius: 999,
+              fontSize: 12,
+              fontWeight: 600,
               border: active ? "none" : "1px solid var(--border-subtle)",
               background: active ? "var(--accent-green)" : "var(--bg-elevated)",
               color: active ? "oklch(0.15 0.03 155)" : "var(--text-secondary)",
-              cursor: "pointer", transition: "all 160ms",
+              cursor: "pointer",
+              transition: "all 160ms",
             }}
           >
             {it.label}
-            <span style={{ opacity: 0.7, fontVariantNumeric: "tabular-nums" }}>{counts[it.key]}</span>
+            <span style={{ opacity: 0.7, fontVariantNumeric: "tabular-nums" }}>
+              {counts[it.key]}
+            </span>
           </button>
         );
       })}
@@ -111,7 +181,12 @@ function StatusChips({ value, onChange, counts }: { value: StatusFilter; onChang
 
 // ── HeroCard — page-birikim.jsx:30-58 ─────────────────────────
 function HeroCard({
-  totalSaved, monthDelta, totalTarget, activeCount, avgPct, mobile,
+  totalSaved,
+  monthDelta,
+  totalTarget,
+  activeCount,
+  avgPct,
+  mobile,
 }: {
   totalSaved: number;
   monthDelta: number;
@@ -126,36 +201,112 @@ function HeroCard({
   const totalDecimals = decMatch?.[0] ?? ",00";
 
   return (
-    <div className="card" style={{
-      background: `linear-gradient(135deg, color-mix(in oklch, var(--accent-green) 16%, var(--bg-surface)), var(--bg-surface) 70%)`,
-      padding: mobile ? 24 : 32,
-      borderTop: "2px solid var(--accent-green)",
-      position: "relative",
-    }}>
-      <div style={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: mobile ? "flex-start" : "center",
-        flexDirection: mobile ? "column" : "row",
-        gap: mobile ? 12 : 0,
-      }}>
+    <div
+      className="card"
+      style={{
+        background: `linear-gradient(135deg, color-mix(in oklch, var(--accent-green) 16%, var(--bg-surface)), var(--bg-surface) 70%)`,
+        padding: mobile ? 24 : 32,
+        borderTop: "2px solid var(--accent-green)",
+        position: "relative",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: mobile ? "flex-start" : "center",
+          flexDirection: mobile ? "column" : "row",
+          gap: mobile ? 12 : 0,
+        }}
+      >
         <div>
           <div className="section-label">TOPLAM BİRİKİM</div>
-          <div className="tnum" style={{ fontSize: mobile ? 48 : 60, fontWeight: 700, letterSpacing: "-0.035em", marginTop: 8, lineHeight: 1 }}>
-            {totalMain}<span style={{ color: "var(--text-tertiary)", fontSize: "0.45em" }}>{totalDecimals}</span>
+          <div
+            className="tnum"
+            style={{
+              fontSize: mobile ? 48 : 60,
+              fontWeight: 700,
+              letterSpacing: "-0.035em",
+              marginTop: 8,
+              lineHeight: 1,
+            }}
+          >
+            {totalMain}
+            <span style={{ color: "var(--text-tertiary)", fontSize: "0.45em" }}>
+              {totalDecimals}
+            </span>
           </div>
-          <div style={{ fontSize: 13, color: "var(--text-tertiary)", marginTop: 8 }}>
-            {activeCount} aktif hedef • <span style={{ color: "var(--accent-green)", fontWeight: 600 }}>%{avgPct}</span> ortalama tamamlanma
+          <div
+            style={{
+              fontSize: 13,
+              color: "var(--text-tertiary)",
+              marginTop: 8,
+            }}
+          >
+            {activeCount} aktif hedef •{" "}
+            <span style={{ color: "var(--accent-green)", fontWeight: 600 }}>
+              %{avgPct}
+            </span>{" "}
+            ortalama tamamlanma
           </div>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
-          <div style={{ padding: 16, background: "var(--bg-elevated)", borderRadius: 14, minWidth: 110 }}>
-            <div style={{ fontSize: 10, fontWeight: 600, color: "var(--text-tertiary)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Bu Ay</div>
-            <div className="tnum" style={{ fontSize: 22, fontWeight: 700, marginTop: 4, color: "var(--accent-green)" }}>+{formatMoneyShort(monthDelta)}</div>
+          <div
+            style={{
+              padding: 16,
+              background: "var(--bg-elevated)",
+              borderRadius: 14,
+              minWidth: 110,
+            }}
+          >
+            <div
+              style={{
+                fontSize: 10,
+                fontWeight: 600,
+                color: "var(--text-tertiary)",
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+              }}
+            >
+              Bu Ay
+            </div>
+            <div
+              className="tnum"
+              style={{
+                fontSize: 22,
+                fontWeight: 700,
+                marginTop: 4,
+                color: "var(--accent-green)",
+              }}
+            >
+              +{formatMoneyShort(monthDelta)}
+            </div>
           </div>
-          <div style={{ padding: 16, background: "var(--bg-elevated)", borderRadius: 14, minWidth: 110 }}>
-            <div style={{ fontSize: 10, fontWeight: 600, color: "var(--text-tertiary)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Hedef</div>
-            <div className="tnum" style={{ fontSize: 22, fontWeight: 700, marginTop: 4 }}>{formatMoneyShort(totalTarget)}</div>
+          <div
+            style={{
+              padding: 16,
+              background: "var(--bg-elevated)",
+              borderRadius: 14,
+              minWidth: 110,
+            }}
+          >
+            <div
+              style={{
+                fontSize: 10,
+                fontWeight: 600,
+                color: "var(--text-tertiary)",
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+              }}
+            >
+              Hedef
+            </div>
+            <div
+              className="tnum"
+              style={{ fontSize: 22, fontWeight: 700, marginTop: 4 }}
+            >
+              {formatMoneyShort(totalTarget)}
+            </div>
           </div>
         </div>
       </div>
@@ -164,94 +315,249 @@ function HeroCard({
 }
 
 // ── GoalCard — page-birikim.jsx:73-144 ────────────────────────
-function GoalCard({ goal, mobile, onEdit, onDelete }: { goal: SavingsGoal; mobile: boolean; onEdit: () => void; onDelete: () => void }) {
-  const pct = goal.targetAmount > 0 ? Math.round((goal.currentAmount / goal.targetAmount) * 100) : 0;
+function GoalCard({
+  goal,
+  mobile,
+  onEdit,
+  onDelete,
+}: {
+  goal: SavingsGoal;
+  mobile: boolean;
+  onEdit: () => void;
+  onDelete: () => void;
+}) {
+  const pct =
+    goal.targetAmount > 0
+      ? Math.round((goal.currentAmount / goal.targetAmount) * 100)
+      : 0;
   const color = pickColor(goal.owner);
   const emoji = pickEmoji(goal.name);
   const targetDate = goal.targetDate ? new Date(goal.targetDate) : null;
-  const days = targetDate ? Math.max(0, Math.ceil((targetDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24))) : null;
+  const days = targetDate
+    ? Math.max(
+        0,
+        Math.ceil((targetDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+      )
+    : null;
 
   return (
-    <div className="card lift" style={{
-      position: "relative",
-      padding: mobile ? 20 : 24,
-      borderLeft: `3px solid ${color}`,
-      overflow: "hidden",
-    }}>
+    <div
+      className="card lift"
+      style={{
+        position: "relative",
+        padding: mobile ? 20 : 24,
+        borderLeft: `3px solid ${color}`,
+        overflow: "hidden",
+      }}
+    >
       {/* Soft halo */}
-      <div style={{
-        position: "absolute", top: -40, right: -40,
-        width: 160, height: 160, borderRadius: "50%",
-        background: `radial-gradient(circle, ${color}, transparent 70%)`,
-        opacity: 0.15,
-        pointerEvents: "none",
-      }}/>
+      <div
+        style={{
+          position: "absolute",
+          top: -40,
+          right: -40,
+          width: 160,
+          height: 160,
+          borderRadius: "50%",
+          background: `radial-gradient(circle, ${color}, transparent 70%)`,
+          opacity: 0.15,
+          pointerEvents: "none",
+        }}
+      />
 
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", position: "relative" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+          position: "relative",
+        }}
+      >
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{
-            width: 52, height: 52, borderRadius: 14,
-            background: `color-mix(in oklch, ${color} 18%, var(--bg-elevated))`,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 28,
-          }}>{emoji}</div>
+          <div
+            style={{
+              width: 52,
+              height: 52,
+              borderRadius: 14,
+              background: `color-mix(in oklch, ${color} 18%, var(--bg-elevated))`,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 28,
+            }}
+          >
+            {emoji}
+          </div>
           <div>
-            <div style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)" }}>{goal.name}</div>
-            <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 4 }}>
-              <Avatar who={ownerToWho(goal.owner)} size={18}/>
-              <span style={{ fontSize: 12, color: "var(--text-tertiary)" }}>{ownerLabel(goal.owner)}</span>
+            <div
+              style={{
+                fontSize: 16,
+                fontWeight: 700,
+                color: "var(--text-primary)",
+              }}
+            >
+              {goal.name}
+            </div>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                marginTop: 4,
+              }}
+            >
+              <Avatar who={ownerToWho(goal.owner)} size={18} />
+              <span style={{ fontSize: 12, color: "var(--text-tertiary)" }}>
+                {ownerLabel(goal.owner)}
+              </span>
             </div>
           </div>
         </div>
         <div style={{ textAlign: "right" }}>
-          <div className="tnum" style={{ fontSize: mobile ? 22 : 26, fontWeight: 700, letterSpacing: "-0.025em", color: "var(--text-primary)" }}>
+          <div
+            className="tnum"
+            style={{
+              fontSize: mobile ? 22 : 26,
+              fontWeight: 700,
+              letterSpacing: "-0.025em",
+              color: "var(--text-primary)",
+            }}
+          >
             {formatMoneyShort(goal.targetAmount)}
           </div>
-          <div className="tnum" style={{ fontSize: 12, color: "var(--text-tertiary)" }}>
+          <div
+            className="tnum"
+            style={{ fontSize: 12, color: "var(--text-tertiary)" }}
+          >
             {formatMoneyShort(goal.currentAmount)} biriktirildi
           </div>
         </div>
       </div>
 
       <div style={{ marginTop: 18 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-          <span style={{ fontSize: 11, color: "var(--text-tertiary)", fontWeight: 600 }}>İLERLEME</span>
-          <span className="tnum" style={{ fontSize: 13, fontWeight: 700, color }}>%{pct}</span>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: 6,
+          }}
+        >
+          <span
+            style={{
+              fontSize: 11,
+              color: "var(--text-tertiary)",
+              fontWeight: 600,
+            }}
+          >
+            İLERLEME
+          </span>
+          <span
+            className="tnum"
+            style={{ fontSize: 13, fontWeight: 700, color }}
+          >
+            %{pct}
+          </span>
         </div>
-        <div style={{ height: 10, background: "var(--bg-tint)", borderRadius: 999, overflow: "hidden" }}>
-          <div style={{
-            width: `${Math.min(100, pct)}%`,
-            height: "100%",
-            background: `linear-gradient(90deg, color-mix(in oklch, ${color} 50%, var(--accent-green)), ${color})`,
+        <div
+          style={{
+            height: 10,
+            background: "var(--bg-tint)",
             borderRadius: 999,
-            transition: "width 700ms cubic-bezier(0.2, 0, 0, 1)",
-          }} />
+            overflow: "hidden",
+          }}
+        >
+          <div
+            style={{
+              width: `${Math.min(100, pct)}%`,
+              height: "100%",
+              background: `linear-gradient(90deg, color-mix(in oklch, ${color} 50%, var(--accent-green)), ${color})`,
+              borderRadius: 999,
+              transition: "width 700ms cubic-bezier(0.2, 0, 0, 1)",
+            }}
+          />
         </div>
       </div>
 
-      <div style={{
-        marginTop: 16, paddingTop: 14,
-        borderTop: "1px solid var(--border-faint)",
-        display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8,
-      }}>
-        <div style={{ display: "flex", gap: 12, fontSize: 12, color: "var(--text-tertiary)", flexWrap: "wrap" }}>
+      <div
+        style={{
+          marginTop: 16,
+          paddingTop: 14,
+          borderTop: "1px solid var(--border-faint)",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: 8,
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            gap: 12,
+            fontSize: 12,
+            color: "var(--text-tertiary)",
+            flexWrap: "wrap",
+          }}
+        >
           {days !== null && days > 0 && (
-            <span>📅 <span style={{ color: "var(--text-secondary)", fontWeight: 600 }}>{days}</span> gün kaldı</span>
+            <span>
+              📅{" "}
+              <span style={{ color: "var(--text-secondary)", fontWeight: 600 }}>
+                {days}
+              </span>{" "}
+              gün kaldı
+            </span>
           )}
           {(days === null || days === 0) && <span>♾️ Sürekli</span>}
           {goal.monthlyAllocation > 0 && (
-            <span>💰 <span className="tnum" style={{ color: "var(--text-secondary)", fontWeight: 600 }}>{formatMoneyShort(goal.monthlyAllocation)}</span>/ay</span>
+            <span>
+              💰{" "}
+              <span
+                className="tnum"
+                style={{ color: "var(--text-secondary)", fontWeight: 600 }}
+              >
+                {formatMoneyShort(goal.monthlyAllocation)}
+              </span>
+              /ay
+            </span>
           )}
         </div>
         <div style={{ display: "flex", gap: 4 }}>
-          <button type="button" disabled={isDemoMode()}
-            title={isDemoMode() ? "Demo modunda düzenleme yapılamaz" : "Düzenle"} onClick={onEdit}
-            style={{ padding: 6, borderRadius: 6, border: "none", background: "transparent", cursor: "pointer", color: "var(--text-tertiary)", ...demoDisabledProps().style }}>
+          <button
+            type="button"
+            disabled={isDemoMode()}
+            title={
+              isDemoMode() ? "Demo modunda düzenleme yapılamaz" : "Düzenle"
+            }
+            onClick={onEdit}
+            style={{
+              padding: 6,
+              borderRadius: 6,
+              border: "none",
+              background: "transparent",
+              cursor: "pointer",
+              color: "var(--text-tertiary)",
+              ...demoDisabledProps().style,
+            }}
+          >
             <Pencil style={{ width: 14, height: 14 }} />
           </button>
-          <button type="button" disabled={isDemoMode()}
-            title={isDemoMode() ? "Demo modunda düzenleme yapılamaz" : "Sil"} onClick={onDelete}
-            style={{ padding: 6, borderRadius: 6, border: "none", background: "transparent", cursor: "pointer", color: "var(--status-danger)", ...demoDisabledProps().style }}>
+          <button
+            type="button"
+            disabled={isDemoMode()}
+            title={isDemoMode() ? "Demo modunda düzenleme yapılamaz" : "Sil"}
+            onClick={onDelete}
+            style={{
+              padding: 6,
+              borderRadius: 6,
+              border: "none",
+              background: "transparent",
+              cursor: "pointer",
+              color: "var(--status-danger)",
+              ...demoDisabledProps().style,
+            }}
+          >
             <Trash2 style={{ width: 14, height: 14 }} />
           </button>
         </div>
@@ -261,7 +567,13 @@ function GoalCard({ goal, mobile, onEdit, onDelete }: { goal: SavingsGoal; mobil
 }
 
 // ── NewGoalCard — page-birikim.jsx:146-183 ────────────────────
-function NewGoalCard({ onClick, mobile }: { onClick: () => void; mobile: boolean }) {
+function NewGoalCard({
+  onClick,
+  mobile,
+}: {
+  onClick: () => void;
+  mobile: boolean;
+}) {
   return (
     <button
       type="button"
@@ -272,34 +584,51 @@ function NewGoalCard({ onClick, mobile }: { onClick: () => void; mobile: boolean
         borderRadius: "var(--r-lg)",
         padding: mobile ? 24 : 36,
         cursor: "pointer",
-        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 10,
         color: "var(--text-tertiary)",
         fontFamily: "inherit",
         transition: "all 200ms",
         minHeight: 180,
       }}
-      onMouseEnter={(e) => {
+      onMouseEnter={e => {
         const el = e.currentTarget as HTMLButtonElement;
         el.style.borderColor = "var(--accent-green)";
         el.style.color = "var(--accent-green)";
         el.style.background = "var(--accent-green-soft)";
       }}
-      onMouseLeave={(e) => {
+      onMouseLeave={e => {
         const el = e.currentTarget as HTMLButtonElement;
         el.style.borderColor = "var(--border-subtle)";
         el.style.color = "var(--text-tertiary)";
         el.style.background = "transparent";
       }}
     >
-      <div style={{
-        width: 44, height: 44, borderRadius: 14,
-        background: "var(--bg-elevated)",
-        display: "flex", alignItems: "center", justifyContent: "center",
-      }}>
+      <div
+        style={{
+          width: 44,
+          height: 44,
+          borderRadius: 14,
+          background: "var(--bg-elevated)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
         <Plus style={{ width: 22, height: 22 }} />
       </div>
       <div style={{ fontSize: 14, fontWeight: 600 }}>Yeni Hedef Ekle</div>
-      <div style={{ fontSize: 12, color: "var(--text-muted)", textAlign: "center", maxWidth: 220 }}>
+      <div
+        style={{
+          fontSize: 12,
+          color: "var(--text-muted)",
+          textAlign: "center",
+          maxWidth: 220,
+        }}
+      >
         Tatil, ev, eğitim — birlikte planlayın
       </div>
     </button>
@@ -313,7 +642,10 @@ export default function Hedef() {
   const isMobile = useIsMobile();
   const mobile = !!isMobile;
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("Aktif");
-  const [goalDialog, setGoalDialog] = useState<{ open: boolean; entity?: SavingsGoal }>({ open: false });
+  const [goalDialog, setGoalDialog] = useState<{
+    open: boolean;
+    entity?: SavingsGoal;
+  }>({ open: false });
   const [goalDelete, setGoalDelete] = useState<SavingsGoal | null>(null);
 
   // Open dialog from MobileFAB QuickAdd via ?action= query param
@@ -327,45 +659,78 @@ export default function Hedef() {
     }
   }, [search, setLocation]);
 
-  const afterGlobal = useMemo(() => applyPersonFilter(budgetData.savingsGoals ?? [], filter), [budgetData.savingsGoals, filter]);
+  const afterGlobal = useMemo(
+    () => applyPersonFilter(budgetData.savingsGoals ?? [], filter),
+    [budgetData.savingsGoals, filter]
+  );
 
   const partition = useMemo(() => {
-    const aktif = afterGlobal.filter((g) => g.currentAmount < g.targetAmount);
-    const tamam = afterGlobal.filter((g) => g.currentAmount >= g.targetAmount);
+    const aktif = afterGlobal.filter(g => g.currentAmount < g.targetAmount);
+    const tamam = afterGlobal.filter(g => g.currentAmount >= g.targetAmount);
     return { aktif, tamam };
   }, [afterGlobal]);
 
   const counts: Record<StatusFilter, number> = {
-    Aktif:      partition.aktif.length,
+    Aktif: partition.aktif.length,
     Tamamlanan: partition.tamam.length,
-    Tümü:       afterGlobal.length,
+    Tümü: afterGlobal.length,
   };
 
   const visible = useMemo(() => {
-    if (statusFilter === "Aktif")      return partition.aktif;
+    if (statusFilter === "Aktif") return partition.aktif;
     if (statusFilter === "Tamamlanan") return partition.tamam;
     return afterGlobal;
   }, [statusFilter, partition, afterGlobal]);
 
   // Hero stats
-  const totalSaved   = afterGlobal.reduce((s, g) => s + g.currentAmount, 0);
-  const totalTarget  = afterGlobal.reduce((s, g) => s + g.targetAmount, 0);
-  const monthDelta   = afterGlobal.reduce((s, g) => s + (g.monthlyAllocation || 0), 0);
-  const activeCount  = partition.aktif.length;
-  const avgPct = afterGlobal.length === 0
-    ? 0
-    : Math.round(
-        afterGlobal.reduce((s, g) => s + (g.targetAmount > 0 ? Math.min(100, (g.currentAmount / g.targetAmount) * 100) : 0), 0) / afterGlobal.length,
-      );
+  const totalSaved = afterGlobal.reduce((s, g) => s + g.currentAmount, 0);
+  const totalTarget = afterGlobal.reduce((s, g) => s + g.targetAmount, 0);
+  const monthDelta = afterGlobal.reduce(
+    (s, g) => s + (g.monthlyAllocation || 0),
+    0
+  );
+  const activeCount = partition.aktif.length;
+  const avgPct =
+    afterGlobal.length === 0
+      ? 0
+      : Math.round(
+          afterGlobal.reduce(
+            (s, g) =>
+              s +
+              (g.targetAmount > 0
+                ? Math.min(100, (g.currentAmount / g.targetAmount) * 100)
+                : 0),
+            0
+          ) / afterGlobal.length
+        );
 
   const openAdd = () => setGoalDialog({ open: true });
 
   return (
-    <div className="fade-up" style={{ display: "flex", flexDirection: "column", gap: mobile ? 16 : 20 }}>
+    <div
+      className="fade-up"
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: mobile ? 16 : 20,
+      }}
+    >
       <PageHeader onAdd={openAdd} />
 
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
-        <StatusChips value={statusFilter} onChange={setStatusFilter} counts={counts} />
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: 12,
+        }}
+      >
+        <StatusChips
+          value={statusFilter}
+          onChange={setStatusFilter}
+          counts={counts}
+        />
       </div>
 
       {/* Hero card — TOPLAM BİRİKİM */}
@@ -392,12 +757,14 @@ export default function Hedef() {
           description="Filtreyi değiştirerek diğer hedefleri görebilirsiniz."
         />
       ) : (
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: mobile ? "1fr" : "repeat(2, 1fr)",
-          gap: 16,
-        }}>
-          {visible.map((g) => (
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: mobile ? "1fr" : "repeat(2, 1fr)",
+            gap: 16,
+          }}
+        >
+          {visible.map(g => (
             <GoalCard
               key={g.id}
               goal={g}

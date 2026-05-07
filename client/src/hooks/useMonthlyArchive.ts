@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { BudgetData } from './useBudgetData';
+import { useState, useEffect, useCallback } from "react";
+import { BudgetData } from "./useBudgetData";
 
 export interface MonthKey {
   year: number;
@@ -15,17 +15,27 @@ export interface ArchivedMonth {
   savedAt: string; // ISO timestamp
 }
 
-const ARCHIVE_KEY = 'viyana_month_archive';
-const TEMPLATES_KEY = 'viyana_recurring_templates';
-const UNDO_KEY = 'viyana_undo_stack';
+const ARCHIVE_KEY = "viyana_month_archive";
+const TEMPLATES_KEY = "viyana_recurring_templates";
+const UNDO_KEY = "viyana_undo_stack";
 
 const MONTH_NAMES = [
-  'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
-  'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'
+  "Ocak",
+  "Şubat",
+  "Mart",
+  "Nisan",
+  "Mayıs",
+  "Haziran",
+  "Temmuz",
+  "Ağustos",
+  "Eylül",
+  "Ekim",
+  "Kasım",
+  "Aralık",
 ];
 
 export function monthKeyString(year: number, month: number): string {
-  return `${year}-${String(month).padStart(2, '0')}`;
+  return `${year}-${String(month).padStart(2, "0")}`;
 }
 
 export function useMonthlyArchive() {
@@ -42,29 +52,37 @@ export function useMonthlyArchive() {
     }
   }, []);
 
-  const saveToArchive = useCallback((data: BudgetData, year: number, month: number) => {
-    const key = monthKeyString(year, month);
-    const entry: ArchivedMonth = {
-      key,
-      year,
-      month,
-      monthName: MONTH_NAMES[month - 1],
-      data,
-      savedAt: new Date().toISOString(),
-    };
+  const saveToArchive = useCallback(
+    (data: BudgetData, year: number, month: number) => {
+      const key = monthKeyString(year, month);
+      const entry: ArchivedMonth = {
+        key,
+        year,
+        month,
+        monthName: MONTH_NAMES[month - 1],
+        data,
+        savedAt: new Date().toISOString(),
+      };
 
-    setArchive(prev => {
-      const filtered = prev.filter(a => a.key !== key);
-      const updated = [...filtered, entry].sort((a, b) => b.key.localeCompare(a.key));
-      localStorage.setItem(ARCHIVE_KEY, JSON.stringify(updated));
-      return updated;
-    });
-  }, []);
+      setArchive(prev => {
+        const filtered = prev.filter(a => a.key !== key);
+        const updated = [...filtered, entry].sort((a, b) =>
+          b.key.localeCompare(a.key)
+        );
+        localStorage.setItem(ARCHIVE_KEY, JSON.stringify(updated));
+        return updated;
+      });
+    },
+    []
+  );
 
-  const getMonthData = useCallback((year: number, month: number): ArchivedMonth | null => {
-    const key = monthKeyString(year, month);
-    return archive.find(a => a.key === key) ?? null;
-  }, [archive]);
+  const getMonthData = useCallback(
+    (year: number, month: number): ArchivedMonth | null => {
+      const key = monthKeyString(year, month);
+      return archive.find(a => a.key === key) ?? null;
+    },
+    [archive]
+  );
 
   const deleteMonthArchive = useCallback((year: number, month: number) => {
     const key = monthKeyString(year, month);
@@ -82,12 +100,12 @@ export function useMonthlyArchive() {
 
 export interface RecurringTemplate {
   id: string;
-  type: 'income' | 'expense';
+  type: "income" | "expense";
   name: string;
   amount: number;
   category?: string;
   subcategory?: string;
-  owner: 'Benim' | 'Esim' | 'Ev';
+  owner: "Benim" | "Esim" | "Ev";
   notes?: string;
   enabled: boolean;
 }
@@ -111,7 +129,7 @@ export function useRecurringTemplates() {
     localStorage.setItem(TEMPLATES_KEY, JSON.stringify(updated));
   }, []);
 
-  const addTemplate = useCallback((t: Omit<RecurringTemplate, 'id'>) => {
+  const addTemplate = useCallback((t: Omit<RecurringTemplate, "id">) => {
     const newT: RecurringTemplate = { ...t, id: Date.now().toString() };
     setTemplates(prev => {
       const updated = [...prev, newT];
@@ -120,13 +138,16 @@ export function useRecurringTemplates() {
     });
   }, []);
 
-  const updateTemplate = useCallback((id: string, changes: Partial<RecurringTemplate>) => {
-    setTemplates(prev => {
-      const updated = prev.map(t => t.id === id ? { ...t, ...changes } : t);
-      localStorage.setItem(TEMPLATES_KEY, JSON.stringify(updated));
-      return updated;
-    });
-  }, []);
+  const updateTemplate = useCallback(
+    (id: string, changes: Partial<RecurringTemplate>) => {
+      setTemplates(prev => {
+        const updated = prev.map(t => (t.id === id ? { ...t, ...changes } : t));
+        localStorage.setItem(TEMPLATES_KEY, JSON.stringify(updated));
+        return updated;
+      });
+    },
+    []
+  );
 
   const deleteTemplate = useCallback((id: string) => {
     setTemplates(prev => {

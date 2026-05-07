@@ -2,19 +2,27 @@ import { useEffect, useState } from "react";
 import { useBudget } from "@/contexts/BudgetContext";
 import { usePerson } from "@/contexts/PersonContext";
 import type { Expense } from "@/hooks/useBudgetData";
-import { DialogShell, Field, TextInput, TextAreaInput, RadioRow, CancelButton, PrimaryButton } from "./DialogShell";
+import {
+  DialogShell,
+  Field,
+  TextInput,
+  TextAreaInput,
+  RadioRow,
+  CancelButton,
+  PrimaryButton,
+} from "./DialogShell";
 
 const CATEGORIES: { key: string; label: string; emoji: string }[] = [
-  { key: "Konut",      label: "Konut",      emoji: "🏠" },
-  { key: "Yiyecek",    label: "Yiyecek",    emoji: "🛒" },
-  { key: "Ulasim",     label: "Ulaşım",     emoji: "🚗" },
-  { key: "Saglik",     label: "Sağlık",     emoji: "⚕️" },
-  { key: "Eglence",    label: "Eğlence",    emoji: "🎬" },
-  { key: "Abonelik",   label: "Abonelik",   emoji: "📺" },
-  { key: "Giyim",      label: "Giyim",      emoji: "👕" },
-  { key: "Spor",       label: "Spor",       emoji: "⚽" },
-  { key: "Cocuk",      label: "Çocuk",      emoji: "👶" },
-  { key: "Diger",      label: "Diğer",      emoji: "📦" },
+  { key: "Konut", label: "Konut", emoji: "🏠" },
+  { key: "Yiyecek", label: "Yiyecek", emoji: "🛒" },
+  { key: "Ulasim", label: "Ulaşım", emoji: "🚗" },
+  { key: "Saglik", label: "Sağlık", emoji: "⚕️" },
+  { key: "Eglence", label: "Eğlence", emoji: "🎬" },
+  { key: "Abonelik", label: "Abonelik", emoji: "📺" },
+  { key: "Giyim", label: "Giyim", emoji: "👕" },
+  { key: "Spor", label: "Spor", emoji: "⚽" },
+  { key: "Cocuk", label: "Çocuk", emoji: "👶" },
+  { key: "Diger", label: "Diğer", emoji: "📦" },
 ];
 
 interface ExpenseDialogProps {
@@ -31,9 +39,15 @@ export function ExpenseDialog({ open, onClose, entity }: ExpenseDialogProps) {
   const [name, setName] = useState("");
   const [category, setCategory] = useState("Yiyecek");
   const [amount, setAmount] = useState("");
-  const [type, setType] = useState<"Sabit" | "Degisken" | "Borc" | "Birikim">("Degisken");
-  const [status, setStatus] = useState<"Odendi" | "Bekliyor" | "Gecikti">("Bekliyor");
-  const [owner, setOwner] = useState<"Ev" | "Benim" | "Esim">((currentPerson as "Benim" | "Esim" | null) ?? "Ev");
+  const [type, setType] = useState<"Sabit" | "Degisken" | "Borc" | "Birikim">(
+    "Degisken"
+  );
+  const [status, setStatus] = useState<"Odendi" | "Bekliyor" | "Gecikti">(
+    "Bekliyor"
+  );
+  const [owner, setOwner] = useState<"Ev" | "Benim" | "Esim">(
+    (currentPerson as "Benim" | "Esim" | null) ?? "Ev"
+  );
   const [paymentDay, setPaymentDay] = useState("");
   const [notes, setNotes] = useState("");
 
@@ -61,7 +75,8 @@ export function ExpenseDialog({ open, onClose, entity }: ExpenseDialogProps) {
   }, [open, entity, currentPerson]);
 
   const numAmount = parseFloat(amount.replace(",", "."));
-  const valid = name.trim().length > 0 && Number.isFinite(numAmount) && numAmount > 0;
+  const valid =
+    name.trim().length > 0 && Number.isFinite(numAmount) && numAmount > 0;
 
   const handleSave = () => {
     if (!valid) return;
@@ -86,7 +101,14 @@ export function ExpenseDialog({ open, onClose, entity }: ExpenseDialogProps) {
       onClose={onClose}
       title={isEdit ? "Gideri Düzenle" : "Yeni Gider Ekle"}
       width={540}
-      footer={<><CancelButton onClick={onClose} /><PrimaryButton onClick={handleSave} disabled={!valid}>Kaydet</PrimaryButton></>}
+      footer={
+        <>
+          <CancelButton onClick={onClose} />
+          <PrimaryButton onClick={handleSave} disabled={!valid}>
+            Kaydet
+          </PrimaryButton>
+        </>
+      }
     >
       <Field label="Kişi">
         <RadioRow
@@ -94,14 +116,14 @@ export function ExpenseDialog({ open, onClose, entity }: ExpenseDialogProps) {
           onChange={setOwner}
           options={[
             { value: "Benim", label: person1Name },
-            { value: "Esim",  label: person2Name },
-            { value: "Ev",    label: "Ev" },
+            { value: "Esim", label: person2Name },
+            { value: "Ev", label: "Ev" },
           ]}
         />
       </Field>
       <Field label="Kategori">
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-          {CATEGORIES.map((c) => {
+          {CATEGORIES.map(c => {
             const active = category === c.key;
             return (
               <button
@@ -109,13 +131,24 @@ export function ExpenseDialog({ open, onClose, entity }: ExpenseDialogProps) {
                 type="button"
                 onClick={() => setCategory(c.key)}
                 style={{
-                  display: "inline-flex", alignItems: "center", gap: 6,
-                  padding: "6px 12px", borderRadius: 999,
-                  fontSize: 12, fontWeight: 600,
-                  background: active ? "var(--accent-green)" : "var(--bg-elevated)",
-                  color: active ? "oklch(0.15 0.03 155)" : "var(--text-secondary)",
-                  border: "1px solid " + (active ? "transparent" : "var(--border-faint)"),
-                  cursor: "pointer", fontFamily: "inherit",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                  padding: "6px 12px",
+                  borderRadius: 999,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  background: active
+                    ? "var(--accent-green)"
+                    : "var(--bg-elevated)",
+                  color: active
+                    ? "oklch(0.15 0.03 155)"
+                    : "var(--text-secondary)",
+                  border:
+                    "1px solid " +
+                    (active ? "transparent" : "var(--border-faint)"),
+                  cursor: "pointer",
+                  fontFamily: "inherit",
                 }}
               >
                 <span>{c.emoji}</span>
@@ -126,7 +159,12 @@ export function ExpenseDialog({ open, onClose, entity }: ExpenseDialogProps) {
         </div>
       </Field>
       <Field label="Gider Adı">
-        <TextInput value={name} onChange={setName} placeholder="Örn. Market" autoFocus />
+        <TextInput
+          value={name}
+          onChange={setName}
+          placeholder="Örn. Market"
+          autoFocus
+        />
       </Field>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
         <Field label="Tip">
@@ -134,13 +172,21 @@ export function ExpenseDialog({ open, onClose, entity }: ExpenseDialogProps) {
             value={type}
             onChange={setType}
             options={[
-              { value: "Sabit",    label: "Sabit"    },
+              { value: "Sabit", label: "Sabit" },
               { value: "Degisken", label: "Değişken" },
             ]}
           />
         </Field>
         <Field label="Miktar">
-          <TextInput value={amount} onChange={setAmount} prefix="€" placeholder="0,00" type="number" step="0.01" min={0} />
+          <TextInput
+            value={amount}
+            onChange={setAmount}
+            prefix="€"
+            placeholder="0,00"
+            type="number"
+            step="0.01"
+            min={0}
+          />
         </Field>
       </div>
       <Field label="Durum">
@@ -148,17 +194,25 @@ export function ExpenseDialog({ open, onClose, entity }: ExpenseDialogProps) {
           value={status}
           onChange={setStatus}
           options={[
-            { value: "Odendi",   label: "Ödendi"   },
+            { value: "Odendi", label: "Ödendi" },
             { value: "Bekliyor", label: "Bekliyor" },
-            { value: "Gecikti",  label: "Gecikti"  },
+            { value: "Gecikti", label: "Gecikti" },
           ]}
         />
       </Field>
       <Field label="Ödeme Günü (opsiyonel)">
-        <TextInput value={paymentDay} onChange={setPaymentDay} placeholder="Örn. 15" />
+        <TextInput
+          value={paymentDay}
+          onChange={setPaymentDay}
+          placeholder="Örn. 15"
+        />
       </Field>
       <Field label="Notlar (opsiyonel)">
-        <TextAreaInput value={notes} onChange={setNotes} placeholder="Ek bilgi…" />
+        <TextAreaInput
+          value={notes}
+          onChange={setNotes}
+          placeholder="Ek bilgi…"
+        />
       </Field>
     </DialogShell>
   );

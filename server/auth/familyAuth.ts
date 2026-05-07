@@ -47,7 +47,9 @@ export function verifyPassword(plaintext: string): boolean {
  * Signs a JWT session token for the given family person.
  * Expires in 30 days.
  */
-export async function signFamilySession(payload: FamilySessionPayload): Promise<string> {
+export async function signFamilySession(
+  payload: FamilySessionPayload
+): Promise<string> {
   return new SignJWT({ person: payload.person })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
@@ -59,7 +61,9 @@ export async function signFamilySession(payload: FamilySessionPayload): Promise<
  * Verifies a JWT session token.
  * Returns the payload if valid, null if invalid or expired.
  */
-export async function verifyFamilySession(token: string): Promise<FamilySessionPayload | null> {
+export async function verifyFamilySession(
+  token: string
+): Promise<FamilySessionPayload | null> {
   try {
     const { payload } = await jwtVerify(token, getSecret());
     const person = payload.person as string;

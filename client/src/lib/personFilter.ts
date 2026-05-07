@@ -3,16 +3,16 @@ import type { FilterValue } from "@/components/design";
 
 // ── Filter ↔ FilterValue bridges ──
 export const FILTER_TO_LOCAL: Record<FilterValue, PersonFilter> = {
-  tumu:  "Tümü",
+  tumu: "Tümü",
   yigit: "Benim",
-  arzu:  "Esim",
-  ev:    "Ev",
+  arzu: "Esim",
+  ev: "Ev",
 };
 export const LOCAL_TO_FILTER: Record<PersonFilter, FilterValue> = {
-  "Tümü":  "tumu",
-  "Benim": "yigit",
-  "Esim":  "arzu",
-  "Ev":    "ev",
+  Tümü: "tumu",
+  Benim: "yigit",
+  Esim: "arzu",
+  Ev: "ev",
 };
 
 /**
@@ -22,8 +22,8 @@ export const LOCAL_TO_FILTER: Record<PersonFilter, FilterValue> = {
  */
 export function applyPersonFilter<T extends { owner?: string }>(
   items: T[],
-  filter: PersonFilter,
+  filter: PersonFilter
 ): T[] {
   if (filter === "Tümü") return items;
-  return items.filter((i) => i.owner === filter);
+  return items.filter(i => i.owner === filter);
 }

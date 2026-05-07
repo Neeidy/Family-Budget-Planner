@@ -34,7 +34,9 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 async function startServer() {
   // Bootstrap validation: family auth secrets are required
   if (!ENV.familyPasswordHash || !ENV.familyCookieSecret) {
-    console.error("[FATAL] FAMILY_PASSWORD_HASH ve FAMILY_COOKIE_SECRET .env'de zorunlu. Sunucu durduruluyor.");
+    console.error(
+      "[FATAL] FAMILY_PASSWORD_HASH ve FAMILY_COOKIE_SECRET .env'de zorunlu. Sunucu durduruluyor."
+    );
     process.exit(1);
   }
 
@@ -45,10 +47,12 @@ async function startServer() {
   app.set("trust proxy", 1);
 
   // Security headers
-  app.use(helmet({
-    contentSecurityPolicy: ENV.isProduction ? undefined : false,
-    crossOriginEmbedderPolicy: false,
-  }));
+  app.use(
+    helmet({
+      contentSecurityPolicy: ENV.isProduction ? undefined : false,
+      crossOriginEmbedderPolicy: false,
+    })
+  );
 
   // Body limit: 200KB max (was 50MB)
   app.use(express.json({ limit: "200kb" }));
@@ -84,9 +88,10 @@ async function startServer() {
   // tRPC context is created. Hostname check uses the X-Forwarded-Host
   // (set by Cloudflare tunnel) or req.hostname.
   app.use((req, _res, next) => {
-    const host = (req.headers["x-forwarded-host"] as string | undefined)
-      ?? req.hostname
-      ?? "";
+    const host =
+      (req.headers["x-forwarded-host"] as string | undefined) ??
+      req.hostname ??
+      "";
     (req as any).isGuestRequest = host.startsWith("demo.aileplan.uk");
     next();
   });

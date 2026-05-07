@@ -1,7 +1,14 @@
 import { eq, desc, asc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, budgetData, InsertBudgetData, familyBudget, familyBudgetHistory } from "../drizzle/schema";
-import { ENV } from './_core/env';
+import {
+  InsertUser,
+  users,
+  budgetData,
+  InsertBudgetData,
+  familyBudget,
+  familyBudgetHistory,
+} from "../drizzle/schema";
+import { ENV } from "./_core/env";
 
 const HISTORY_MAX = 30; // max snapshots per family
 
@@ -58,8 +65,8 @@ export async function upsertUser(user: InsertUser): Promise<void> {
       values.role = user.role;
       updateSet.role = user.role;
     } else if (user.openId === ENV.ownerOpenId) {
-      values.role = 'admin';
-      updateSet.role = 'admin';
+      values.role = "admin";
+      updateSet.role = "admin";
     }
 
     if (!values.lastSignedIn) {
@@ -86,7 +93,11 @@ export async function getUserByOpenId(openId: string) {
     return undefined;
   }
 
-  const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
+  const result = await db
+    .select()
+    .from(users)
+    .where(eq(users.openId, openId))
+    .limit(1);
 
   return result.length > 0 ? result[0] : undefined;
 }
@@ -96,16 +107,23 @@ export async function getBudgetData(userId: number) {
   const db = await getDb();
   if (!db) return undefined;
 
-  const result = await db.select().from(budgetData).where(eq(budgetData.userId, userId)).limit(1);
+  const result = await db
+    .select()
+    .from(budgetData)
+    .where(eq(budgetData.userId, userId))
+    .limit(1);
   return result.length > 0 ? result[0] : undefined;
 }
 
-export async function saveBudgetData(userId: number, data: Omit<InsertBudgetData, 'userId'>) {
+export async function saveBudgetData(
+  userId: number,
+  data: Omit<InsertBudgetData, "userId">
+) {
   const db = await getDb();
   if (!db) return undefined;
 
   const existing = await getBudgetData(userId);
-  
+
   if (existing) {
     await db.update(budgetData).set(data).where(eq(budgetData.userId, userId));
     return { ...existing, ...data };
@@ -120,7 +138,11 @@ export async function getFamilyBudget(familyId: string) {
   const db = await getDb();
   if (!db) return null;
 
-  const result = await db.select().from(familyBudget).where(eq(familyBudget.familyId, familyId)).limit(1);
+  const result = await db
+    .select()
+    .from(familyBudget)
+    .where(eq(familyBudget.familyId, familyId))
+    .limit(1);
   return result.length > 0 ? result[0] : null;
 }
 
@@ -145,7 +167,10 @@ export async function saveFamilyBudget(
   savedBy: string | null = null
 ): Promise<SaveResult> {
   const db = await getDb();
-  if (!db) throw new Error("[Database] Cannot save family budget: database not available");
+  if (!db)
+    throw new Error(
+      "[Database] Cannot save family budget: database not available"
+    );
 
   const existing = await getFamilyBudget(familyId);
 
@@ -156,7 +181,7 @@ export async function saveFamilyBudget(
     annualPayments: data.annualPayments,
     budgetLimits: data.budgetLimits,
     savingsGoals: data.savingsGoals,
-    installments: data.installments ?? '[]',
+    installments: data.installments ?? "[]",
   };
 
   if (!existing) {
@@ -180,17 +205,24 @@ export async function saveFamilyBudget(
 
   // Timestamps match — safe to update
   // Snapshot BEFORE overwriting so the previous state is recoverable
-  await saveSnapshot(familyId, {
-    incomes: existing.incomes,
-    expenses: existing.expenses,
-    debts: existing.debts,
-    annualPayments: existing.annualPayments,
-    budgetLimits: existing.budgetLimits,
-    savingsGoals: existing.savingsGoals,
-    installments: existing.installments,
-  }, savedBy);
+  await saveSnapshot(
+    familyId,
+    {
+      incomes: existing.incomes,
+      expenses: existing.expenses,
+      debts: existing.debts,
+      annualPayments: existing.annualPayments,
+      budgetLimits: existing.budgetLimits,
+      savingsGoals: existing.savingsGoals,
+      installments: existing.installments,
+    },
+    savedBy
+  );
 
-  await db.update(familyBudget).set(saveData).where(eq(familyBudget.familyId, familyId));
+  await db
+    .update(familyBudget)
+    .set(saveData)
+    .where(eq(familyBudget.familyId, familyId));
   const updated = await getFamilyBudget(familyId);
   return { updatedAt: updated?.updatedAt ?? new Date() };
 }
@@ -222,7 +254,9 @@ async function saveSnapshot(
   if (all.length > HISTORY_MAX) {
     const toDelete = all.slice(0, all.length - HISTORY_MAX);
     for (const row of toDelete) {
-      await db.delete(familyBudgetHistory).where(eq(familyBudgetHistory.id, row.id));
+      await db
+        .delete(familyBudgetHistory)
+        .where(eq(familyBudgetHistory.id, row.id));
     }
   }
 }

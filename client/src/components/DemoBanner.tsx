@@ -15,8 +15,10 @@ export function DemoBanner() {
         zIndex: 60,
         width: "100%",
         padding: "8px 16px",
-        background: "color-mix(in oklch, var(--status-warning) 16%, var(--bg-elevated))",
-        borderBottom: "1px solid color-mix(in oklch, var(--status-warning) 50%, transparent)",
+        background:
+          "color-mix(in oklch, var(--status-warning) 16%, var(--bg-elevated))",
+        borderBottom:
+          "1px solid color-mix(in oklch, var(--status-warning) 50%, transparent)",
         color: "var(--text-primary)",
         fontSize: 12,
         fontWeight: 600,
@@ -46,9 +48,7 @@ export function DemoBanner() {
       >
         i
       </span>
-      <span>
-        Demo gösterimi
-      </span>
+      <span>Demo gösterimi</span>
       <span style={{ color: "var(--text-tertiary)", fontWeight: 500 }}>
         · Veriler örnektir, kaydedilmez
       </span>

@@ -81,8 +81,8 @@ export function LineAreaChart({
   const innerH = Math.max(1, height - pad.top - pad.bottom);
 
   // Compute domain
-  const allY = series.flatMap((s) => s.data.map((p) => p.y));
-  const allX = series.flatMap((s) => s.data.map((p) => p.x));
+  const allY = series.flatMap(s => s.data.map(p => p.y));
+  const allX = series.flatMap(s => s.data.map(p => p.x));
   const minY = Math.min(0, ...allY);
   const maxY = Math.max(1, ...allY);
   const minX = Math.min(...allX);
@@ -94,20 +94,26 @@ export function LineAreaChart({
   const yScale = (y: number) => pad.top + (1 - (y - minY) / ySpan) * innerH;
 
   // 5 horizontal gridlines
-  const gridLines = [0, 0.25, 0.5, 0.75, 1].map((t) => {
+  const gridLines = [0, 0.25, 0.5, 0.75, 1].map(t => {
     const y = pad.top + t * innerH;
     const valY = maxY - t * ySpan;
     return { y, valY };
   });
 
   return (
-    <svg width={width} height={height} style={{ display: "block", overflow: "visible" }}>
+    <svg
+      width={width}
+      height={height}
+      style={{ display: "block", overflow: "visible" }}
+    >
       {/* Gridlines */}
       {gridLines.map((g, i) => (
         <line
           key={i}
-          x1={pad.left} y1={g.y}
-          x2={pad.left + innerW} y2={g.y}
+          x1={pad.left}
+          y1={g.y}
+          x2={pad.left + innerW}
+          y2={g.y}
           stroke="var(--border-faint)"
           strokeWidth="1"
           strokeDasharray="3 4"
@@ -116,21 +122,22 @@ export function LineAreaChart({
       ))}
 
       {/* Y labels — port of _design/page-rapor.jsx:247-248 */}
-      {yLabels && gridLines.map((g, i) => (
-        <text
-          key={`yl-${i}`}
-          x={pad.left - 10}
-          y={g.y + 4}
-          fontSize="10"
-          fontWeight="500"
-          fontFamily="var(--font-mono)"
-          textAnchor="end"
-          fill="var(--text-muted)"
-          style={{ fontVariantNumeric: "tabular-nums" }}
-        >
-          {formatYTick(g.valY)}
-        </text>
-      ))}
+      {yLabels &&
+        gridLines.map((g, i) => (
+          <text
+            key={`yl-${i}`}
+            x={pad.left - 10}
+            y={g.y + 4}
+            fontSize="10"
+            fontWeight="500"
+            fontFamily="var(--font-mono)"
+            textAnchor="end"
+            fill="var(--text-muted)"
+            style={{ fontVariantNumeric: "tabular-nums" }}
+          >
+            {formatYTick(g.valY)}
+          </text>
+        ))}
 
       {/* X labels — port of _design/page-rapor.jsx:259-260 */}
       {xLabels && (
@@ -157,17 +164,18 @@ export function LineAreaChart({
 
       {/* Series */}
       {series.map((s, i) => {
-        const points = s.data.map((p) => ({ x: xScale(p.x), y: yScale(p.y) }));
+        const points = s.data.map(p => ({ x: xScale(p.x), y: yScale(p.y) }));
         const linePath = smoothPath(points);
-        const areaPath = points.length > 0
-          ? `${linePath} L ${points[points.length - 1].x} ${pad.top + innerH} L ${points[0].x} ${pad.top + innerH} Z`
-          : "";
+        const areaPath =
+          points.length > 0
+            ? `${linePath} L ${points[points.length - 1].x} ${pad.top + innerH} L ${points[0].x} ${pad.top + innerH} Z`
+            : "";
         const gradId = `lac-grad-${i}`;
         return (
           <g key={i}>
             <defs>
               <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%"   stopColor={s.color} stopOpacity="0.35" />
+                <stop offset="0%" stopColor={s.color} stopOpacity="0.35" />
                 <stop offset="100%" stopColor={s.color} stopOpacity="0" />
               </linearGradient>
             </defs>
@@ -193,15 +201,29 @@ export function LineAreaChart({
         const cy = yScale(a.y);
         return (
           <g key={`anno-${i}`}>
-            <circle cx={cx} cy={cy} r="5" fill={a.color} stroke="var(--bg-surface)" strokeWidth="2" />
+            <circle
+              cx={cx}
+              cy={cy}
+              r="5"
+              fill={a.color}
+              stroke="var(--bg-surface)"
+              strokeWidth="2"
+            />
             <rect
-              x={cx + 8} y={cy - 18}
+              x={cx + 8}
+              y={cy - 18}
               width={a.label.length * 6 + 12}
               height="18"
               rx="9"
               fill={a.color}
             />
-            <text x={cx + 14} y={cy - 5} fontSize="10" fill="oklch(0.99 0 0)" fontWeight="600">
+            <text
+              x={cx + 14}
+              y={cy - 5}
+              fontSize="10"
+              fill="oklch(0.99 0 0)"
+              fontWeight="600"
+            >
               {a.label}
             </text>
           </g>

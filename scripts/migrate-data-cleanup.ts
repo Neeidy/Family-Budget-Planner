@@ -8,17 +8,19 @@
  *   pnpm tsx scripts/migrate-data-cleanup.ts           # apply
  *   pnpm tsx scripts/migrate-data-cleanup.ts --dry-run # preview only
  */
-import 'dotenv/config';
-import { drizzle } from 'drizzle-orm/mysql2';
-import { eq } from 'drizzle-orm';
-import { familyBudget, familyBudgetHistory } from '../drizzle/schema';
-import { migrateData, type RawBudgetJson } from '../shared/migrateLogic';
+import "dotenv/config";
+import { drizzle } from "drizzle-orm/mysql2";
+import { eq } from "drizzle-orm";
+import { familyBudget, familyBudgetHistory } from "../drizzle/schema";
+import { migrateData, type RawBudgetJson } from "../shared/migrateLogic";
 
-const isDryRun = process.argv.includes('--dry-run');
+const isDryRun = process.argv.includes("--dry-run");
 const db = drizzle(process.env.DATABASE_URL!);
 
 async function run() {
-  console.log(`Starting data cleanup migration${isDryRun ? ' (DRY RUN — no writes)' : ''}...`);
+  console.log(
+    `Starting data cleanup migration${isDryRun ? " (DRY RUN — no writes)" : ""}...`
+  );
 
   const rows = await db.select().from(familyBudget);
   let updatedFamilyBudget = 0;
@@ -35,7 +37,9 @@ async function run() {
       updatedFamilyBudget++;
     }
   }
-  console.log(`familyBudget: ${updatedFamilyBudget} row(s) ${isDryRun ? 'would be' : ''} updated`);
+  console.log(
+    `familyBudget: ${updatedFamilyBudget} row(s) ${isDryRun ? "would be" : ""} updated`
+  );
 
   const historyRows = await db.select().from(familyBudgetHistory);
   let updatedHistory = 0;
@@ -59,9 +63,14 @@ async function run() {
       updatedHistory++;
     }
   }
-  console.log(`familyBudgetHistory: ${updatedHistory} row(s) ${isDryRun ? 'would be' : ''} updated`);
-  console.log('Migration complete.');
+  console.log(
+    `familyBudgetHistory: ${updatedHistory} row(s) ${isDryRun ? "would be" : ""} updated`
+  );
+  console.log("Migration complete.");
   process.exit(0);
 }
 
-run().catch(e => { console.error(e); process.exit(1); });
+run().catch(e => {
+  console.error(e);
+  process.exit(1);
+});

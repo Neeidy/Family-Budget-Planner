@@ -16,9 +16,12 @@ const PASSWORD_SALT = "viyana-family-salt-2026";
 
 beforeAll(() => {
   // Use HMAC-SHA256 hash (same as production)
-  const TEST_HASH = createHmac("sha256", PASSWORD_SALT).update(TEST_PASSWORD).digest("hex");
+  const TEST_HASH = createHmac("sha256", PASSWORD_SALT)
+    .update(TEST_PASSWORD)
+    .digest("hex");
   process.env.FAMILY_PASSWORD_HASH = TEST_HASH;
-  process.env.FAMILY_COOKIE_SECRET = "test-secret-at-least-32-chars-long-abc123";
+  process.env.FAMILY_COOKIE_SECRET =
+    "test-secret-at-least-32-chars-long-abc123";
 });
 
 // ---- Helper: build a minimal TrpcContext ----
@@ -27,7 +30,11 @@ function makeCtx(cookieValue?: string): TrpcContext {
   if (cookieValue) {
     cookies[VIYANA_FAMILY_COOKIE] = cookieValue;
   }
-  const setCookies: Array<{ name: string; value: string; opts: Record<string, unknown> }> = [];
+  const setCookies: Array<{
+    name: string;
+    value: string;
+    opts: Record<string, unknown>;
+  }> = [];
   const clearedCookies: string[] = [];
 
   return {
@@ -181,7 +188,9 @@ describe("familyAuth.changePassword", () => {
     expect(result.newHash).toBeTruthy();
     expect(result.newHash).toHaveLength(64); // HMAC-SHA256 hex = 64 chars
     // Restore original hash for other tests
-    process.env.FAMILY_PASSWORD_HASH = createHmac("sha256", PASSWORD_SALT).update(TEST_PASSWORD).digest("hex");
+    process.env.FAMILY_PASSWORD_HASH = createHmac("sha256", PASSWORD_SALT)
+      .update(TEST_PASSWORD)
+      .digest("hex");
   });
 
   it("throws UNAUTHORIZED when current password is wrong", async () => {

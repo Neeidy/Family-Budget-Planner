@@ -1,4 +1,4 @@
-import { NOT_ADMIN_ERR_MSG, UNAUTHED_ERR_MSG } from '@shared/const';
+import { NOT_ADMIN_ERR_MSG, UNAUTHED_ERR_MSG } from "@shared/const";
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import type { TrpcContext } from "./context";
@@ -31,7 +31,10 @@ export const protectedProcedure = t.procedure.use(requireUser);
 const requireFamily = t.middleware(async opts => {
   const { ctx, next } = opts;
   if (!ctx.family) {
-    throw new TRPCError({ code: "UNAUTHORIZED", message: "Aile oturumu gerekli" });
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "Aile oturumu gerekli",
+    });
   }
   return next({ ctx: { ...ctx, family: ctx.family } });
 });
@@ -48,16 +51,30 @@ export const familyProtectedProcedure = t.procedure.use(requireFamily);
 const guestSafe = t.middleware(async ({ ctx, type, next }) => {
   if (type === "mutation") {
     if (ctx.isGuest) {
-      throw new TRPCError({ code: "FORBIDDEN", message: "Demo modunda değişiklik yapılamaz" });
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "Demo modunda değişiklik yapılamaz",
+      });
     }
     if (!ctx.family) {
-      throw new TRPCError({ code: "UNAUTHORIZED", message: "Aile oturumu gerekli" });
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "Aile oturumu gerekli",
+      });
     }
-    return next({ ctx: { ...ctx, family: ctx.family, demoMode: false as const } });
+    return next({
+      ctx: { ...ctx, family: ctx.family, demoMode: false as const },
+    });
   }
   if (ctx.isGuest) return next({ ctx: { ...ctx, demoMode: true as const } });
-  if (ctx.family) return next({ ctx: { ...ctx, family: ctx.family, demoMode: false as const } });
-  throw new TRPCError({ code: "UNAUTHORIZED", message: "Aile oturumu gerekli" });
+  if (ctx.family)
+    return next({
+      ctx: { ...ctx, family: ctx.family, demoMode: false as const },
+    });
+  throw new TRPCError({
+    code: "UNAUTHORIZED",
+    message: "Aile oturumu gerekli",
+  });
 });
 
 export const guestSafeProcedure = t.procedure.use(guestSafe);
@@ -80,7 +97,7 @@ export const adminProcedure = t.procedure.use(
   t.middleware(async opts => {
     const { ctx, next } = opts;
 
-    if (!ctx.user || ctx.user.role !== 'admin') {
+    if (!ctx.user || ctx.user.role !== "admin") {
       throw new TRPCError({ code: "FORBIDDEN", message: NOT_ADMIN_ERR_MSG });
     }
 
@@ -90,5 +107,5 @@ export const adminProcedure = t.procedure.use(
         user: ctx.user,
       },
     });
-  }),
+  })
 );

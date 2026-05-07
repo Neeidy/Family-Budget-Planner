@@ -1,8 +1,8 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
-import { trpc } from '@/lib/trpc';
-import { useLocation } from 'wouter';
+import { createContext, useContext, useState, ReactNode } from "react";
+import { trpc } from "@/lib/trpc";
+import { useLocation } from "wouter";
 
-export type PersonKey = 'Benim' | 'Esim' | null;
+export type PersonKey = "Benim" | "Esim" | null;
 
 interface PersonContextType {
   currentPerson: PersonKey;
@@ -14,17 +14,18 @@ interface PersonContextType {
   setCurrentPerson: (person: PersonKey) => void;
   setPerson1Name: (name: string) => void;
   setPerson2Name: (name: string) => void;
-  getDisplayName: (owner: 'Benim' | 'Esim' | 'Ev') => string;
-  myOwnerKey: 'Benim' | 'Esim' | null;
+  getDisplayName: (owner: "Benim" | "Esim" | "Ev") => string;
+  myOwnerKey: "Benim" | "Esim" | null;
 }
 
 // Display names are stored in localStorage (labels only, not auth)
-const NAMES_STORAGE_KEY = 'uk_ailesi_names';
-const isDemoHost = typeof window !== 'undefined'
-  && window.location.hostname === 'demo.aileplan.uk';
+const NAMES_STORAGE_KEY = "uk_ailesi_names";
+const isDemoHost =
+  typeof window !== "undefined" &&
+  window.location.hostname === "demo.aileplan.uk";
 // Demo subdomain shows the showcase couple instead of the real family names.
-const DEFAULT_PERSON1 = isDemoHost ? 'Kerem'  : 'Yigit';
-const DEFAULT_PERSON2 = isDemoHost ? 'Yağmur' : 'Arzu';
+const DEFAULT_PERSON1 = isDemoHost ? "Kerem" : "Yigit";
+const DEFAULT_PERSON2 = isDemoHost ? "Yağmur" : "Arzu";
 
 const PersonContext = createContext<PersonContextType | null>(null);
 
@@ -59,7 +60,7 @@ export function PersonProvider({ children }: { children: ReactNode }) {
   const logoutMutation = trpc.familyAuth.logout.useMutation({
     onSuccess: async () => {
       await utils.familyAuth.me.invalidate();
-      setLocation('/login');
+      setLocation("/login");
     },
   });
 
@@ -85,25 +86,27 @@ export function PersonProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(NAMES_STORAGE_KEY, JSON.stringify(current));
   };
 
-  const getDisplayName = (owner: 'Benim' | 'Esim' | 'Ev'): string => {
-    if (owner === 'Benim') return person1Name;
-    if (owner === 'Esim') return person2Name;
-    return 'Ev (Ortak)';
+  const getDisplayName = (owner: "Benim" | "Esim" | "Ev"): string => {
+    if (owner === "Benim") return person1Name;
+    if (owner === "Esim") return person2Name;
+    return "Ev (Ortak)";
   };
 
-  const myOwnerKey: 'Benim' | 'Esim' | null = currentPerson;
+  const myOwnerKey: "Benim" | "Esim" | null = currentPerson;
 
   return (
-    <PersonContext.Provider value={{
-      currentPerson,
-      person1Name,
-      person2Name,
-      setCurrentPerson,
-      setPerson1Name,
-      setPerson2Name,
-      getDisplayName,
-      myOwnerKey,
-    }}>
+    <PersonContext.Provider
+      value={{
+        currentPerson,
+        person1Name,
+        person2Name,
+        setCurrentPerson,
+        setPerson1Name,
+        setPerson2Name,
+        getDisplayName,
+        myOwnerKey,
+      }}
+    >
       {children}
     </PersonContext.Provider>
   );
@@ -111,6 +114,6 @@ export function PersonProvider({ children }: { children: ReactNode }) {
 
 export function usePerson() {
   const ctx = useContext(PersonContext);
-  if (!ctx) throw new Error('usePerson must be used within PersonProvider');
+  if (!ctx) throw new Error("usePerson must be used within PersonProvider");
   return ctx;
 }

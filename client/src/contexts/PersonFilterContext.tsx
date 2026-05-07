@@ -20,6 +20,7 @@ export function PersonFilterProvider({ children }: { children: ReactNode }) {
 
 export function usePersonFilter() {
   const ctx = useContext(PersonFilterContext);
-  if (!ctx) throw new Error("usePersonFilter must be used within PersonFilterProvider");
+  if (!ctx)
+    throw new Error("usePersonFilter must be used within PersonFilterProvider");
   return ctx;
 }

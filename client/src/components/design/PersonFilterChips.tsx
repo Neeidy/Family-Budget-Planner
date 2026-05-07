@@ -1,6 +1,4 @@
-import { AvatarWho } from './Avatar';
-
-export type FilterValue = 'tumu' | 'yigit' | 'arzu' | 'ev';
+export type FilterValue = "tumu" | "yigit" | "arzu" | "ev";
 
 interface PersonFilterChipsProps {
   value: FilterValue;
@@ -10,19 +8,23 @@ interface PersonFilterChipsProps {
 }
 
 const DEFAULT_LABELS: Record<FilterValue, string> = {
-  tumu: 'Tümü',
-  yigit: 'Yigit',
-  arzu: 'Arzu',
-  ev: 'Ev',
+  tumu: "Tümü",
+  yigit: "Yigit",
+  arzu: "Arzu",
+  ev: "Ev",
 };
 
-const ITEMS: FilterValue[] = ['tumu', 'yigit', 'arzu', 'ev'];
+const ITEMS: FilterValue[] = ["tumu", "yigit", "arzu", "ev"];
 
-export function PersonFilterChips({ value, onChange, labels }: PersonFilterChipsProps) {
+export function PersonFilterChips({
+  value,
+  onChange,
+  labels,
+}: PersonFilterChipsProps) {
   const resolved = { ...DEFAULT_LABELS, ...labels };
   return (
-    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-      {ITEMS.map((key) => {
+    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+      {ITEMS.map(key => {
         const active = value === key;
         const colorVar = `var(--owner-${key})`;
         return (
@@ -31,27 +33,29 @@ export function PersonFilterChips({ value, onChange, labels }: PersonFilterChips
             type="button"
             onClick={() => onChange(key)}
             style={{
-              display: 'inline-flex',
-              alignItems: 'center',
+              display: "inline-flex",
+              alignItems: "center",
               gap: 8,
-              padding: '8px 16px',
+              padding: "8px 16px",
               borderRadius: 999,
               fontSize: 13,
               fontWeight: 600,
-              cursor: 'pointer',
-              transition: 'all 160ms',
-              border: active ? 'none' : `1px solid color-mix(in oklch, ${colorVar} 35%, transparent)`,
-              background: active ? colorVar : 'transparent',
-              color: active ? 'oklch(0.99 0 0)' : colorVar,
+              cursor: "pointer",
+              transition: "all 160ms",
+              border: active
+                ? "none"
+                : `1px solid color-mix(in oklch, ${colorVar} 35%, transparent)`,
+              background: active ? colorVar : "transparent",
+              color: active ? "oklch(0.99 0 0)" : colorVar,
             }}
           >
             <span
               style={{
                 width: 8,
                 height: 8,
-                borderRadius: '50%',
+                borderRadius: "50%",
                 flexShrink: 0,
-                background: active ? 'oklch(0.99 0 0)' : colorVar,
+                background: active ? "oklch(0.99 0 0)" : colorVar,
               }}
             />
             {resolved[key]}

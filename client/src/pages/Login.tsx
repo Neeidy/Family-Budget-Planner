@@ -18,7 +18,12 @@ interface UserSelectButtonProps {
   onClick: () => void;
 }
 
-function UserSelectButton({ who, name, selected, onClick }: UserSelectButtonProps) {
+function UserSelectButton({
+  who,
+  name,
+  selected,
+  onClick,
+}: UserSelectButtonProps) {
   const ownerColor = `var(--owner-${who})`;
   return (
     <button
@@ -67,7 +72,9 @@ function UserSelectButton({ who, name, selected, onClick }: UserSelectButtonProp
           </div>
         )}
       </div>
-      <div style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)" }}>
+      <div
+        style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)" }}
+      >
         {name}
       </div>
     </button>
@@ -83,7 +90,13 @@ interface DemoProfileButtonProps {
   onClick: () => void;
 }
 
-function DemoProfileButton({ who, name, emoji, selected, onClick }: DemoProfileButtonProps) {
+function DemoProfileButton({
+  who,
+  name,
+  emoji,
+  selected,
+  onClick,
+}: DemoProfileButtonProps) {
   const ownerColor = `var(--owner-${who})`;
   return (
     <button
@@ -122,7 +135,9 @@ function DemoProfileButton({ who, name, emoji, selected, onClick }: DemoProfileB
       >
         {emoji}
       </div>
-      <div style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)" }}>
+      <div
+        style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)" }}
+      >
         {name}
       </div>
     </button>
@@ -139,31 +154,36 @@ export default function Login() {
   const demo = isDemoMode();
 
   // Demo profiles loaded only on demo subdomain
-  const demoProfilesQuery = trpc.familyAuth.getDemoProfiles.useQuery(undefined, {
-    enabled: demo,
-    retry: false,
-  });
+  const demoProfilesQuery = trpc.familyAuth.getDemoProfiles.useQuery(
+    undefined,
+    {
+      enabled: demo,
+      retry: false,
+    }
+  );
   const [selectedDemoId, setSelectedDemoId] = useState<string | null>(null);
   const demoLoginMutation = trpc.familyAuth.loginAsDemoProfile.useMutation({
     onSuccess: async () => {
       await utils.familyAuth.me.invalidate();
       setLocation("/");
     },
-    onError: (err) => {
+    onError: err => {
       toast.error(err.message || "Demo girişi başarısız");
     },
   });
 
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [selectedPerson, setSelectedPerson] = useState<"Benim" | "Esim" | null>(null);
+  const [selectedPerson, setSelectedPerson] = useState<"Benim" | "Esim" | null>(
+    null
+  );
 
   const loginMutation = trpc.familyAuth.login.useMutation({
     onSuccess: async () => {
       await utils.familyAuth.me.invalidate();
       setLocation("/");
     },
-    onError: (err) => {
+    onError: err => {
       toast.error(err.message || "Şifre hatalı");
     },
   });
@@ -220,7 +240,12 @@ export default function Login() {
     padding: 24,
   };
 
-  const selectedName = selectedPerson === "Benim" ? person1Name : selectedPerson === "Esim" ? person2Name : null;
+  const selectedName =
+    selectedPerson === "Benim"
+      ? person1Name
+      : selectedPerson === "Esim"
+        ? person2Name
+        : null;
 
   return (
     <div style={containerStyle} onMouseMove={handleMouseMove}>
@@ -245,32 +270,62 @@ export default function Login() {
         }}
         aria-label="Tema değiştir"
       >
-        {isDark
-          ? <Sun style={{ width: 18, height: 18, color: "var(--status-warning)" }} />
-          : <Moon style={{ width: 18, height: 18, color: "var(--text-tertiary)" }} />}
+        {isDark ? (
+          <Sun
+            style={{ width: 18, height: 18, color: "var(--status-warning)" }}
+          />
+        ) : (
+          <Moon
+            style={{ width: 18, height: 18, color: "var(--text-tertiary)" }}
+          />
+        )}
       </button>
 
       {/* Floating orbs */}
-      <div className="login-orb" style={{
-        width: 280, height: 280, top: -40, left: -60,
-        background: "var(--owner-yigit)",
-        animation: "orb-drift-1 14s ease-in-out infinite",
-      }} />
-      <div className="login-orb" style={{
-        width: 320, height: 320, bottom: -80, right: -80,
-        background: "var(--owner-arzu)",
-        animation: "orb-drift-2 18s ease-in-out infinite",
-      }} />
-      <div className="login-orb" style={{
-        width: 240, height: 240, top: -60, right: -40,
-        background: "var(--owner-ev)",
-        animation: "orb-drift-3 16s ease-in-out infinite",
-      }} />
-      <div className="login-orb" style={{
-        width: 260, height: 260, bottom: -60, left: -40,
-        background: "var(--owner-tumu)",
-        animation: "orb-drift-4 20s ease-in-out infinite",
-      }} />
+      <div
+        className="login-orb"
+        style={{
+          width: 280,
+          height: 280,
+          top: -40,
+          left: -60,
+          background: "var(--owner-yigit)",
+          animation: "orb-drift-1 14s ease-in-out infinite",
+        }}
+      />
+      <div
+        className="login-orb"
+        style={{
+          width: 320,
+          height: 320,
+          bottom: -80,
+          right: -80,
+          background: "var(--owner-arzu)",
+          animation: "orb-drift-2 18s ease-in-out infinite",
+        }}
+      />
+      <div
+        className="login-orb"
+        style={{
+          width: 240,
+          height: 240,
+          top: -60,
+          right: -40,
+          background: "var(--owner-ev)",
+          animation: "orb-drift-3 16s ease-in-out infinite",
+        }}
+      />
+      <div
+        className="login-orb"
+        style={{
+          width: 260,
+          height: 260,
+          bottom: -60,
+          left: -40,
+          background: "var(--owner-tumu)",
+          animation: "orb-drift-4 20s ease-in-out infinite",
+        }}
+      />
 
       {/* Ambient particles drifting upward */}
       {Array.from({ length: 10 }).map((_, i) => (
@@ -279,7 +334,7 @@ export default function Login() {
           className="login-particle"
           style={{
             left: `${(i * 13 + 7) % 100}%`,
-            bottom: `-${10 + (i * 7) % 30}px`,
+            bottom: `-${10 + ((i * 7) % 30)}px`,
             animation: `particle-rise ${22 + (i % 5) * 2}s linear ${i * 2.3}s infinite`,
           }}
         />
@@ -292,7 +347,8 @@ export default function Login() {
           maxWidth: 460,
           position: "relative",
           zIndex: 2,
-          transform: "translate(calc(var(--mx,0) * 8px), calc(var(--my,0) * 8px))",
+          transform:
+            "translate(calc(var(--mx,0) * 8px), calc(var(--my,0) * 8px))",
           transition: "transform 200ms cubic-bezier(0.2,0,0,1)",
           display: "flex",
           flexDirection: "column",
@@ -306,29 +362,40 @@ export default function Login() {
               width: 72,
               height: 72,
               borderRadius: 22,
-              background: "linear-gradient(135deg, var(--accent-green), var(--owner-yigit))",
+              background:
+                "linear-gradient(135deg, var(--accent-green), var(--owner-yigit))",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               fontSize: 38,
               margin: "0 auto 16px",
-              boxShadow: "0 12px 32px -8px var(--accent-green-soft), 0 4px 12px rgba(0,0,0,0.25)",
-              transform: "translate(calc(var(--mx,0) * 4px), calc(var(--my,0) * 4px))",
+              boxShadow:
+                "0 12px 32px -8px var(--accent-green-soft), 0 4px 12px rgba(0,0,0,0.25)",
+              transform:
+                "translate(calc(var(--mx,0) * 4px), calc(var(--my,0) * 4px))",
               transition: "transform 200ms cubic-bezier(0.2,0,0,1)",
             }}
           >
             🐼
           </div>
-          <h1 style={{
-            fontSize: 30,
-            margin: 0,
-            fontWeight: 700,
-            letterSpacing: "-0.025em",
-            color: "var(--text-primary)",
-          }}>
+          <h1
+            style={{
+              fontSize: 30,
+              margin: 0,
+              fontWeight: 700,
+              letterSpacing: "-0.025em",
+              color: "var(--text-primary)",
+            }}
+          >
             ÜK Ailesi Bütçe
           </h1>
-          <div style={{ fontSize: 13, color: "var(--text-tertiary)", marginTop: 6 }}>
+          <div
+            style={{
+              fontSize: 13,
+              color: "var(--text-tertiary)",
+              marginTop: 6,
+            }}
+          >
             Hoş geldiniz, lütfen giriş yapın
           </div>
         </div>
@@ -340,7 +407,13 @@ export default function Login() {
           </div>
           {demo ? (
             <>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: 12,
+                }}
+              >
                 {demoProfilesQuery.data?.map((p, i) => (
                   <DemoProfileButton
                     key={p.id}
@@ -353,18 +426,43 @@ export default function Login() {
                 ))}
                 {demoProfilesQuery.isLoading && (
                   <>
-                    <div style={{ height: 130, borderRadius: 16, background: "var(--bg-elevated)" }} />
-                    <div style={{ height: 130, borderRadius: 16, background: "var(--bg-elevated)" }} />
+                    <div
+                      style={{
+                        height: 130,
+                        borderRadius: 16,
+                        background: "var(--bg-elevated)",
+                      }}
+                    />
+                    <div
+                      style={{
+                        height: 130,
+                        borderRadius: 16,
+                        background: "var(--bg-elevated)",
+                      }}
+                    />
                   </>
                 )}
               </div>
-              <div style={{ fontSize: 12, color: "var(--text-tertiary)", marginTop: 12, textAlign: "center" }}>
+              <div
+                style={{
+                  fontSize: 12,
+                  color: "var(--text-tertiary)",
+                  marginTop: 12,
+                  textAlign: "center",
+                }}
+              >
                 Profil tıklayarak demo'ya gir
               </div>
             </>
           ) : (
             <>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: 12,
+                }}
+              >
                 <UserSelectButton
                   who="yigit"
                   person="Benim"
@@ -381,8 +479,18 @@ export default function Login() {
                 />
               </div>
               {selectedName && (
-                <div style={{ fontSize: 12, color: "var(--text-tertiary)", marginTop: 12, textAlign: "center" }}>
-                  <strong style={{ color: "var(--text-secondary)" }}>{selectedName}</strong> olarak giriş yapacaksınız
+                <div
+                  style={{
+                    fontSize: 12,
+                    color: "var(--text-tertiary)",
+                    marginTop: 12,
+                    textAlign: "center",
+                  }}
+                >
+                  <strong style={{ color: "var(--text-secondary)" }}>
+                    {selectedName}
+                  </strong>{" "}
+                  olarak giriş yapacaksınız
                 </div>
               )}
             </>
@@ -390,111 +498,132 @@ export default function Login() {
         </div>
 
         {/* Password card — hidden in demo mode (login on profile click) */}
-        {!demo && <form onSubmit={handleSubmit} style={cardStyle}>
-          <label style={{
-            display: "block",
-            fontSize: 11,
-            fontWeight: 600,
-            letterSpacing: "0.08em",
-            textTransform: "uppercase",
-            color: "var(--text-tertiary)",
-            marginBottom: 8,
-          }}>
-            Aile Şifresi
-          </label>
-          <div style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-            padding: "12px 14px",
-            background: "var(--bg-elevated)",
-            borderRadius: 12,
-            border: "1px solid var(--border-faint)",
-            marginBottom: 16,
-          }}>
-            <input
-              type={showPassword ? "text" : "password"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Şifrenizi girin"
-              autoComplete="current-password"
-              disabled={isLoading}
+        {!demo && (
+          <form onSubmit={handleSubmit} style={cardStyle}>
+            <label
               style={{
-                flex: 1,
-                minWidth: 0,
-                background: "transparent",
-                border: "none",
-                outline: "none",
-                color: "var(--text-primary)",
-                fontSize: 15,
-                fontFamily: "inherit",
-                letterSpacing: showPassword ? "normal" : "0.2em",
-              }}
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              tabIndex={-1}
-              style={{
-                background: "transparent",
-                border: "none",
-                cursor: "pointer",
+                display: "block",
+                fontSize: 11,
+                fontWeight: 600,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
                 color: "var(--text-tertiary)",
-                padding: 4,
-                display: "flex",
-                alignItems: "center",
+                marginBottom: 8,
               }}
             >
-              {showPassword
-                ? <EyeOff style={{ width: 16, height: 16 }} />
-                : <Eye style={{ width: 16, height: 16 }} />}
-            </button>
-          </div>
+              Aile Şifresi
+            </label>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                padding: "12px 14px",
+                background: "var(--bg-elevated)",
+                borderRadius: 12,
+                border: "1px solid var(--border-faint)",
+                marginBottom: 16,
+              }}
+            >
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                placeholder="Şifrenizi girin"
+                autoComplete="current-password"
+                disabled={isLoading}
+                style={{
+                  flex: 1,
+                  minWidth: 0,
+                  background: "transparent",
+                  border: "none",
+                  outline: "none",
+                  color: "var(--text-primary)",
+                  fontSize: 15,
+                  fontFamily: "inherit",
+                  letterSpacing: showPassword ? "normal" : "0.2em",
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                tabIndex={-1}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  cursor: "pointer",
+                  color: "var(--text-tertiary)",
+                  padding: 4,
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              >
+                {showPassword ? (
+                  <EyeOff style={{ width: 16, height: 16 }} />
+                ) : (
+                  <Eye style={{ width: 16, height: 16 }} />
+                )}
+              </button>
+            </div>
 
-          <button
-            type="submit"
-            disabled={isLoading || !selectedPerson || !password}
-            style={{
-              width: "100%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 8,
-              padding: "14px 20px",
-              borderRadius: 12,
-              fontSize: 15,
-              fontWeight: 600,
-              fontFamily: "inherit",
-              border: "none",
-              cursor: isLoading || !selectedPerson || !password ? "not-allowed" : "pointer",
-              background: isLoading || !selectedPerson || !password
-                ? "var(--bg-tint)"
-                : "var(--accent-green)",
-              color: isLoading || !selectedPerson || !password
-                ? "var(--text-muted)"
-                : "oklch(0.15 0.03 155)",
-              transition: "all 180ms",
-            }}
-          >
-            {isLoading ? (
-              <>
-                <Loader2 style={{ width: 18, height: 18, animation: "spin 1s linear infinite" }} />
-                Giriş yapılıyor...
-              </>
-            ) : (
-              <>Giriş Yap →</>
-            )}
-          </button>
-        </form>}
+            <button
+              type="submit"
+              disabled={isLoading || !selectedPerson || !password}
+              style={{
+                width: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 8,
+                padding: "14px 20px",
+                borderRadius: 12,
+                fontSize: 15,
+                fontWeight: 600,
+                fontFamily: "inherit",
+                border: "none",
+                cursor:
+                  isLoading || !selectedPerson || !password
+                    ? "not-allowed"
+                    : "pointer",
+                background:
+                  isLoading || !selectedPerson || !password
+                    ? "var(--bg-tint)"
+                    : "var(--accent-green)",
+                color:
+                  isLoading || !selectedPerson || !password
+                    ? "var(--text-muted)"
+                    : "oklch(0.15 0.03 155)",
+                transition: "all 180ms",
+              }}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2
+                    style={{
+                      width: 18,
+                      height: 18,
+                      animation: "spin 1s linear infinite",
+                    }}
+                  />
+                  Giriş yapılıyor...
+                </>
+              ) : (
+                <>Giriş Yap →</>
+              )}
+            </button>
+          </form>
+        )}
 
         {/* Footer */}
-        <p style={{
-          fontSize: 11,
-          color: "var(--text-muted)",
-          textAlign: "center",
-          lineHeight: 1.5,
-          padding: "0 12px",
-        }}>
+        <p
+          style={{
+            fontSize: 11,
+            color: "var(--text-muted)",
+            textAlign: "center",
+            lineHeight: 1.5,
+            padding: "0 12px",
+          }}
+        >
           {demo
             ? "🎭 Demo gösterimi · Veriler örnektir, kaydedilmez. Tüm yazma işlemleri kapalıdır."
             : "🔒 Bu uygulamaya sadece aile üyeleri erişebilir. Şifre bilmiyorsanız aile üyelerinden birine sorun."}
