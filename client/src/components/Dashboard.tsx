@@ -226,7 +226,7 @@ export function Dashboard() {
       )}
 
       {/* HERO 2-col: Net Değer (with HealthBubble inside) + YARIN ÖDENECEK — page-ana.jsx:65-92 */}
-      <div style={{ display: "grid", gridTemplateColumns: mobile ? "1fr" : "1fr 1fr", gap: mobile ? 12 : 16, position: "relative" }}>
+      <div style={{ display: "grid", gridTemplateColumns: mobile ? "1fr" : "1fr 1fr", gap: mobile ? 12 : 16, position: "relative", alignItems: "stretch" }}>
         <div className="card lift" style={{ position: "relative", overflow: mobile ? "visible" : "hidden" }}>
           <div className="section-label">NET DEĞER</div>
           <div className="tnum" style={{ fontSize: mobile ? 44 : 52, fontWeight: 700, marginTop: 8, letterSpacing: "-0.035em", lineHeight: 1.05 }}>
