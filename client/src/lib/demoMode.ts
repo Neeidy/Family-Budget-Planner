@@ -7,7 +7,8 @@ import type { CSSProperties } from "react";
  *  - disable Add/Edit/Delete buttons (server already FORBIDs writes)
  */
 export const isDemoMode = (): boolean =>
-  typeof window !== "undefined" && window.location.hostname === "demo.aileplan.uk";
+  typeof window !== "undefined" &&
+  window.location.hostname === "demo.aileplan.uk";
 
 export const DEMO_DISABLED_TITLE = "Demo modunda düzenleme yapılamaz";
 
@@ -15,7 +16,7 @@ export const DEMO_DISABLED_TITLE = "Demo modunda düzenleme yapılamaz";
  * Spread on any write-action button to render it disabled in demo mode.
  * In normal mode returns `{}`, leaving the button untouched.
  */
-export function demoDisabledProps(originalTitle?: string): {
+export function demoDisabledProps(_originalTitle?: string): {
   disabled?: boolean;
   title?: string;
   style?: CSSProperties;
@@ -30,4 +31,3 @@ export function demoDisabledProps(originalTitle?: string): {
   // callers can `<Btn {...demoDisabledProps('Düzenle')} title="Düzenle"/>`
   // and override title in non-demo branch.
 }
-

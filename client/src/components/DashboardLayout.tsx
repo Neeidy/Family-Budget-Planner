@@ -15,7 +15,10 @@ import { useIsMobile } from "@/hooks/useMobile";
 import { useTheme } from "@/contexts/ThemeContext";
 import { usePerson } from "@/contexts/PersonContext";
 import { usePersonFilter, PersonFilter } from "@/contexts/PersonFilterContext";
-import { PersonFilterChips, type FilterValue } from "@/components/design/PersonFilterChips";
+import {
+  PersonFilterChips,
+  type FilterValue,
+} from "@/components/design/PersonFilterChips";
 import {
   LayoutDashboard,
   ArrowLeftRight,
@@ -32,7 +35,14 @@ import {
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { PorsukCat } from "@/components/PorsukCat";
 import { GlobalSearch } from "@/components/GlobalSearch";
-import { MobileFAB, NotificationsPanel, PageSkeleton, Avatar, type SkeletonPage, type AvatarWho } from "@/components/design";
+import {
+  MobileFAB,
+  NotificationsPanel,
+  PageSkeleton,
+  Avatar,
+  type SkeletonPage,
+  type AvatarWho,
+} from "@/components/design";
 import { DemoBanner } from "@/components/DemoBanner";
 import { isDemoMode } from "@/lib/demoMode";
 import { useLocation } from "wouter";
@@ -41,12 +51,12 @@ import { useBudget } from "@/contexts/BudgetContext";
 import { Undo2, Bell } from "lucide-react";
 
 const menuItems = [
-  { icon: LayoutDashboard, label: "Ana Sayfa",       path: "/" },
-  { icon: ArrowLeftRight,  label: "Gelir & Gider",   path: "/gelir-gider" },
-  { icon: ClipboardList,   label: "Borç & Ödemeler", path: "/borc-odemeler" },
-  { icon: Target,          label: "Birikim & Hedef", path: "/hedef" },
-  { icon: BarChart3,       label: "Raporlar",        path: "/raporlar" },
-  { icon: Settings,        label: "Ayarlar",         path: "/ayarlar" },
+  { icon: LayoutDashboard, label: "Ana Sayfa", path: "/" },
+  { icon: ArrowLeftRight, label: "Gelir & Gider", path: "/gelir-gider" },
+  { icon: ClipboardList, label: "Borç & Ödemeler", path: "/borc-odemeler" },
+  { icon: Target, label: "Birikim & Hedef", path: "/hedef" },
+  { icon: BarChart3, label: "Raporlar", path: "/raporlar" },
+  { icon: Settings, label: "Ayarlar", path: "/ayarlar" },
 ];
 
 const SKELETON_PAGE_BY_PATH: Record<string, SkeletonPage> = {
@@ -109,7 +119,7 @@ function DashboardLayoutContent({
   const logoutMutation = trpc.familyAuth.logout.useMutation({
     onSuccess: async () => {
       await utils.familyAuth.me.invalidate();
-      setLocation('/login');
+      setLocation("/login");
     },
   });
   const isCollapsed = state === "collapsed";
@@ -119,18 +129,28 @@ function DashboardLayoutContent({
   const isMobile = useIsMobile();
 
   // Aktif kişi bilgisi
-  const activeName = currentPerson === 'Benim' ? person1Name : person2Name;
-  const activeEmoji = currentPerson === 'Benim' ? '👨' : '👩';
-  const activeWho: AvatarWho = currentPerson === 'Benim' ? 'yigit' : 'arzu';
-  const activeColor = currentPerson === 'Benim'
-    ? 'text-blue-600 bg-blue-50 dark:bg-blue-900/30'
-    : 'text-purple-600 bg-purple-50 dark:bg-purple-900/30';
+  const activeName = currentPerson === "Benim" ? person1Name : person2Name;
+  const activeEmoji = currentPerson === "Benim" ? "👨" : "👩";
+  const activeWho: AvatarWho = currentPerson === "Benim" ? "yigit" : "arzu";
 
-  const { filter: personFilter, setFilter: setPersonFilter } = usePersonFilter();
+  const { filter: personFilter, setFilter: setPersonFilter } =
+    usePersonFilter();
   const filterToValue = (f: PersonFilter): FilterValue =>
-    f === "Tümü" ? "tumu" : f === "Benim" ? "yigit" : f === "Esim" ? "arzu" : "ev";
+    f === "Tümü"
+      ? "tumu"
+      : f === "Benim"
+        ? "yigit"
+        : f === "Esim"
+          ? "arzu"
+          : "ev";
   const valueToFilter = (v: FilterValue): PersonFilter =>
-    v === "tumu" ? "Tümü" : v === "yigit" ? "Benim" : v === "arzu" ? "Esim" : "Ev";
+    v === "tumu"
+      ? "Tümü"
+      : v === "yigit"
+        ? "Benim"
+        : v === "arzu"
+          ? "Esim"
+          : "Ev";
 
   // Sync durumu
   const saveMutation = trpc.familyBudget.save.useMutation();
@@ -193,13 +213,13 @@ function DashboardLayoutContent({
   // Ctrl+Z klavye kısayolu
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+      if ((e.ctrlKey || e.metaKey) && e.key === "z" && !e.shiftKey) {
         e.preventDefault();
         if (canUndo) undo();
       }
     };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [canUndo, undo]);
 
   const demo = isDemoMode();
@@ -213,19 +233,27 @@ function DashboardLayoutContent({
           disableTransition={isResizing}
         >
           {/* Brand header — port of _design/nav.jsx:71-85 */}
-          <SidebarHeader className="border-b" style={{ padding: isCollapsed ? "12px 8px" : "12px 14px" }}>
-            <div style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              width: "100%",
-            }}>
+          <SidebarHeader
+            className="border-b"
+            style={{ padding: isCollapsed ? "12px 8px" : "12px 14px" }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                width: "100%",
+              }}
+            >
               <button
                 onClick={toggleSidebar}
                 aria-label="Navigasyonu aç/kapat"
                 style={{
-                  width: 32, height: 32,
-                  display: "flex", alignItems: "center", justifyContent: "center",
+                  width: 32,
+                  height: 32,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                   borderRadius: 8,
                   background: "transparent",
                   border: "none",
@@ -238,35 +266,67 @@ function DashboardLayoutContent({
               </button>
               {!isCollapsed ? (
                 <>
-                  <div style={{
-                    width: 38, height: 38, borderRadius: 12,
-                    background: "linear-gradient(135deg, var(--accent-green), var(--owner-yigit))",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    fontSize: 22,
-                    flexShrink: 0,
-                    boxShadow: "0 4px 12px -4px var(--accent-green-soft)",
-                  }}>🐼</div>
+                  <div
+                    style={{
+                      width: 38,
+                      height: 38,
+                      borderRadius: 12,
+                      background:
+                        "linear-gradient(135deg, var(--accent-green), var(--owner-yigit))",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: 22,
+                      flexShrink: 0,
+                      boxShadow: "0 4px 12px -4px var(--accent-green-soft)",
+                    }}
+                  >
+                    🐼
+                  </div>
                   <div style={{ minWidth: 0, flex: 1 }}>
-                    <div style={{
-                      fontSize: 13, fontWeight: 700, lineHeight: 1.25,
-                      letterSpacing: "-0.01em",
-                      whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-                      color: "var(--text-primary)",
-                    }}>ÜK Ailesi Bütçe</div>
-                    <div style={{
-                      fontSize: 11, color: "var(--text-tertiary)", marginTop: 2,
-                      whiteSpace: "nowrap",
-                    }}>Aile bütçe paneli</div>
+                    <div
+                      style={{
+                        fontSize: 13,
+                        fontWeight: 700,
+                        lineHeight: 1.25,
+                        letterSpacing: "-0.01em",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        color: "var(--text-primary)",
+                      }}
+                    >
+                      ÜK Ailesi Bütçe
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 11,
+                        color: "var(--text-tertiary)",
+                        marginTop: 2,
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      Aile bütçe paneli
+                    </div>
                   </div>
                 </>
               ) : (
-                <div style={{
-                  width: 32, height: 32, borderRadius: 10,
-                  background: "linear-gradient(135deg, var(--accent-green), var(--owner-yigit))",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: 18,
-                  flexShrink: 0,
-                }}>🐼</div>
+                <div
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: 10,
+                    background:
+                      "linear-gradient(135deg, var(--accent-green), var(--owner-yigit))",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 18,
+                    flexShrink: 0,
+                  }}
+                >
+                  🐼
+                </div>
               )}
             </div>
           </SidebarHeader>
@@ -286,10 +346,18 @@ function DashboardLayoutContent({
               >
                 <Avatar who={activeWho} size={32} />
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}>
+                  <div
+                    style={{
+                      fontSize: 13,
+                      fontWeight: 600,
+                      color: "var(--text-primary)",
+                    }}
+                  >
                     {activeName}
                   </div>
-                  <div style={{ fontSize: 11, color: "var(--text-tertiary)" }}>Aktif kullanıcı</div>
+                  <div style={{ fontSize: 11, color: "var(--text-tertiary)" }}>
+                    Aktif kullanıcı
+                  </div>
                 </div>
                 <button
                   onClick={handleSwitchPerson}
@@ -353,15 +421,19 @@ function DashboardLayoutContent({
                   className="w-full flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-accent/20 transition-colors text-sm font-medium"
                   aria-label="Tema degistir"
                 >
-                  {theme === 'dark' ? (
+                  {theme === "dark" ? (
                     <>
                       <Sun className="h-4 w-4 text-amber-500 shrink-0" />
-                      <span className="text-muted-foreground text-xs">Aydinlik Mod</span>
+                      <span className="text-muted-foreground text-xs">
+                        Aydinlik Mod
+                      </span>
                     </>
                   ) : (
                     <>
                       <Moon className="h-4 w-4 text-indigo-500 shrink-0" />
-                      <span className="text-muted-foreground text-xs">Karanlik Mod</span>
+                      <span className="text-muted-foreground text-xs">
+                        Karanlik Mod
+                      </span>
                     </>
                   )}
                 </button>
@@ -371,7 +443,9 @@ function DashboardLayoutContent({
                   aria-label="Bildirimler"
                 >
                   <Bell className="h-4 w-4 text-muted-foreground shrink-0" />
-                  <span className="text-muted-foreground text-xs">Bildirimler</span>
+                  <span className="text-muted-foreground text-xs">
+                    Bildirimler
+                  </span>
                 </button>
                 {canUndo && (
                   <button
@@ -380,13 +454,17 @@ function DashboardLayoutContent({
                     className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-accent/20 transition-colors text-sm text-amber-600 dark:text-amber-400"
                   >
                     <Undo2 className="h-3.5 w-3.5 shrink-0" />
-                    <span className="text-xs truncate">Geri Al: {undoDescription}</span>
+                    <span className="text-xs truncate">
+                      Geri Al: {undoDescription}
+                    </span>
                   </button>
                 )}
                 <div className="flex items-center gap-2 px-2 py-1">
                   <Cloud className="h-3 w-3 text-muted-foreground shrink-0" />
                   <span className="text-xs text-muted-foreground truncate">
-                    {saveMutation.isPending ? "Kaydediliyor..." : "Bulut Senkron"}
+                    {saveMutation.isPending
+                      ? "Kaydediliyor..."
+                      : "Bulut Senkron"}
                   </span>
                 </div>
               </div>
@@ -397,7 +475,7 @@ function DashboardLayoutContent({
                   className="h-8 w-8 flex items-center justify-center hover:bg-accent/20 rounded-lg transition-colors"
                   aria-label="Tema degistir"
                 >
-                  {theme === 'dark' ? (
+                  {theme === "dark" ? (
                     <Sun className="h-4 w-4 text-amber-500" />
                   ) : (
                     <Moon className="h-4 w-4 text-indigo-500" />
@@ -427,7 +505,9 @@ function DashboardLayoutContent({
 
       <PorsukCat />
       <GlobalSearch />
-      {isMobile && <MobileFAB onNotifications={() => setNotificationsOpen(true)} />}
+      {isMobile && (
+        <MobileFAB onNotifications={() => setNotificationsOpen(true)} />
+      )}
       <NotificationsPanel
         open={notificationsOpen}
         onClose={() => setNotificationsOpen(false)}
@@ -437,27 +517,60 @@ function DashboardLayoutContent({
         {demo && <DemoBanner />}
         {isMobile && (
           /* MobileHeader — line-by-line port of _design/nav.jsx:224-267 */
-          <div style={{
-            display: "flex", alignItems: "center", justifyContent: "space-between",
-            padding: "14px 18px",
-            background: "var(--bg-base)",
-            borderBottom: "1px solid var(--border-faint)",
-            position: "sticky", top: 0, zIndex: 20,
-          }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              padding: "14px 18px",
+              background: "var(--bg-base)",
+              borderBottom: "1px solid var(--border-faint)",
+              position: "sticky",
+              top: 0,
+              zIndex: 20,
+            }}
+          >
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <SidebarTrigger className="h-9 w-9 rounded-lg" />
               {/* Single 32x32 gradient panda box (NO duplicate emoji) */}
-              <div style={{
-                width: 32, height: 32, borderRadius: 10,
-                background: "linear-gradient(135deg, var(--accent-green), var(--owner-yigit))",
-                display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18,
-                flexShrink: 0,
-              }}>🐼</div>
+              <div
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: 10,
+                  background:
+                    "linear-gradient(135deg, var(--accent-green), var(--owner-yigit))",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 18,
+                  flexShrink: 0,
+                }}
+              >
+                🐼
+              </div>
               <div style={{ minWidth: 0, flex: 1 }}>
-                <div style={{ fontSize: 13, fontWeight: 700, lineHeight: 1.2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", color: "var(--text-primary)" }}>
+                <div
+                  style={{
+                    fontSize: 13,
+                    fontWeight: 700,
+                    lineHeight: 1.2,
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    color: "var(--text-primary)",
+                  }}
+                >
                   ÜK Ailesi Bütçe
                 </div>
-                <div style={{ fontSize: 10, color: "var(--text-tertiary)", marginTop: 1, whiteSpace: "nowrap" }}>
+                <div
+                  style={{
+                    fontSize: 10,
+                    color: "var(--text-tertiary)",
+                    marginTop: 1,
+                    whiteSpace: "nowrap",
+                  }}
+                >
                   {activeMenuItem?.label ?? "Ana Sayfa"}
                 </div>
               </div>
@@ -466,23 +579,35 @@ function DashboardLayoutContent({
               <button
                 onClick={toggleTheme}
                 style={{
-                  background: "var(--bg-surface)", border: "none",
-                  padding: 8, borderRadius: 10, cursor: "pointer",
+                  background: "var(--bg-surface)",
+                  border: "none",
+                  padding: 8,
+                  borderRadius: 10,
+                  cursor: "pointer",
                   color: "var(--text-secondary)",
-                  display: "flex", alignItems: "center",
+                  display: "flex",
+                  alignItems: "center",
                 }}
                 aria-label="Tema değiştir"
               >
-                {theme === 'dark' ? <Sun className="h-4 w-4 text-amber-500" /> : <Moon className="h-4 w-4 text-indigo-500" />}
+                {theme === "dark" ? (
+                  <Sun className="h-4 w-4 text-amber-500" />
+                ) : (
+                  <Moon className="h-4 w-4 text-indigo-500" />
+                )}
               </button>
               <button
                 onClick={() => setNotificationsOpen(true)}
                 style={{
-                  background: "var(--bg-surface)", border: "none",
-                  padding: 8, borderRadius: 10, cursor: "pointer",
+                  background: "var(--bg-surface)",
+                  border: "none",
+                  padding: 8,
+                  borderRadius: 10,
+                  cursor: "pointer",
                   color: "var(--text-secondary)",
                   position: "relative",
-                  display: "flex", alignItems: "center",
+                  display: "flex",
+                  alignItems: "center",
                 }}
                 aria-label="Bildirimler"
               >
@@ -492,7 +617,14 @@ function DashboardLayoutContent({
               {currentPerson && (
                 <button
                   onClick={handleSwitchPerson}
-                  style={{ background: "transparent", border: "none", padding: 0, cursor: "pointer", display: "flex", alignItems: "center" }}
+                  style={{
+                    background: "transparent",
+                    border: "none",
+                    padding: 0,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                  }}
                   title="Kişi değiştir"
                   aria-label={`${activeName} olarak görüntüleniyor — değiştir`}
                 >
@@ -506,7 +638,7 @@ function DashboardLayoutContent({
         <div className="px-3 md:px-6 pt-3 md:pt-4 pb-0">
           <PersonFilterChips
             value={filterToValue(personFilter)}
-            onChange={(v) => setPersonFilter(valueToFilter(v))}
+            onChange={v => setPersonFilter(valueToFilter(v))}
             labels={{ yigit: person1Name, arzu: person2Name }}
           />
         </div>
