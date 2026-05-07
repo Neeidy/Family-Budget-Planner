@@ -2,7 +2,7 @@
 
 You are picking up a TypeScript family budget application that was previously hosted on Manus Cloud (which banned the user twice). This export contains the security and data-integrity work but **lost the UI/IA refactor**. Your job is to make this run cleanly on the user's local machine and finish the lost UX work.
 
-Read this file fully, then read `FIXES.md`, then start with **Phase 0**. Work in order. Do not skip phases.
+Read this file fully before starting work. The recovery + design refresh phases have all landed on master; this file now mostly captures hard rules, design references, and the agreed output format. Historical phase plans (`FIXES.md`, `todo.md`) lived in earlier commits — see `git log` if you need that context.
 
 ## Stack
 
@@ -14,13 +14,13 @@ Read this file fully, then read `FIXES.md`, then start with **Phase 0**. Work in
 
 ## What is already done (DO NOT REIMPLEMENT — only verify it works)
 
-| Wave | What | Where to find it |
-|---|---|---|
-| **Wave 1** — Auth | Family password + httpOnly JWT cookie + person selection at login. HMAC-SHA256 password hash. Login UI. Bootstrap exits if env missing. | `server/auth/familyAuth.ts`, `server/familyAuthRouter.ts`, `server/_core/context.ts`, `server/_core/trpc.ts` (`familyProtectedProcedure`), `client/src/pages/Login.tsx`, `scripts/hash-family-password.ts`, `server/familyAuth.test.ts` |
-| **Wave 2** — DoS + integrity | helmet, rate limit (200/min general + 10/min on login), `app.set("trust proxy", 1)`, body limit 200KB, `jsonArrayString` zod helper (max 100KB + JSON refine), optimistic locking via `expectedUpdatedAt` returning CONFLICT | `server/_core/index.ts`, `server/routers.ts`, `server/db.ts`, `server/familyBudget.test.ts` |
-| **Wave 3** — Backup history | `familyBudgetHistory` table (max 30 snapshots, oldest auto-pruned), automatic snapshot on every save, list/get/restore tRPC endpoints, "Yedek Geçmişi" UI in Settings | `drizzle/schema.ts` (familyBudgetHistory), `drizzle/0001_lethal_jackpot.sql`, `server/db.ts` (`snapshotFamilyBudget`, `listFamilyBudgetHistory`, `getFamilyBudgetSnapshot`), `server/routers.ts` (`familyBudget.history.*`), `client/src/pages/Settings.tsx`, `server/familyBudgetHistory.test.ts` |
+| Wave                         | What                                                                                                                                                                                                                         | Where to find it                                                                                                                                                                                                                                                                                   |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Wave 1** — Auth            | Family password + httpOnly JWT cookie + person selection at login. HMAC-SHA256 password hash. Login UI. Bootstrap exits if env missing.                                                                                      | `server/auth/familyAuth.ts`, `server/familyAuthRouter.ts`, `server/_core/context.ts`, `server/_core/trpc.ts` (`familyProtectedProcedure`), `client/src/pages/Login.tsx`, `scripts/hash-family-password.ts`, `server/familyAuth.test.ts`                                                            |
+| **Wave 2** — DoS + integrity | helmet, rate limit (200/min general + 10/min on login), `app.set("trust proxy", 1)`, body limit 200KB, `jsonArrayString` zod helper (max 100KB + JSON refine), optimistic locking via `expectedUpdatedAt` returning CONFLICT | `server/_core/index.ts`, `server/routers.ts`, `server/db.ts`, `server/familyBudget.test.ts`                                                                                                                                                                                                        |
+| **Wave 3** — Backup history  | `familyBudgetHistory` table (max 30 snapshots, oldest auto-pruned), automatic snapshot on every save, list/get/restore tRPC endpoints, "Yedek Geçmişi" UI in Settings                                                        | `drizzle/schema.ts` (familyBudgetHistory), `drizzle/0001_lethal_jackpot.sql`, `server/db.ts` (`snapshotFamilyBudget`, `listFamilyBudgetHistory`, `getFamilyBudgetSnapshot`), `server/routers.ts` (`familyBudget.history.*`), `client/src/pages/Settings.tsx`, `server/familyBudgetHistory.test.ts` |
 
-## What is NOT done (your work — see `FIXES.md` for details)
+## What is NOT done (historical, kept for context)
 
 - **Phase 0:** Wave 0 cleanup is reverted. Manus plugins are back in `package.json` and `vite.config.ts`. `registerStorageProxy` and `registerOAuthRoutes` are being called in `server/_core/index.ts`. Manus localStorage write is unwrapped in `useAuth.ts`. Local run will fail until cleaned.
 - **Phase 1:** Local environment never set up (no `.env`, MySQL not initialized).
@@ -74,30 +74,30 @@ pnpm exec tsc --noEmit   # no type errors
 pnpm build          # production bundle builds clean
 ```
 
-Plus the smoke checklist in `FIXES.md` end of each phase.
+Plus the smoke checklist agreed in each prompt before merge.
 
 ## Design Reference
 
 Yeni UI tasarımı `_design/claude-design-v4/` klasöründe Claude Design çıktısı olarak duruyor. Bu klasör build edilmez, sadece referanstır. Dosya yapısı:
 
-| Dosya | Amaç |
-|---|---|
-| `app.jsx` | Root layout, viewport/theme toggle, page routing |
-| `components.jsx` | Avatar, CategoryPill, StatusBadge, PersonFilterChips, TabBar, EmptyState, Skeleton (PageSkeleton + 6 sub-component), HeroMetric, OwnerCard, SummaryCard |
-| `nav.jsx` | Sidebar (desktop), MobileBottomNav (with FAB), MobileHeader, Icon library |
-| `porsuk.jsx` | Calico cat character — 26 poses, click handler with anger meter (0-4), speech bubbles (idle/click/reactive/page-context), state machine, 4-frame leg cycle animation |
-| `notifications.jsx` | NotificationsPanel (dropdown desktop / bottom sheet mobile) with 5 sample notifications + empty state |
-| `dialogs.jsx` | AddIncomeDialog, AddExpenseDialog, AddDebtDialog, AddGoalDialog (CRUD modals) |
-| `page-giris.jsx` | Login page with avatar select + password + ambient orbs + parallax |
-| `page-ana.jsx` | Dashboard: Bütçe Sağlık Skoru, Net Değer, owner cards, summary cards, "BUGÜN" widget, Bütçe vs Gerçekleşen |
-| `page-gelir.jsx` | Gelir & Gider with 3 tabs (Gelirler, Giderler, Bütçe Limitleri with circular gauges) |
-| `page-borc.jsx` | Borç & Ödemeler with 3 tabs (Borçlar, Taksitler, Yıllık Ödemeler) |
-| `page-birikim.jsx` | Birikim & Hedef with filter tabs (Aktif/Tamamlanan/Tümü) |
-| `page-rapor.jsx` | Raporlar with 2 tabs (Aylık Karşılaştırma, Analitik) — custom SVG charts |
-| `page-ayar.jsx` | Ayarlar — Profil, Görünüm, Veri Yönetimi, Yedek Geçmişi, Çıkış |
-| `data.js` | Sample data: incomes, expenses, debts, installments, goals, budgets, backups, ownerLabel, fmtEUR helpers |
-| `styles.css` | Design tokens (oklch palette, owner colors, category colors, status, shadows, radii) + dark/light theme + animations |
-| `tweaks-panel.jsx` | Dev preview controls (skip during integration) |
+| Dosya               | Amaç                                                                                                                                                                 |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `app.jsx`           | Root layout, viewport/theme toggle, page routing                                                                                                                     |
+| `components.jsx`    | Avatar, CategoryPill, StatusBadge, PersonFilterChips, TabBar, EmptyState, Skeleton (PageSkeleton + 6 sub-component), HeroMetric, OwnerCard, SummaryCard              |
+| `nav.jsx`           | Sidebar (desktop), MobileBottomNav (with FAB), MobileHeader, Icon library                                                                                            |
+| `porsuk.jsx`        | Calico cat character — 26 poses, click handler with anger meter (0-4), speech bubbles (idle/click/reactive/page-context), state machine, 4-frame leg cycle animation |
+| `notifications.jsx` | NotificationsPanel (dropdown desktop / bottom sheet mobile) with 5 sample notifications + empty state                                                                |
+| `dialogs.jsx`       | AddIncomeDialog, AddExpenseDialog, AddDebtDialog, AddGoalDialog (CRUD modals)                                                                                        |
+| `page-giris.jsx`    | Login page with avatar select + password + ambient orbs + parallax                                                                                                   |
+| `page-ana.jsx`      | Dashboard: Bütçe Sağlık Skoru, Net Değer, owner cards, summary cards, "BUGÜN" widget, Bütçe vs Gerçekleşen                                                           |
+| `page-gelir.jsx`    | Gelir & Gider with 3 tabs (Gelirler, Giderler, Bütçe Limitleri with circular gauges)                                                                                 |
+| `page-borc.jsx`     | Borç & Ödemeler with 3 tabs (Borçlar, Taksitler, Yıllık Ödemeler)                                                                                                    |
+| `page-birikim.jsx`  | Birikim & Hedef with filter tabs (Aktif/Tamamlanan/Tümü)                                                                                                             |
+| `page-rapor.jsx`    | Raporlar with 2 tabs (Aylık Karşılaştırma, Analitik) — custom SVG charts                                                                                             |
+| `page-ayar.jsx`     | Ayarlar — Profil, Görünüm, Veri Yönetimi, Yedek Geçmişi, Çıkış                                                                                                       |
+| `data.js`           | Sample data: incomes, expenses, debts, installments, goals, budgets, backups, ownerLabel, fmtEUR helpers                                                             |
+| `styles.css`        | Design tokens (oklch palette, owner colors, category colors, status, shadows, radii) + dark/light theme + animations                                                 |
+| `tweaks-panel.jsx`  | Dev preview controls (skip during integration)                                                                                                                       |
 
 ### Design tokens özet (styles.css :root)
 
@@ -122,7 +122,7 @@ Yeni UI tasarımı `_design/claude-design-v4/` klasöründe Claude Design çıkt
 
 ### Integration plan
 
-Tasarım entegrasyonu fazlara bölünecek (FIXES.md'deki gibi). İlerleyen prompt'larda her faz spec'i verilecek. Mevcut master/butce.aileplan.uk dokunulmaz — yeni `design-claude-v4` branch'inde çalışılır, test.aileplan.uk preview'i bu branch'e işaret eder.
+Tasarım entegrasyonu fazlara bölünüp tamamlandı; sonuç master'a merge edildi. test.aileplan.uk preview'i tarihsel olarak `design-claude-v4` branch'ini gösterirdi (artık branch silinmiş olabilir, butce.aileplan.uk ile demo.aileplan.uk canlı).
 
 ## Çıktı Formatı (CC için — HER ZAMAN UYGULA)
 
@@ -144,6 +144,7 @@ Kullanıcı çıktıyı kopyalayıp paylaşıyor; mouse ile satır satır seçme
 ### Yanlış / Doğru örnek
 
 **YANLIŞ** (kullanıcı her başlığı tek tek seçmek zorunda):
+
 ```
 ## Aşama 1 tamam
 - Commit: abc123
@@ -154,6 +155,7 @@ Kullanıcı çıktıyı kopyalayıp paylaşıyor; mouse ile satır satır seçme
 ```
 
 **DOĞRU** (tek tıkla copy):
+
 ````
 ```
 ═══════════════════════════════════════════
@@ -176,7 +178,7 @@ Bu kural projenin her CC turunda **otomatik uygulanır**, prompt'ta tekrar belir
 
 ## Where to start
 
-1. Read `FIXES.md` end-to-end.
+1. Read this file (CLAUDE.md) end-to-end.
 2. Confirm you can satisfy each phase's acceptance criteria.
 3. Begin Phase 0. Commit. Phase 1. Commit. Phase 2. Commit. … Phase 6.
 4. After Phase 6, summarize: which files changed, any deviations from the spec, any open issues.
