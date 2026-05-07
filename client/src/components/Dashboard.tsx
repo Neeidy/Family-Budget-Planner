@@ -14,9 +14,41 @@ import {
   TodaySummaryStripCompact,
 } from "@/components/design";
 import type { AvatarWho } from "@/components/design";
+import type { UpcomingItem } from "@/components/design/TodaySummaryStripCompact";
+import { getCategoryMeta } from "@/components/design/CategoryPill";
 import { TrendingUp, TrendingDown, ArrowRight } from "lucide-react";
 import { formatMoney, formatMoneyShort } from "@/lib/format";
 import { applyPersonFilter } from "@/lib/personFilter";
+
+// ── Upcoming-bill helpers ─────────────────────────────────────
+const ownerToWho = (o: "Benim" | "Esim" | "Ev"): AvatarWho =>
+  o === "Benim" ? "yigit" : o === "Esim" ? "arzu" : "ev";
+
+/**
+ * Days until the given day-of-month falls next, relative to `today`.
+ * If `dayStr` is empty / non-numeric / out-of-range, returns null.
+ */
+function daysUntilDayOfMonth(dayStr: string, today: Date): number | null {
+  const day = parseInt(dayStr, 10);
+  if (!Number.isFinite(day) || day < 1 || day > 31) return null;
+  const todayDay = today.getDate();
+  if (day >= todayDay) return day - todayDay;
+  const next = new Date(today.getFullYear(), today.getMonth() + 1, day);
+  return Math.round((next.getTime() - today.getTime()) / 86_400_000);
+}
+
+/**
+ * Days until the 15th of `month` (1-12). If that day has already passed
+ * this year, target the next occurrence in the following year.
+ */
+function daysUntilMonth(month: number, today: Date): number {
+  const year = today.getFullYear();
+  let target = new Date(year, month - 1, 15);
+  if (target.getTime() < today.getTime()) {
+    target = new Date(year + 1, month - 1, 15);
+  }
+  return Math.round((target.getTime() - today.getTime()) / 86_400_000);
+}
 
 // ── Bütçe Sağlık Skoru (preserved scoring logic, used by HealthBubble) ──
 function calcHealthScore(params: {
@@ -207,6 +239,73 @@ export function Dashboard() {
 
   // Map filter value for design-ref components (controlled by global PersonFilterChips in DashboardLayout)
   const designFilter: DesignFilter = DESIGN_FILTER[filter] ?? "tumu";
+
+  // Real "Yarın Ödenecek" list — pulled from filtered expenses,
+  // installments, and annual payments. Owner filter already applied
+  // to expenses/installments via the global PersonFilter; annual
+  // payments are family-wide so they're shown only on Tümü/Ev.
+  const upcomingItems: UpcomingItem[] = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const items: UpcomingItem[] = [];
+
+    // Expenses with status "Bekliyor" — paymentDay is the day-of-month
+    for (const e of filteredExpenses) {
+      if (e.status !== "Bekliyor") continue;
+      const days = daysUntilDayOfMonth(e.paymentDay, today);
+      if (days === null) continue;
+      const meta = getCategoryMeta(e.category);
+      items.push({
+        name: e.subcategory || e.category,
+        amount: e.amount,
+        days,
+        who: ownerToWho(e.owner),
+        emoji: meta.emoji,
+      });
+    }
+
+    // Installments — recurring monthly payment, anchored at startMonth
+    const filteredInstallments = applyPersonFilter(
+      budgetData.installments ?? [],
+      filter
+    );
+    for (const inst of filteredInstallments) {
+      // Treat day-of-month as 1 (no per-day field on installments)
+      const days = daysUntilDayOfMonth("1", today);
+      if (days === null) continue;
+      items.push({
+        name: inst.name,
+        amount: inst.monthlyAmount,
+        days,
+        who: ownerToWho(inst.owner),
+        emoji: "📱",
+      });
+    }
+
+    // Annual payments — show only when filter is Tümü or Ev (family-wide)
+    if (filter === "Tümü" || filter === "Ev") {
+      for (const ap of budgetData.annualPayments ?? []) {
+        if (!ap.paymentMonth) continue;
+        const days = daysUntilMonth(ap.paymentMonth, today);
+        // Only surface annual payments due in the next ~60 days
+        if (days > 60) continue;
+        items.push({
+          name: ap.name,
+          amount: ap.amount,
+          days,
+          who: "ev",
+          emoji: "📅",
+        });
+      }
+    }
+
+    return items.sort((a, b) => a.days - b.days).slice(0, 10);
+  }, [
+    filteredExpenses,
+    budgetData.installments,
+    budgetData.annualPayments,
+    filter,
+  ]);
 
   const goRapor = () => setLocation("/raporlar");
 
@@ -444,7 +543,11 @@ export function Dashboard() {
           <HealthBubble score={healthScore} mobile={mobile} onClick={goRapor} />
         </div>
 
-        <TodaySummaryStripCompact mobile={mobile} filter={designFilter} />
+        <TodaySummaryStripCompact
+          mobile={mobile}
+          filter={designFilter}
+          upcoming={upcomingItems}
+        />
       </div>
 
       {/* OWNER CARDS (3-col) — page-ana.jsx:95-103 */}

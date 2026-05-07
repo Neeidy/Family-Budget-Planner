@@ -3,7 +3,7 @@ import { formatMoneyShort } from "@/lib/format";
 
 type FilterKey = "tumu" | "yigit" | "arzu" | "ev";
 
-interface UpcomingItem {
+export interface UpcomingItem {
   name: string;
   amount: number;
   days: number;
@@ -11,32 +11,23 @@ interface UpcomingItem {
   emoji: string;
 }
 
-const SAMPLE_UPCOMING: UpcomingItem[] = [
-  { name: "Kredi Kartı", amount: 200, days: 1, who: "yigit", emoji: "💳" },
-  { name: "Telefon Taksit", amount: 100, days: 2, who: "yigit", emoji: "📱" },
-  { name: "Kira", amount: 850, days: 3, who: "ev", emoji: "🏠" },
-  { name: "İnternet", amount: 45, days: 2, who: "ev", emoji: "📡" },
-  { name: "Spor Üyeliği", amount: 60, days: 1, who: "arzu", emoji: "🧘" },
-  { name: "Netflix", amount: 18, days: 4, who: "arzu", emoji: "🎬" },
-];
-
 interface TodaySummaryStripCompactProps {
   mobile: boolean;
   filter: FilterKey;
+  upcoming: UpcomingItem[];
 }
 
 /**
- * Line-by-line port of _design/page-ana.jsx:352-416 (TodaySummaryStripCompact).
- * Sample data inline — designed as a snapshot of upcoming bills filtered by owner.
+ * Port of _design/page-ana.jsx:352-416 (TodaySummaryStripCompact).
+ * Receives the upcoming list as a prop — caller computes it from real
+ * expenses + installments + annualPayments. Falls back to empty state
+ * when the filtered profile has nothing upcoming.
  */
 export function TodaySummaryStripCompact({
   mobile,
   filter,
+  upcoming,
 }: TodaySummaryStripCompactProps) {
-  const upcoming =
-    filter === "tumu"
-      ? SAMPLE_UPCOMING
-      : SAMPLE_UPCOMING.filter(u => u.who === filter);
   const totalDue = upcoming.reduce((s, u) => s + u.amount, 0);
   const ownerName = (
     { yigit: "Yigit", arzu: "Arzu", ev: "Ev", tumu: "Hepsi" } as const
