@@ -16,6 +16,18 @@ const plugins = [
       navigateFallbackDenylist: [/^\/api/, /^\/trpc/],
       runtimeCaching: [
         {
+          // HTML navigation requests: prefer fresh network so a new
+          // deploy doesn't leave clients pinned to an old shell.
+          // 3 s timeout falls back to cache when offline.
+          urlPattern: ({ request }) => request.mode === "navigate",
+          handler: "NetworkFirst",
+          options: {
+            cacheName: "html-pages",
+            networkTimeoutSeconds: 3,
+            expiration: { maxEntries: 20, maxAgeSeconds: 86400 },
+          },
+        },
+        {
           urlPattern: /^https:\/\/fonts\.googleapis\.com/,
           handler: "StaleWhileRevalidate",
           options: { cacheName: "google-fonts" },

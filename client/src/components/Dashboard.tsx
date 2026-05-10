@@ -212,25 +212,19 @@ export function Dashboard() {
   const todaySpent = filteredExpenses
     .filter(e => e.paymentDay === todayKey)
     .reduce((s, e) => s + e.amount, 0);
-  const monthBudget =
-    (budgetData.budgetLimits || []).reduce((s, b) => s + b.limit, 0) || 3500;
+  const monthBudget = (budgetData.budgetLimits || []).reduce(
+    (s, b) => s + b.limit,
+    0
+  );
   const monthSpent = filteredTotals.totalExpense;
   const monthRemaining = monthBudget - monthSpent;
   const tomorrowDue = filteredExpenses
     .filter(e => e.status === "Bekliyor")
     .reduce((s, e) => s + e.amount, 0);
 
-  // Bütçe vs Gerçekleşen — sample categories from design ref + actual data fallback
+  // Bütçe vs Gerçekleşen — derived from real budgetLimits.
+  // Empty when the user hasn't configured any limits yet.
   const bvaSamples = useMemo(() => {
-    const sample = [
-      { cat: "konut", plan: 1500, real: 1380 },
-      { cat: "yiyecek", plan: 600, real: 565 },
-      { cat: "ulasim", plan: 250, real: 255 },
-      { cat: "eglence", plan: 300, real: 240 },
-      { cat: "saglik", plan: 320, real: 320 },
-    ];
-    if ((budgetData.budgetLimits ?? []).length === 0) return sample;
-    // Use real data when budget limits exist
     return (budgetData.budgetLimits ?? []).slice(0, 5).map(bl => ({
       cat: bl.category,
       plan: bl.limit,
@@ -685,6 +679,20 @@ export function Dashboard() {
           </div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          {bvaSamples.length === 0 && (
+            <div
+              style={{
+                padding: "20px 12px",
+                textAlign: "center",
+                fontSize: 13,
+                color: "var(--text-tertiary)",
+                lineHeight: 1.5,
+              }}
+            >
+              Henüz bütçe limiti yok. Gelir &amp; Gider sayfasında
+              "Bütçe Limitleri" sekmesinden ekleyebilirsiniz.
+            </div>
+          )}
           {bvaSamples.map(b => {
             const max = Math.max(b.plan, b.real, 1);
             const overBudget = b.real > b.plan;
