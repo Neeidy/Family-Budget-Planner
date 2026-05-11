@@ -55,6 +55,7 @@
   --color-cat-konut: var(--cat-konut);
   --color-cat-yiyecek: var(--cat-yiyecek);
   --color-cat-ulasim: var(--cat-ulasim);
+  --color-cat-araba: var(--cat-araba);
   --color-cat-saglik: var(--cat-saglik);
   --color-cat-eglence: var(--cat-eglence);
   --color-cat-abonelik: var(--cat-abonelik);
@@ -164,6 +165,7 @@
   --cat-konut: oklch(0.7 0.16 240);
   --cat-yiyecek: oklch(0.72 0.18 145);
   --cat-ulasim: oklch(0.74 0.16 60);
+  --cat-araba: oklch(0.72 0.14 250);
   --cat-saglik: oklch(0.68 0.2 25);
   --cat-eglence: oklch(0.72 0.2 350);
   --cat-abonelik: oklch(0.7 0.2 295);

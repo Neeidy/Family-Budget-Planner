@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useLocation } from "wouter";
 import { useBudget } from "@/contexts/BudgetContext";
 import { usePerson } from "@/contexts/PersonContext";
@@ -311,6 +311,126 @@ export function Dashboard() {
 
   const goRapor = () => setLocation("/raporlar");
 
+  // Owner-card drilldown — one open at a time
+  const [expandedOwner, setExpandedOwner] = useState<
+    "Benim" | "Esim" | "Ev" | null
+  >(null);
+
+  const ownerExpenses = useMemo(() => {
+    const byOwner: Record<"Benim" | "Esim" | "Ev", typeof budgetData.expenses> =
+      { Benim: [], Esim: [], Ev: [] };
+    for (const e of budgetData.expenses) {
+      if (e.owner === "Benim" || e.owner === "Esim" || e.owner === "Ev") {
+        byOwner[e.owner].push(e);
+      }
+    }
+    return byOwner;
+  }, [budgetData.expenses]);
+
+  const renderOwnerDrilldown = (ownerKey: "Benim" | "Esim" | "Ev") => {
+    const list = [...ownerExpenses[ownerKey]]
+      .sort((a, b) => {
+        if (b.amount !== a.amount) return b.amount - a.amount;
+        return (a.paymentDay || "").localeCompare(b.paymentDay || "");
+      })
+      .slice(0, 8);
+    const hasMore = ownerExpenses[ownerKey].length > 8;
+    if (list.length === 0) {
+      return (
+        <div
+          style={{
+            padding: "12px 4px",
+            fontSize: 12,
+            color: "var(--text-tertiary)",
+            textAlign: "center",
+          }}
+        >
+          Henüz gider yok
+        </div>
+      );
+    }
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+        {list.map(e => {
+          const meta = getCategoryMeta(e.category);
+          const statusColor =
+            e.status === "Odendi"
+              ? "var(--status-success)"
+              : e.status === "Gecikti"
+                ? "var(--status-danger)"
+                : "var(--status-warning)";
+          return (
+            <div
+              key={e.id}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                padding: "8px 10px",
+                borderRadius: 10,
+                background: "var(--bg-elevated)",
+              }}
+            >
+              <span style={{ fontSize: 16, flexShrink: 0 }}>{meta.emoji}</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div
+                  style={{
+                    fontSize: 13,
+                    fontWeight: 600,
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {e.subcategory || e.category}
+                </div>
+                <div
+                  style={{
+                    fontSize: 10,
+                    color: statusColor,
+                    fontWeight: 600,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.04em",
+                  }}
+                >
+                  {e.status === "Odendi"
+                    ? "Ödendi"
+                    : e.status === "Gecikti"
+                      ? "Gecikti"
+                      : "Bekliyor"}
+                </div>
+              </div>
+              <span
+                className="tnum"
+                style={{ fontSize: 13, fontWeight: 700, flexShrink: 0 }}
+              >
+                {formatMoneyShort(e.amount)}
+              </span>
+            </div>
+          );
+        })}
+        {hasMore && (
+          <button
+            type="button"
+            onClick={() => setLocation("/gelir-gider")}
+            style={{
+              marginTop: 4,
+              padding: "8px 0",
+              fontSize: 12,
+              fontWeight: 600,
+              color: "var(--accent-green)",
+              background: "transparent",
+              border: "none",
+              cursor: "pointer",
+            }}
+          >
+            Hepsini gör →
+          </button>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div
       className="fade-up"
@@ -563,27 +683,41 @@ export function Dashboard() {
         <OwnerCard
           who="yigit"
           title={`${person1Name.toLocaleUpperCase("tr-TR")}'İN GİDERLERİ`}
-          amount={formatMoney(fullTotals.myExpenses)}
-          subtitle={`Ev payı: ${formatMoney(fullTotals.homeExpenses / 2)}`}
-          cats={
-            yigitCats.length > 0 ? yigitCats : ["yiyecek", "ulasim", "spor"]
+          amount={formatMoney(fullTotals.myExpensesOwn)}
+          subtitle={`Ev payı katkın: ${formatMoney(fullTotals.myHomeShare)}`}
+          cats={yigitCats}
+          expandable
+          isExpanded={expandedOwner === "Benim"}
+          onToggle={() =>
+            setExpandedOwner(expandedOwner === "Benim" ? null : "Benim")
           }
+          expandedContent={renderOwnerDrilldown("Benim")}
         />
         <OwnerCard
           who="arzu"
           title={`${person2Name.toLocaleUpperCase("tr-TR")}'IN GİDERLERİ`}
-          amount={formatMoney(fullTotals.spouseExpenses)}
-          subtitle={`Ev payı: ${formatMoney(fullTotals.homeExpenses / 2)}`}
-          cats={
-            arzuCats.length > 0 ? arzuCats : ["eglence", "abonelik", "yiyecek"]
+          amount={formatMoney(fullTotals.spouseExpensesOwn)}
+          subtitle={`Ev payı katkın: ${formatMoney(fullTotals.spouseHomeShare)}`}
+          cats={arzuCats}
+          expandable
+          isExpanded={expandedOwner === "Esim"}
+          onToggle={() =>
+            setExpandedOwner(expandedOwner === "Esim" ? null : "Esim")
           }
+          expandedContent={renderOwnerDrilldown("Esim")}
         />
         <OwnerCard
           who="ev"
           title="ORTAK GİDERLER"
           amount={formatMoney(fullTotals.homeExpenses)}
           subtitle={`Her biri: ${formatMoney(fullTotals.homeExpenses / 2)}`}
-          cats={evCats.length > 0 ? evCats : ["konut", "saglik", "yiyecek"]}
+          cats={evCats}
+          expandable
+          isExpanded={expandedOwner === "Ev"}
+          onToggle={() =>
+            setExpandedOwner(expandedOwner === "Ev" ? null : "Ev")
+          }
+          expandedContent={renderOwnerDrilldown("Ev")}
         />
       </div>
 

@@ -16,6 +16,7 @@ function normalizeKey(input: string): string {
 const C_KONUT = "var(--cat-konut)";
 const C_YIYECEK = "var(--cat-yiyecek)";
 const C_ULASIM = "var(--cat-ulasim)";
+const C_ARABA = "var(--cat-araba)";
 const C_SAGLIK = "var(--cat-saglik)";
 const C_EGLENCE = "var(--cat-eglence)";
 const C_ABONELIK = "var(--cat-abonelik)";
@@ -52,11 +53,26 @@ const CATEGORIES: Record<string, CategoryMeta> = {
   eglence: { name: "Eğlence", emoji: "🎬", colorVar: C_EGLENCE },
   eglencevesosyal: { name: "Eğlence", emoji: "🎬", colorVar: C_EGLENCE },
 
-  // Ulaşım
-  ulasim: { name: "Ulaşım", emoji: "🚗", colorVar: C_ULASIM },
-  ulasimvearac: { name: "Ulaşım", emoji: "🚗", colorVar: C_ULASIM },
-  yakit: { name: "Yakıt", emoji: "⛽", colorVar: C_ULASIM },
+  // Ulaşım (toplu taşıma, taksi, tren, uçak)
+  ulasim: { name: "Ulaşım", emoji: "🚌", colorVar: C_ULASIM },
+  ulasimvearac: { name: "Ulaşım", emoji: "🚌", colorVar: C_ULASIM },
   toplutasima: { name: "Toplu Taşıma", emoji: "🚌", colorVar: C_ULASIM },
+  wienerlinien: { name: "Wiener Linien", emoji: "🚌", colorVar: C_ULASIM },
+  obb: { name: "ÖBB", emoji: "🚆", colorVar: C_ULASIM },
+  taksi: { name: "Taksi", emoji: "🚕", colorVar: C_ULASIM },
+  ucak: { name: "Uçak", emoji: "✈️", colorVar: C_ULASIM },
+
+  // Araba (kendi aracı: sigorta, yakıt, park, vignette, servis)
+  araba: { name: "Araba", emoji: "🚙", colorVar: C_ARABA },
+  yakit: { name: "Yakıt", emoji: "⛽", colorVar: C_ARABA },
+  parkpickerl: { name: "Parkpickerl", emoji: "🅿️", colorVar: C_ARABA },
+  pickerl: { name: "Pickerl", emoji: "🚙", colorVar: C_ARABA },
+  tamirservis: { name: "Servis", emoji: "🔧", colorVar: C_ARABA },
+  yikama: { name: "Yıkama", emoji: "🧽", colorVar: C_ARABA },
+  oamtc: { name: "ÖAMTC", emoji: "🆘", colorVar: C_ARABA },
+  vignette: { name: "Vignette", emoji: "🛣️", colorVar: C_ARABA },
+  otopark: { name: "Otopark", emoji: "🅿️", colorVar: C_ARABA },
+  ceza: { name: "Ceza", emoji: "🚓", colorVar: C_ARABA },
 
   // Sağlık & sigorta
   saglik: { name: "Sağlık", emoji: "⚕️", colorVar: C_SAGLIK },

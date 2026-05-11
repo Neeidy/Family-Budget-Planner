@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useBudget } from "@/contexts/BudgetContext";
 import { usePerson } from "@/contexts/PersonContext";
 import type { BudgetLimit } from "@/hooks/useBudgetData";
+import { CATEGORIES } from "@shared/categories";
 import {
   DialogShell,
   Field,
@@ -10,19 +11,6 @@ import {
   CancelButton,
   PrimaryButton,
 } from "./DialogShell";
-
-const CATEGORIES = [
-  { key: "Konut", emoji: "🏠" },
-  { key: "Yiyecek", emoji: "🛒" },
-  { key: "Ulasim", emoji: "🚗" },
-  { key: "Saglik", emoji: "⚕️" },
-  { key: "Eglence", emoji: "🎬" },
-  { key: "Abonelik", emoji: "📺" },
-  { key: "Giyim", emoji: "👕" },
-  { key: "Spor", emoji: "⚽" },
-  { key: "Porsuk", emoji: "🐈" },
-  { key: "Diger", emoji: "📦" },
-] as const;
 
 interface BudgetLimitDialogProps {
   open: boolean;
@@ -118,7 +106,7 @@ export function BudgetLimitDialog({
                 }}
               >
                 <span>{c.emoji}</span>
-                <span>{c.key}</span>
+                <span>{c.label}</span>
               </button>
             );
           })}
