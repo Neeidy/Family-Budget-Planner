@@ -24,10 +24,8 @@ export function SummaryCard({
   const c = COLOR_MAP[color];
   return (
     <div
+      className="card lift"
       style={{
-        background: "var(--bg-surface)",
-        borderRadius: "var(--r-lg)",
-        boxShadow: "var(--shadow-card)",
         padding: "16px 20px",
       }}
     >
