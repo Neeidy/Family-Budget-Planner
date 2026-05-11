@@ -62,6 +62,11 @@
   --color-cat-giyim: var(--cat-giyim);
   --color-cat-spor: var(--cat-spor);
   --color-cat-porsuk: var(--cat-porsuk);
+  --color-cat-ai: var(--cat-ai);
+  --color-cat-kisiselbakim: var(--cat-kisiselbakim);
+  --color-cat-tatil: var(--cat-tatil);
+  --color-cat-loto: var(--cat-loto);
+  --color-cat-tabak: var(--cat-tabak);
   --color-cat-diger: var(--cat-diger);
 
   /* ── Claude Design v4: status colors ── */
@@ -172,6 +177,11 @@
   --cat-giyim: oklch(0.82 0.16 95);
   --cat-spor: oklch(0.72 0.14 195);
   --cat-porsuk: oklch(0.78 0.14 215);
+  --cat-ai: oklch(0.74 0.16 290);
+  --cat-kisiselbakim: oklch(0.82 0.12 350);
+  --cat-tatil: oklch(0.78 0.14 200);
+  --cat-loto: oklch(0.78 0.18 130);
+  --cat-tabak: oklch(0.62 0.08 60);
   --cat-diger: oklch(0.7 0.02 250);
 
   /* Status (consistent across themes) */
