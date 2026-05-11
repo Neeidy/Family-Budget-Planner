@@ -158,7 +158,7 @@ function OwnerBadge({
   const who: AvatarWho =
     owner === "Benim" ? "yigit" : owner === "Esim" ? "arzu" : "ev";
   const name =
-    owner === "Benim" ? person1Name : owner === "Esim" ? person2Name : "Ortak";
+    owner === "Benim" ? person1Name : owner === "Esim" ? person2Name : "Ev";
   return (
     <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
       <Avatar who={who} size={20} />

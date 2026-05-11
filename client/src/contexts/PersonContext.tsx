@@ -42,6 +42,7 @@ export function PersonProvider({ children }: { children: ReactNode }) {
   const currentPerson: PersonKey = familySession?.person ?? null;
 
   const [person1Name, setPerson1NameState] = useState<string>(() => {
+    if (isDemoHost) return DEFAULT_PERSON1;
     try {
       const saved = localStorage.getItem(NAMES_STORAGE_KEY);
       if (saved) return JSON.parse(saved).person1 || DEFAULT_PERSON1;
@@ -50,6 +51,7 @@ export function PersonProvider({ children }: { children: ReactNode }) {
   });
 
   const [person2Name, setPerson2NameState] = useState<string>(() => {
+    if (isDemoHost) return DEFAULT_PERSON2;
     try {
       const saved = localStorage.getItem(NAMES_STORAGE_KEY);
       if (saved) return JSON.parse(saved).person2 || DEFAULT_PERSON2;
@@ -76,12 +78,14 @@ export function PersonProvider({ children }: { children: ReactNode }) {
 
   const setPerson1Name = (name: string) => {
     setPerson1NameState(name);
+    if (isDemoHost) return;
     const current = { person1: name, person2: person2Name };
     localStorage.setItem(NAMES_STORAGE_KEY, JSON.stringify(current));
   };
 
   const setPerson2Name = (name: string) => {
     setPerson2NameState(name);
+    if (isDemoHost) return;
     const current = { person1: person1Name, person2: name };
     localStorage.setItem(NAMES_STORAGE_KEY, JSON.stringify(current));
   };

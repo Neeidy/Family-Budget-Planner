@@ -664,6 +664,8 @@ export function Dashboard() {
           mobile={mobile}
           filter={designFilter}
           upcoming={upcomingItems}
+          person1Name={person1Name}
+          person2Name={person2Name}
         />
       </div>
 
