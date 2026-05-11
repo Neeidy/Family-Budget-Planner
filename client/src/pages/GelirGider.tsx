@@ -14,8 +14,8 @@ import {
   IncomeDialog,
   ExpenseDialog,
   BudgetLimitDialog,
-  DeleteConfirmDialog,
 } from "@/components/design";
+import { deleteWithUndo } from "@/lib/undoToast";
 import type { AvatarWho } from "@/components/design";
 import { formatMoney } from "@/lib/format";
 import { applyPersonFilter } from "@/lib/personFilter";
@@ -829,7 +829,14 @@ type DialogState<T> = { open: boolean; entity?: T };
 export default function GelirGider() {
   const [tab, setTab] = useState<Tab>("Gelirler");
   const { filter } = usePersonFilter();
-  const { deleteIncome, deleteExpense, deleteBudgetLimit } = useBudget();
+  const {
+    addIncome,
+    deleteIncome,
+    addExpense,
+    deleteExpense,
+    addBudgetLimit,
+    deleteBudgetLimit,
+  } = useBudget();
 
   const [incomeDialog, setIncomeDialog] = useState<DialogState<Income>>({
     open: false,
@@ -840,9 +847,33 @@ export default function GelirGider() {
   const [limitDialog, setLimitDialog] = useState<DialogState<BudgetLimit>>({
     open: false,
   });
-  const [incomeDelete, setIncomeDelete] = useState<Income | null>(null);
-  const [expenseDelete, setExpenseDelete] = useState<Expense | null>(null);
-  const [limitDelete, setLimitDelete] = useState<BudgetLimit | null>(null);
+
+  const handleDeleteIncome = (i: Income) =>
+    deleteWithUndo({
+      item: i,
+      description: i.name,
+      getId: x => x.id,
+      deleteFn: deleteIncome,
+      restoreFn: ({ id: _id, ...rest }) => addIncome(rest),
+    });
+
+  const handleDeleteExpense = (e: Expense) =>
+    deleteWithUndo({
+      item: e,
+      description: e.subcategory || e.category,
+      getId: x => x.id,
+      deleteFn: deleteExpense,
+      restoreFn: ({ id: _id, ...rest }) => addExpense(rest),
+    });
+
+  const handleDeleteLimit = (l: BudgetLimit) =>
+    deleteWithUndo({
+      item: l,
+      description: `${l.category} limiti`,
+      getId: x => x.id,
+      deleteFn: deleteBudgetLimit,
+      restoreFn: ({ id: _id, ...rest }) => addBudgetLimit(rest),
+    });
 
   // Open dialog from MobileFAB QuickAdd via ?action= query param
   const search = useSearch();
@@ -880,14 +911,14 @@ export default function GelirGider() {
         <IncomesTab
           globalFilter={filter}
           onEdit={i => setIncomeDialog({ open: true, entity: i })}
-          onDelete={i => setIncomeDelete(i)}
+          onDelete={handleDeleteIncome}
         />
       )}
       {tab === "Giderler" && (
         <ExpensesTab
           globalFilter={filter}
           onEdit={e => setExpenseDialog({ open: true, entity: e })}
-          onDelete={e => setExpenseDelete(e)}
+          onDelete={handleDeleteExpense}
         />
       )}
       {tab === "Bütçe Limitleri" && (
@@ -895,7 +926,7 @@ export default function GelirGider() {
           globalFilter={filter}
           onAdd={() => setLimitDialog({ open: true })}
           onEdit={l => setLimitDialog({ open: true, entity: l })}
-          onDelete={l => setLimitDelete(l)}
+          onDelete={handleDeleteLimit}
         />
       )}
 
@@ -915,31 +946,7 @@ export default function GelirGider() {
         entity={limitDialog.entity}
       />
 
-      <DeleteConfirmDialog
-        open={!!incomeDelete}
-        onClose={() => setIncomeDelete(null)}
-        onConfirm={() => incomeDelete && deleteIncome(incomeDelete.id)}
-        label={incomeDelete ? `"${incomeDelete.name}"` : ""}
-        description="Bu gelir kaydı listeden kaldırılacak."
-      />
-      <DeleteConfirmDialog
-        open={!!expenseDelete}
-        onClose={() => setExpenseDelete(null)}
-        onConfirm={() => expenseDelete && deleteExpense(expenseDelete.id)}
-        label={
-          expenseDelete
-            ? `"${expenseDelete.subcategory || expenseDelete.category}"`
-            : ""
-        }
-        description="Bu gider kaydı listeden kaldırılacak."
-      />
-      <DeleteConfirmDialog
-        open={!!limitDelete}
-        onClose={() => setLimitDelete(null)}
-        onConfirm={() => limitDelete && deleteBudgetLimit(limitDelete.id)}
-        label={limitDelete ? `"${limitDelete.category}" limiti` : ""}
-        description="Bu bütçe limiti kaldırılacak."
-      />
+      {/* Delete confirm dialogs removed in favour of deleteWithUndo toast (FAZ 3). */}
     </div>
   );
 }
