@@ -528,14 +528,22 @@
   /* ── Card hover lift (mockup parity, _design/styles.css:220-224) ── */
   .lift {
     transition:
-      transform 200ms,
-      box-shadow 200ms;
+      transform 200ms cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 200ms ease-out;
+    cursor: default;
   }
   .lift:hover {
     transform: translateY(-2px);
     box-shadow:
       0 18px 40px -16px rgba(0, 0, 0, 0.5),
       0 4px 10px rgba(0, 0, 0, 0.18);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .lift,
+    .lift:hover {
+      transform: none;
+      transition: none;
+    }
   }
 
   /* ── Tabular numerals (financial figures) ── */

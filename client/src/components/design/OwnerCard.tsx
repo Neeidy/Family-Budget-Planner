@@ -104,17 +104,31 @@ export function OwnerCard({
           ))}
         </div>
       )}
-      {expandable && isExpanded && expandedContent && (
+      {/* Smooth expand/collapse via CSS grid technique
+          (gridTemplateRows 1fr ↔ 0fr animates without max-height hack). */}
+      {expandable && expandedContent && (
         <div
           onClick={e => e.stopPropagation()}
           style={{
-            marginTop: 16,
-            paddingTop: 16,
-            borderTop: "1px solid var(--border-faint)",
+            display: "grid",
+            gridTemplateRows: isExpanded ? "1fr" : "0fr",
+            transition:
+              "grid-template-rows 220ms cubic-bezier(0.16, 1, 0.3, 1)",
+            overflow: "hidden",
             cursor: "default",
           }}
         >
-          {expandedContent}
+          <div style={{ minHeight: 0 }}>
+            <div
+              style={{
+                marginTop: 16,
+                paddingTop: 16,
+                borderTop: "1px solid var(--border-faint)",
+              }}
+            >
+              {expandedContent}
+            </div>
+          </div>
         </div>
       )}
     </div>

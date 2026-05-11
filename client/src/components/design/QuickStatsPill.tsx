@@ -61,7 +61,7 @@ export function QuickStatsPill({
   ];
   return (
     <div
-      className="quick-stats-pill"
+      className="quick-stats-pill lift"
       style={{
         display: "grid",
         gridTemplateColumns: mobile ? "1fr 1fr 1fr" : "repeat(3, 1fr)",

@@ -8,8 +8,8 @@ import {
   Avatar,
   EmptyState,
   GoalDialog,
-  DeleteConfirmDialog,
 } from "@/components/design";
+import { deleteWithUndo } from "@/lib/undoToast";
 import type { AvatarWho } from "@/components/design";
 import { formatMoney, formatMoneyShort } from "@/lib/format";
 import { applyPersonFilter } from "@/lib/personFilter";
@@ -320,11 +320,13 @@ function GoalCard({
   mobile,
   onEdit,
   onDelete,
+  onContribute,
 }: {
   goal: SavingsGoal;
   mobile: boolean;
   onEdit: () => void;
   onDelete: () => void;
+  onContribute: (amount: number) => void;
 }) {
   const pct =
     goal.targetAmount > 0
@@ -339,6 +341,58 @@ function GoalCard({
         Math.ceil((targetDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24))
       )
     : null;
+
+  // Projected completion vs target date
+  const remainingAmount = Math.max(0, goal.targetAmount - goal.currentAmount);
+  const monthsUntilTarget = targetDate
+    ? Math.max(
+        0,
+        (targetDate.getFullYear() - new Date().getFullYear()) * 12 +
+          (targetDate.getMonth() - new Date().getMonth())
+      )
+    : null;
+
+  let projectionStatus: {
+    label: string;
+    color: string;
+    bg: string;
+  } | null = null;
+  if (remainingAmount <= 0) {
+    projectionStatus = {
+      label: "✓ Hedef tamamlandı",
+      color: "var(--status-success)",
+      bg: "color-mix(in oklch, var(--status-success) 14%, transparent)",
+    };
+  } else if (goal.monthlyAllocation <= 0) {
+    projectionStatus = {
+      label: "⚠ Aylık katkı belirtilmemiş",
+      color: "var(--status-warning)",
+      bg: "color-mix(in oklch, var(--status-warning) 14%, transparent)",
+    };
+  } else if (monthsUntilTarget !== null && targetDate !== null) {
+    const monthsNeeded = Math.ceil(remainingAmount / goal.monthlyAllocation);
+    if (monthsUntilTarget <= 0) {
+      projectionStatus = {
+        label: "⚠ Hedef tarihi geçti, güncelle",
+        color: "var(--status-danger)",
+        bg: "color-mix(in oklch, var(--status-danger) 14%, transparent)",
+      };
+    } else if (monthsNeeded <= monthsUntilTarget) {
+      projectionStatus = {
+        label: "✓ Hedef tarihine yetişiyor",
+        color: "var(--status-success)",
+        bg: "color-mix(in oklch, var(--status-success) 14%, transparent)",
+      };
+    } else {
+      const delayMonths = monthsNeeded - monthsUntilTarget;
+      const neededMonthly = Math.ceil(remainingAmount / monthsUntilTarget);
+      projectionStatus = {
+        label: `⚠ ${delayMonths} ay gecikme — aylık €${neededMonthly} gerekli`,
+        color: "var(--status-warning)",
+        bg: "color-mix(in oklch, var(--status-warning) 14%, transparent)",
+      };
+    }
+  }
 
   return (
     <div
@@ -434,6 +488,21 @@ function GoalCard({
         </div>
       </div>
 
+      {projectionStatus && (
+        <div
+          style={{
+            marginTop: 14,
+            padding: "8px 12px",
+            borderRadius: 10,
+            background: projectionStatus.bg,
+            color: projectionStatus.color,
+            fontSize: 12,
+            fontWeight: 600,
+          }}
+        >
+          {projectionStatus.label}
+        </div>
+      )}
       <div style={{ marginTop: 18 }}>
         <div
           style={{
@@ -522,6 +591,33 @@ function GoalCard({
               /ay
             </span>
           )}
+          {/* Quick contribution chips */}
+          {[50, 100, 500].map(v => (
+            <button
+              key={v}
+              type="button"
+              disabled={isDemoMode()}
+              onClick={() => onContribute(v)}
+              title={
+                isDemoMode()
+                  ? "Demo modunda düzenleme yapılamaz"
+                  : `+€${v} ekle`
+              }
+              style={{
+                padding: "3px 8px",
+                fontSize: 11,
+                fontWeight: 700,
+                borderRadius: 999,
+                border: `1px solid color-mix(in oklch, ${color} 35%, transparent)`,
+                background: `color-mix(in oklch, ${color} 12%, transparent)`,
+                color: color,
+                cursor: isDemoMode() ? "not-allowed" : "pointer",
+                ...demoDisabledProps().style,
+              }}
+            >
+              +€{v}
+            </button>
+          ))}
         </div>
         <div style={{ display: "flex", gap: 4 }}>
           <button
@@ -637,7 +733,8 @@ function NewGoalCard({
 
 // ── Page entry ────────────────────────────────────────────────
 export default function Hedef() {
-  const { budgetData, deleteSavingsGoal } = useBudget();
+  const { budgetData, addSavingsGoal, updateSavingsGoal, deleteSavingsGoal } =
+    useBudget();
   const { filter } = usePersonFilter();
   const isMobile = useIsMobile();
   const mobile = !!isMobile;
@@ -646,7 +743,15 @@ export default function Hedef() {
     open: boolean;
     entity?: SavingsGoal;
   }>({ open: false });
-  const [goalDelete, setGoalDelete] = useState<SavingsGoal | null>(null);
+
+  const handleDeleteGoal = (g: SavingsGoal) =>
+    deleteWithUndo({
+      item: g,
+      description: `${g.name} hedefi`,
+      getId: x => x.id,
+      deleteFn: deleteSavingsGoal,
+      restoreFn: ({ id: _id, ...rest }) => addSavingsGoal(rest),
+    });
 
   // Open dialog from MobileFAB QuickAdd via ?action= query param
   const search = useSearch();
@@ -770,7 +875,15 @@ export default function Hedef() {
               goal={g}
               mobile={mobile}
               onEdit={() => setGoalDialog({ open: true, entity: g })}
-              onDelete={() => setGoalDelete(g)}
+              onDelete={() => handleDeleteGoal(g)}
+              onContribute={amount =>
+                updateSavingsGoal(g.id, {
+                  currentAmount: Math.min(
+                    g.targetAmount,
+                    g.currentAmount + amount
+                  ),
+                })
+              }
             />
           ))}
           <NewGoalCard onClick={openAdd} mobile={mobile} />
@@ -782,13 +895,7 @@ export default function Hedef() {
         onClose={() => setGoalDialog({ open: false })}
         entity={goalDialog.entity}
       />
-      <DeleteConfirmDialog
-        open={!!goalDelete}
-        onClose={() => setGoalDelete(null)}
-        onConfirm={() => goalDelete && deleteSavingsGoal(goalDelete.id)}
-        label={goalDelete ? `"${goalDelete.name}" hedefi` : ""}
-        description="Bu birikim hedefi listenizden kaldırılacak."
-      />
+      {/* Delete confirm dialog replaced by deleteWithUndo toast (FAZ 3). */}
     </div>
   );
 }

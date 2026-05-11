@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { useSearch, useLocation } from "wouter";
-import { Plus, Trash2, Pencil, Calendar } from "lucide-react";
+import { Plus, Trash2, Pencil, Calendar, Check } from "lucide-react";
 import { useBudget } from "@/contexts/BudgetContext";
 import { usePersonFilter, PersonFilter } from "@/contexts/PersonFilterContext";
 import {
@@ -12,8 +12,8 @@ import {
   DebtDialog,
   InstallmentDialog,
   AnnualPaymentDialog,
-  DeleteConfirmDialog,
 } from "@/components/design";
+import { deleteWithUndo } from "@/lib/undoToast";
 import type { AvatarWho, BadgeStatus } from "@/components/design";
 import { formatMoney } from "@/lib/format";
 import { applyPersonFilter } from "@/lib/personFilter";
@@ -199,7 +199,7 @@ function DebtsTab({
   onEdit: (debt: Debt) => void;
   onDelete: (debt: Debt) => void;
 }) {
-  const { budgetData } = useBudget();
+  const { budgetData, updateDebt } = useBudget();
 
   const filtered = useMemo(
     () => applyPersonFilter(budgetData.debts, globalFilter),
@@ -277,6 +277,7 @@ function DebtsTab({
               debt={d}
               onEdit={() => onEdit(d)}
               onDelete={() => onDelete(d)}
+              onMarkPaid={() => updateDebt(d.id, { status: "Odendi" })}
             />
           ))}
         </div>
@@ -289,10 +290,12 @@ function DebtCard({
   debt,
   onEdit,
   onDelete,
+  onMarkPaid,
 }: {
   debt: Debt;
   onEdit: () => void;
   onDelete: () => void;
+  onMarkPaid?: () => void;
 }) {
   // monthlyPayment is "this month's payment" — rough progress placeholder
   const paid = Math.min(debt.totalDebt, debt.monthlyPayment);
@@ -482,6 +485,25 @@ function DebtCard({
         </div>
         <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
           <StatusBadge status={statusToBadge(debt.status)} />
+          {debt.status !== "Odendi" && onMarkPaid && (
+            <button
+              type="button"
+              disabled={isDemoMode()}
+              title={
+                isDemoMode()
+                  ? "Demo modunda düzenleme yapılamaz"
+                  : "Bu ay ödendi olarak işaretle"
+              }
+              onClick={onMarkPaid}
+              style={{
+                ...iconBtn("var(--status-success)"),
+                background:
+                  "color-mix(in oklch, var(--status-success) 12%, transparent)",
+              }}
+            >
+              <Check style={{ width: 14, height: 14 }} />
+            </button>
+          )}
           <button
             type="button"
             disabled={isDemoMode()}
@@ -1019,7 +1041,14 @@ type DialogState<T> = { open: boolean; entity?: T };
 export default function BorcOdemeler() {
   const [tab, setTab] = useState<Tab>("Borçlar");
   const { filter } = usePersonFilter();
-  const { deleteDebt, deleteInstallment, deleteAnnualPayment } = useBudget();
+  const {
+    addDebt,
+    deleteDebt,
+    addInstallment,
+    deleteInstallment,
+    addAnnualPayment,
+    deleteAnnualPayment,
+  } = useBudget();
 
   const [debtDialog, setDebtDialog] = useState<DialogState<Debt>>({
     open: false,
@@ -1030,9 +1059,33 @@ export default function BorcOdemeler() {
   const [annualDialog, setAnnualDialog] = useState<DialogState<AnnualPayment>>({
     open: false,
   });
-  const [debtDelete, setDebtDelete] = useState<Debt | null>(null);
-  const [instDelete, setInstDelete] = useState<Installment | null>(null);
-  const [annualDelete, setAnnualDelete] = useState<AnnualPayment | null>(null);
+
+  const handleDeleteDebt = (d: Debt) =>
+    deleteWithUndo({
+      item: d,
+      description: d.name,
+      getId: x => x.id,
+      deleteFn: deleteDebt,
+      restoreFn: ({ id: _id, ...rest }) => addDebt(rest),
+    });
+
+  const handleDeleteInst = (i: Installment) =>
+    deleteWithUndo({
+      item: i,
+      description: i.name,
+      getId: x => x.id,
+      deleteFn: deleteInstallment,
+      restoreFn: ({ id: _id, ...rest }) => addInstallment(rest),
+    });
+
+  const handleDeleteAnnual = (p: AnnualPayment) =>
+    deleteWithUndo({
+      item: p,
+      description: p.name,
+      getId: x => x.id,
+      deleteFn: deleteAnnualPayment,
+      restoreFn: ({ id: _id, ...rest }) => addAnnualPayment(rest),
+    });
 
   // Open dialog from MobileFAB QuickAdd via ?action= query param
   const search = useSearch();
@@ -1069,20 +1122,20 @@ export default function BorcOdemeler() {
         <DebtsTab
           globalFilter={filter}
           onEdit={d => setDebtDialog({ open: true, entity: d })}
-          onDelete={d => setDebtDelete(d)}
+          onDelete={handleDeleteDebt}
         />
       )}
       {tab === "Taksitler" && (
         <InstallmentsTab
           globalFilter={filter}
           onEdit={i => setInstDialog({ open: true, entity: i })}
-          onDelete={i => setInstDelete(i)}
+          onDelete={handleDeleteInst}
         />
       )}
       {tab === "Yıllık Ödemeler" && (
         <AnnualPaymentsTab
           onEdit={p => setAnnualDialog({ open: true, entity: p })}
-          onDelete={p => setAnnualDelete(p)}
+          onDelete={handleDeleteAnnual}
         />
       )}
 
@@ -1102,27 +1155,7 @@ export default function BorcOdemeler() {
         entity={annualDialog.entity}
       />
 
-      <DeleteConfirmDialog
-        open={!!debtDelete}
-        onClose={() => setDebtDelete(null)}
-        onConfirm={() => debtDelete && deleteDebt(debtDelete.id)}
-        label={debtDelete ? `"${debtDelete.name}"` : ""}
-        description="Bu borç kaydı kaldırılacak."
-      />
-      <DeleteConfirmDialog
-        open={!!instDelete}
-        onClose={() => setInstDelete(null)}
-        onConfirm={() => instDelete && deleteInstallment(instDelete.id)}
-        label={instDelete ? `"${instDelete.name}"` : ""}
-        description="Bu taksit planı kaldırılacak."
-      />
-      <DeleteConfirmDialog
-        open={!!annualDelete}
-        onClose={() => setAnnualDelete(null)}
-        onConfirm={() => annualDelete && deleteAnnualPayment(annualDelete.id)}
-        label={annualDelete ? `"${annualDelete.name}"` : ""}
-        description="Bu yıllık ödeme kaldırılacak."
-      />
+      {/* Delete confirm dialogs replaced by deleteWithUndo toast (FAZ 3). */}
     </div>
   );
 }
