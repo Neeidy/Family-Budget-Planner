@@ -24,6 +24,7 @@ export { CircularProgress } from "./CircularProgress";
 export { LenderIcon } from "./LenderIcon";
 
 export { QuickStatsPill } from "./QuickStatsPill";
+export { MonthPulse } from "./MonthPulse";
 export { HealthBubble } from "./HealthBubble";
 export { TodaySummaryStripCompact } from "./TodaySummaryStripCompact";
 

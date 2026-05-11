@@ -13,8 +13,32 @@ const plugins = [
     workbox: {
       globPatterns: ["**/*.{js,css,html,ico,png,svg,webp,woff2}"],
       // tRPC istekleri ASLA cache'lenmesin
-      navigateFallbackDenylist: [/^\/api/, /^\/trpc/],
+      navigateFallbackDenylist: [
+        /^\/api/,
+        /^\/trpc/,
+        /^\/sw\.js/,
+        /^\/manifest\./,
+      ],
       runtimeCaching: [
+        {
+          // SW + manifest registration must always be fresh — stale
+          // copies leave clients pinned to dead workers.
+          urlPattern: /\/(sw\.js|manifest\.webmanifest|registerSW\.js)$/,
+          handler: "NetworkFirst",
+          options: {
+            cacheName: "sw-meta",
+            networkTimeoutSeconds: 2,
+          },
+        },
+        {
+          // Icons rarely change — CacheFirst with a 1-year TTL.
+          urlPattern: /\/icons\/.*\.png$/,
+          handler: "CacheFirst",
+          options: {
+            cacheName: "icons",
+            expiration: { maxEntries: 10, maxAgeSeconds: 86400 * 365 },
+          },
+        },
         {
           // HTML navigation requests: prefer fresh network so a new
           // deploy doesn't leave clients pinned to an old shell.

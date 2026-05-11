@@ -2,6 +2,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { BudgetProvider } from "./contexts/BudgetContext";
 import { PersonProvider } from "./contexts/PersonContext";
 import { PersonFilterProvider } from "./contexts/PersonFilterContext";
+import { FabProvider } from "./contexts/FabContext";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { Route, Switch, useLocation, Redirect } from "wouter";
@@ -190,10 +191,12 @@ function App() {
       <ThemeProvider defaultTheme="dark" switchable={true}>
         <PersonProvider>
           <BudgetProvider>
-            <TooltipProvider>
-              <AppContent />
-              <Toaster />
-            </TooltipProvider>
+            <FabProvider>
+              <TooltipProvider>
+                <AppContent />
+                <Toaster />
+              </TooltipProvider>
+            </FabProvider>
           </BudgetProvider>
         </PersonProvider>
       </ThemeProvider>

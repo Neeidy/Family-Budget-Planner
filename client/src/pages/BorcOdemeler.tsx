@@ -13,8 +13,10 @@ import {
   InstallmentDialog,
   AnnualPaymentDialog,
 } from "@/components/design";
+import { InlineMoney } from "@/components/design/InlineMoney";
 import { deleteWithUndo } from "@/lib/undoToast";
 import { usePersistedTab } from "@/lib/usePersistedTab";
+import { useFab } from "@/contexts/FabContext";
 import type { AvatarWho, BadgeStatus } from "@/components/design";
 import { formatMoney } from "@/lib/format";
 import { applyPersonFilter } from "@/lib/personFilter";
@@ -301,6 +303,7 @@ function DebtCard({
   onMarkPaid?: () => void;
   onChangeStatus?: (next: "Odendi" | "Bekliyor" | "Gecikti") => void;
 }) {
+  const { updateDebt } = useBudget();
   // monthlyPayment is "this month's payment" — rough progress placeholder
   const paid = Math.min(debt.totalDebt, debt.monthlyPayment);
   const paidProgress =
@@ -359,7 +362,11 @@ function DebtCard({
               color: "var(--text-primary)",
             }}
           >
-            {formatMoney(debt.totalDebt)}
+            <InlineMoney
+              value={debt.totalDebt}
+              onSave={v => updateDebt(debt.id, { totalDebt: v })}
+              disabled={isDemoMode()}
+            />
           </div>
         </div>
         {debt.dueDate && (
@@ -388,46 +395,50 @@ function DebtCard({
         )}
       </div>
 
-      {/* Progress + Ödenen/Kalan */}
-      <div style={{ marginBottom: 8 }}>
-        <div
-          style={{
-            height: 10,
-            background: "var(--bg-tint)",
-            borderRadius: 999,
-            overflow: "hidden",
-          }}
-        >
+      {/* Progress + Ödenen/Kalan — hidden when monthlyPayment is 0 */}
+      {debt.monthlyPayment > 0 && (
+        <>
+          <div style={{ marginBottom: 8 }}>
+            <div
+              style={{
+                height: 10,
+                background: "var(--bg-tint)",
+                borderRadius: 999,
+                overflow: "hidden",
+              }}
+            >
+              <div
+                style={{
+                  width: `${paidProgress * 100}%`,
+                  height: "100%",
+                  background:
+                    "linear-gradient(90deg, var(--accent-green), color-mix(in oklch, var(--accent-green) 70%, var(--owner-yigit)))",
+                  borderRadius: 999,
+                  transition: "width 600ms cubic-bezier(0.2, 0, 0, 1)",
+                }}
+              />
+            </div>
+          </div>
           <div
             style={{
-              width: `${paidProgress * 100}%`,
-              height: "100%",
-              background:
-                "linear-gradient(90deg, var(--accent-green), color-mix(in oklch, var(--accent-green) 70%, var(--owner-yigit)))",
-              borderRadius: 999,
-              transition: "width 600ms cubic-bezier(0.2, 0, 0, 1)",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              fontSize: 12,
             }}
-          />
-        </div>
-      </div>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          fontSize: 12,
-        }}
-      >
-        <span className="tnum" style={{ color: "var(--accent-green)" }}>
-          Ödenen: {formatMoney(paid)} (%{pctPaid})
-        </span>
-        <span
-          className="tnum"
-          style={{ color: "var(--status-danger)", fontWeight: 600 }}
-        >
-          Kalan: {formatMoney(remaining)}
-        </span>
-      </div>
+          >
+            <span className="tnum" style={{ color: "var(--accent-green)" }}>
+              Ödenen: {formatMoney(paid)} (%{pctPaid})
+            </span>
+            <span
+              className="tnum"
+              style={{ color: "var(--status-danger)", fontWeight: 600 }}
+            >
+              Kalan: {formatMoney(remaining)}
+            </span>
+          </div>
+        </>
+      )}
 
       {/* Bottom metric row — page-borc.jsx:125-145 */}
       <div
@@ -461,7 +472,15 @@ function DebtCard({
                 color: "var(--text-primary)",
               }}
             >
-              {formatMoney(debt.monthlyPayment)}
+              {debt.monthlyPayment > 0 ? (
+                <InlineMoney
+                  value={debt.monthlyPayment}
+                  onSave={v => updateDebt(debt.id, { monthlyPayment: v })}
+                  disabled={isDemoMode()}
+                />
+              ) : (
+                "—"
+              )}
             </div>
           </div>
           <div>
@@ -652,6 +671,7 @@ function InstallmentCard({
   onEdit: () => void;
   onDelete: () => void;
 }) {
+  const { updateInstallment } = useBudget();
   const paid = paidCount(inst);
   const progress = inst.installmentCount > 0 ? paid / inst.installmentCount : 0;
   const remainingCount = inst.installmentCount - paid;
@@ -724,7 +744,11 @@ function InstallmentCard({
             color: "var(--text-primary)",
           }}
         >
-          {formatMoney(inst.monthlyAmount)}
+          <InlineMoney
+            value={inst.monthlyAmount}
+            onSave={v => updateInstallment(inst.id, { monthlyAmount: v })}
+            disabled={isDemoMode()}
+          />
         </div>
         <div style={{ fontSize: 11, color: "var(--text-tertiary)" }}>aylık</div>
       </div>
@@ -811,7 +835,7 @@ function AnnualPaymentsTab({
   onEdit: (p: AnnualPayment) => void;
   onDelete: (p: AnnualPayment) => void;
 }) {
-  const { budgetData } = useBudget();
+  const { budgetData, updateAnnualPayment } = useBudget();
   const list = budgetData.annualPayments ?? [];
 
   // Group by month
@@ -994,7 +1018,11 @@ function AnnualPaymentsTab({
                   color: "var(--text-primary)",
                 }}
               >
-                {formatMoney(p.amount)}
+                <InlineMoney
+                  value={p.amount}
+                  onSave={v => updateAnnualPayment(p.id, { amount: v })}
+                  disabled={isDemoMode()}
+                />
               </div>
               {p.lastPaymentDate && (
                 <div style={{ fontSize: 11, color: "var(--text-tertiary)" }}>
@@ -1098,6 +1126,21 @@ export default function BorcOdemeler() {
       deleteFn: deleteAnnualPayment,
       restoreFn: ({ id: _id, ...rest }) => addAnnualPayment(rest),
     });
+
+  // Context-aware FAB
+  const { requestedAction, clearAction } = useFab();
+  useEffect(() => {
+    if (requestedAction === "debt") {
+      setDebtDialog({ open: true });
+      clearAction();
+    } else if (requestedAction === "installment") {
+      setInstDialog({ open: true });
+      clearAction();
+    } else if (requestedAction === "annual") {
+      setAnnualDialog({ open: true });
+      clearAction();
+    }
+  }, [requestedAction, clearAction]);
 
   // Open dialog from MobileFAB QuickAdd via ?action= query param
   const search = useSearch();

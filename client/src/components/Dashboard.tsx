@@ -9,7 +9,7 @@ import {
   OwnerCard,
   SummaryCard,
   CategoryPill,
-  QuickStatsPill,
+  MonthPulse,
   HealthBubble,
   TodaySummaryStripCompact,
 } from "@/components/design";
@@ -207,20 +207,18 @@ export function Dashboard() {
     [budgetData.expenses]
   );
 
-  // QuickStats values (today / month / tomorrow)
-  const todayKey = new Date().toISOString().split("T")[0];
-  const todaySpent = filteredExpenses
-    .filter(e => e.paymentDay === todayKey)
-    .reduce((s, e) => s + e.amount, 0);
-  const monthBudget = (budgetData.budgetLimits || []).reduce(
-    (s, b) => s + b.limit,
-    0
-  );
-  const monthSpent = filteredTotals.totalExpense;
-  const monthRemaining = monthBudget - monthSpent;
-  const tomorrowDue = filteredExpenses
-    .filter(e => e.status === "Bekliyor")
-    .reduce((s, e) => s + e.amount, 0);
+  // MonthPulse — top category by spend (filtered)
+  const topCategory = useMemo(() => {
+    const map = new Map<string, number>();
+    filteredExpenses.forEach(e =>
+      map.set(e.category, (map.get(e.category) ?? 0) + e.amount)
+    );
+    const sorted = Array.from(map.entries()).sort((a, b) => b[1] - a[1]);
+    if (sorted.length === 0) return null;
+    const [cat, amount] = sorted[0];
+    const meta = getCategoryMeta(cat);
+    return { name: meta.name, emoji: meta.emoji, amount };
+  }, [filteredExpenses]);
 
   // Bütçe vs Gerçekleşen — derived from real budgetLimits.
   // Empty when the user hasn't configured any limits yet.
@@ -472,14 +470,12 @@ export function Dashboard() {
         </div>
       </div>
 
-      {/* QUICK STATS PILL — page-ana.jsx:57-62 */}
-      <QuickStatsPill
+      {/* MONTH PULSE — net movement / savings rate / top category */}
+      <MonthPulse
         mobile={mobile}
-        todaySpent={todaySpent}
-        monthRemaining={monthRemaining}
-        monthBudget={monthBudget}
-        monthSpent={monthSpent}
-        tomorrowDue={tomorrowDue}
+        netMovement={filteredTotals.totalIncome - filteredTotals.totalExpense}
+        savingsRate={filteredTotals.savingsRate}
+        topCategory={topCategory}
       />
 
       {/* Empty info banner — only when entire DB is empty */}
@@ -615,7 +611,7 @@ export function Dashboard() {
                   whiteSpace: "nowrap",
                 }}
               >
-                Toplam Birikim
+                Toplam Gelir
               </div>
               <div
                 className="tnum"
@@ -627,7 +623,7 @@ export function Dashboard() {
                   whiteSpace: "nowrap",
                 }}
               >
-                +{formatMoney(netWorth.totalSavings)} ↑
+                {formatMoney(filteredTotals.totalIncome)} ↑
               </div>
             </div>
             <div
@@ -645,7 +641,7 @@ export function Dashboard() {
                   whiteSpace: "nowrap",
                 }}
               >
-                Toplam Borç
+                Toplam Gider
               </div>
               <div
                 className="tnum"
@@ -657,12 +653,30 @@ export function Dashboard() {
                   whiteSpace: "nowrap",
                 }}
               >
-                −{formatMoney(netWorth.totalDebt)} ↓
+                {formatMoney(filteredTotals.totalExpense)} ↓
               </div>
             </div>
           </div>
           {/* Floating HealthBubble inside card */}
-          <HealthBubble score={healthScore} mobile={mobile} onClick={goRapor} />
+          <div
+            title={`Tasarruf oranı %${Math.round(filteredTotals.savingsRate * 100)} · Gider oranı %${Math.round(filteredTotals.expenseRatio * 100)} → ${
+              healthScore >= 90
+                ? "A"
+                : healthScore >= 75
+                  ? "B"
+                  : healthScore >= 60
+                    ? "C"
+                    : healthScore >= 40
+                      ? "D"
+                      : "E"
+            }`}
+          >
+            <HealthBubble
+              score={healthScore}
+              mobile={mobile}
+              onClick={goRapor}
+            />
+          </div>
         </div>
 
         <TodaySummaryStripCompact
@@ -827,8 +841,8 @@ export function Dashboard() {
                 lineHeight: 1.5,
               }}
             >
-              Henüz bütçe limiti yok. Gelir &amp; Gider sayfasında
-              "Bütçe Limitleri" sekmesinden ekleyebilirsiniz.
+              Henüz bütçe limiti yok. Gelir &amp; Gider sayfasında "Bütçe
+              Limitleri" sekmesinden ekleyebilirsiniz.
             </div>
           )}
           {bvaSamples.map(b => {

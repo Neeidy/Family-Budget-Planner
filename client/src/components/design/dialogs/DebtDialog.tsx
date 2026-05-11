@@ -49,7 +49,9 @@ export function DebtDialog({ open, onClose, entity }: DebtDialogProps) {
     if (entity) {
       setName(entity.name);
       setTotalDebt(String(entity.totalDebt));
-      setMonthlyPayment(String(entity.monthlyPayment));
+      setMonthlyPayment(
+        entity.monthlyPayment > 0 ? String(entity.monthlyPayment) : ""
+      );
       setDueDate(entity.dueDate || todayPlusYearISO());
       setStatus(entity.status);
       setOwner(entity.owner);
@@ -73,18 +75,17 @@ export function DebtDialog({ open, onClose, entity }: DebtDialogProps) {
   const numTotal = parseMoney(totalDebt);
   const numMonthly = parseMoney(monthlyPayment);
   const valid =
-    name.trim().length > 0 &&
-    Number.isFinite(numTotal) &&
-    numTotal > 0 &&
-    Number.isFinite(numMonthly) &&
-    numMonthly > 0;
+    name.trim().length > 0 && Number.isFinite(numTotal) && numTotal > 0;
+
+  const monthlyPaymentForSave =
+    Number.isFinite(numMonthly) && numMonthly >= 0 ? numMonthly : 0;
 
   const handleSave = () => {
     if (!valid) return;
     const payload: Omit<Debt, "id"> = {
       name: name.trim(),
       totalDebt: numTotal,
-      monthlyPayment: numMonthly,
+      monthlyPayment: monthlyPaymentForSave,
       dueDate,
       status,
       owner,
@@ -144,7 +145,7 @@ export function DebtDialog({ open, onClose, entity }: DebtDialogProps) {
           />
           <MoneyHint raw={totalDebt} />
         </Field>
-        <Field label="Aylık Ödeme">
+        <Field label="Aylık Ödeme (opsiyonel)">
           <TextInput
             value={monthlyPayment}
             onChange={setMonthlyPayment}
@@ -155,6 +156,16 @@ export function DebtDialog({ open, onClose, entity }: DebtDialogProps) {
             min={0}
           />
           <MoneyHint raw={monthlyPayment} />
+          <div
+            style={{
+              fontSize: 11,
+              color: "var(--text-muted)",
+              marginTop: 4,
+            }}
+          >
+            Boş bırakılabilir veya 0 (kredi kartı gibi sabit aylık ödemesi
+            olmayan borçlar için)
+          </div>
         </Field>
       </div>
       <Field label="Vade">
