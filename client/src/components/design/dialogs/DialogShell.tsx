@@ -1,4 +1,5 @@
-import { ReactNode, useEffect, useId } from "react";
+import { ReactNode, useEffect, useId, useState } from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
 interface DialogShellProps {
@@ -10,6 +11,22 @@ interface DialogShellProps {
   footer?: ReactNode;
 }
 
+function useIsMobileViewport() {
+  const [isMobile, setIsMobile] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      window.matchMedia("(max-width: 768px)").matches,
+  );
+  useEffect(() => {
+    const mql = window.matchMedia("(max-width: 768px)");
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mql.addEventListener("change", handler);
+    setIsMobile(mql.matches);
+    return () => mql.removeEventListener("change", handler);
+  }, []);
+  return isMobile;
+}
+
 export function DialogShell({
   open,
   onClose,
@@ -18,6 +35,8 @@ export function DialogShell({
   children,
   footer,
 }: DialogShellProps) {
+  const isMobile = useIsMobileViewport();
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -34,20 +53,127 @@ export function DialogShell({
 
   if (!open) return null;
 
-  return (
+  const supportsDvh =
+    typeof CSS !== "undefined" &&
+    typeof CSS.supports === "function" &&
+    CSS.supports("height", "100dvh");
+
+  const outerStyle: React.CSSProperties = isMobile
+    ? {
+        position: "fixed",
+        inset: 0,
+        zIndex: 200,
+        padding: 0,
+        display: "flex",
+        alignItems: "stretch",
+        justifyContent: "stretch",
+        background: "var(--bg-base)",
+        overflow: "hidden",
+      }
+    : {
+        position: "fixed",
+        inset: 0,
+        zIndex: 200,
+        overflowY: "auto",
+        padding: "32px 16px",
+        display: "flex",
+        alignItems: "flex-start",
+        justifyContent: "center",
+        background: "color-mix(in oklch, var(--bg-base) 75%, transparent)",
+        backdropFilter: "blur(8px)",
+        WebkitBackdropFilter: "blur(8px)",
+      };
+
+  const innerStyle: React.CSSProperties = isMobile
+    ? {
+        width: "100%",
+        maxWidth: "none",
+        height: supportsDvh ? "100dvh" : "100vh",
+        maxHeight: supportsDvh ? "100dvh" : "100vh",
+        background: "var(--bg-surface)",
+        borderRadius: 0,
+        boxShadow: "none",
+        display: "flex",
+        flexDirection: "column",
+        overflow: "hidden",
+      }
+    : {
+        width: "100%",
+        maxWidth: width,
+        background: "var(--bg-surface)",
+        borderRadius: 24,
+        boxShadow:
+          "0 24px 64px -12px rgba(0,0,0,0.7), 0 0 0 1px var(--border-faint)",
+        display: "flex",
+        flexDirection: "column",
+        overflow: "visible",
+      };
+
+  const headerStyle: React.CSSProperties = isMobile
+    ? {
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        padding: "20px 24px",
+        borderBottom: "1px solid var(--border-faint)",
+        position: "sticky",
+        top: 0,
+        background: "var(--bg-surface)",
+        zIndex: 1,
+      }
+    : {
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        padding: "20px 24px",
+        borderBottom: "1px solid var(--border-faint)",
+      };
+
+  const bodyStyle: React.CSSProperties = isMobile
+    ? {
+        flex: "1 1 auto",
+        overflowY: "auto",
+        WebkitOverflowScrolling: "touch",
+        minHeight: 0,
+        padding: "20px 16px",
+      }
+    : {
+        padding: 24,
+      };
+
+  const footerStyle: React.CSSProperties = isMobile
+    ? {
+        display: "flex",
+        justifyContent: "flex-end",
+        gap: 10,
+        paddingTop: 16,
+        paddingRight: 24,
+        paddingBottom: "calc(16px + env(safe-area-inset-bottom))",
+        paddingLeft: 24,
+        borderTop: "1px solid var(--border-faint)",
+        background: "var(--bg-surface)",
+        position: "sticky",
+        bottom: 0,
+      }
+    : {
+        display: "flex",
+        justifyContent: "flex-end",
+        gap: 10,
+        padding: "16px 24px",
+        borderTop: "1px solid var(--border-faint)",
+        background: "var(--bg-base)",
+      };
+
+  return createPortal(
     <div
       role="dialog"
       aria-modal="true"
       aria-labelledby="dialog-title"
       onClick={onClose}
-      className="dialog-shell-outer"
+      style={outerStyle}
     >
-      <div
-        onClick={e => e.stopPropagation()}
-        className="dialog-shell-inner"
-        style={{ ["--dialog-w" as string]: `${width}px` }}
-      >
-        <div className="dialog-shell-header">
+      <div onClick={e => e.stopPropagation()} style={innerStyle}>
+        <div style={headerStyle}>
           <div
             id="dialog-title"
             style={{
@@ -77,10 +203,11 @@ export function DialogShell({
             <X style={{ width: 14, height: 14 }} />
           </button>
         </div>
-        <div className="dialog-shell-body">{children}</div>
-        {footer && <div className="dialog-shell-footer">{footer}</div>}
+        <div style={bodyStyle}>{children}</div>
+        {footer && <div style={footerStyle}>{footer}</div>}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
