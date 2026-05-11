@@ -132,7 +132,10 @@ export function AnnualPaymentDialog({
           min={0}
         />
       </Field>
-      <Field label="Ödeme Ayı">
+      <Field
+        label="Her Yıl Ödeme Ayı"
+        hint="Bu kalem her yıl bu ayda ödenmeye devam eder (örn. araba sigortası Mart)."
+      >
         <RadioRow
           value={paymentMonth}
           onChange={v => setPaymentMonth(v)}
@@ -142,7 +145,10 @@ export function AnnualPaymentDialog({
           }))}
         />
       </Field>
-      <Field label="Ödeme Günü (opsiyonel)">
+      <Field
+        label="Her Yıl Ödeme Günü (opsiyonel)"
+        hint="Ay içinde sabit bir gün varsa yaz; yoksa ayın 15'i kabul edilir."
+      >
         <TextInput
           value={paymentDay}
           onChange={setPaymentDay}
@@ -152,7 +158,10 @@ export function AnnualPaymentDialog({
           max={31}
         />
       </Field>
-      <Field label="Son Ödeme Tarihi">
+      <Field
+        label="Son Fiili Ödeme Tarihi"
+        hint="En son ne zaman ödedin? Boş bırakılabilir."
+      >
         <TextInput
           value={lastPaymentDate}
           onChange={setLastPaymentDate}
