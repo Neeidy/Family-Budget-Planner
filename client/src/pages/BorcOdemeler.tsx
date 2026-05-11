@@ -13,6 +13,7 @@ import {
   InstallmentDialog,
   AnnualPaymentDialog,
 } from "@/components/design";
+import { InlineMoney } from "@/components/design/InlineMoney";
 import { deleteWithUndo } from "@/lib/undoToast";
 import { usePersistedTab } from "@/lib/usePersistedTab";
 import type { AvatarWho, BadgeStatus } from "@/components/design";
@@ -301,6 +302,7 @@ function DebtCard({
   onMarkPaid?: () => void;
   onChangeStatus?: (next: "Odendi" | "Bekliyor" | "Gecikti") => void;
 }) {
+  const { updateDebt } = useBudget();
   // monthlyPayment is "this month's payment" — rough progress placeholder
   const paid = Math.min(debt.totalDebt, debt.monthlyPayment);
   const paidProgress =
@@ -359,7 +361,11 @@ function DebtCard({
               color: "var(--text-primary)",
             }}
           >
-            {formatMoney(debt.totalDebt)}
+            <InlineMoney
+              value={debt.totalDebt}
+              onSave={v => updateDebt(debt.id, { totalDebt: v })}
+              disabled={isDemoMode()}
+            />
           </div>
         </div>
         {debt.dueDate && (
@@ -465,7 +471,15 @@ function DebtCard({
                 color: "var(--text-primary)",
               }}
             >
-              {debt.monthlyPayment > 0 ? formatMoney(debt.monthlyPayment) : "—"}
+              {debt.monthlyPayment > 0 ? (
+                <InlineMoney
+                  value={debt.monthlyPayment}
+                  onSave={v => updateDebt(debt.id, { monthlyPayment: v })}
+                  disabled={isDemoMode()}
+                />
+              ) : (
+                "—"
+              )}
             </div>
           </div>
           <div>
@@ -656,6 +670,7 @@ function InstallmentCard({
   onEdit: () => void;
   onDelete: () => void;
 }) {
+  const { updateInstallment } = useBudget();
   const paid = paidCount(inst);
   const progress = inst.installmentCount > 0 ? paid / inst.installmentCount : 0;
   const remainingCount = inst.installmentCount - paid;
@@ -728,7 +743,11 @@ function InstallmentCard({
             color: "var(--text-primary)",
           }}
         >
-          {formatMoney(inst.monthlyAmount)}
+          <InlineMoney
+            value={inst.monthlyAmount}
+            onSave={v => updateInstallment(inst.id, { monthlyAmount: v })}
+            disabled={isDemoMode()}
+          />
         </div>
         <div style={{ fontSize: 11, color: "var(--text-tertiary)" }}>aylık</div>
       </div>
@@ -815,7 +834,7 @@ function AnnualPaymentsTab({
   onEdit: (p: AnnualPayment) => void;
   onDelete: (p: AnnualPayment) => void;
 }) {
-  const { budgetData } = useBudget();
+  const { budgetData, updateAnnualPayment } = useBudget();
   const list = budgetData.annualPayments ?? [];
 
   // Group by month
@@ -998,7 +1017,11 @@ function AnnualPaymentsTab({
                   color: "var(--text-primary)",
                 }}
               >
-                {formatMoney(p.amount)}
+                <InlineMoney
+                  value={p.amount}
+                  onSave={v => updateAnnualPayment(p.id, { amount: v })}
+                  disabled={isDemoMode()}
+                />
               </div>
               {p.lastPaymentDate && (
                 <div style={{ fontSize: 11, color: "var(--text-tertiary)" }}>
