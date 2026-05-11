@@ -58,9 +58,7 @@ export function InlineMoney({
         title={disabled ? undefined : "Düzenlemek için tıkla"}
         style={{
           cursor: disabled ? "default" : "pointer",
-          borderBottom: disabled
-            ? "none"
-            : "1px dashed transparent",
+          borderBottom: disabled ? "none" : "1px dashed transparent",
           transition: "border-color 120ms",
           ...style,
         }}

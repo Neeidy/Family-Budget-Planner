@@ -138,8 +138,7 @@ export function Dashboard() {
       totalExpense = fullTotals.myExpensesOwn + fullTotals.myHomeShare;
     } else if (filter === "Esim") {
       totalIncome = fullTotals.spouseIncome;
-      totalExpense =
-        fullTotals.spouseExpensesOwn + fullTotals.spouseHomeShare;
+      totalExpense = fullTotals.spouseExpensesOwn + fullTotals.spouseHomeShare;
     } else {
       // Ev
       totalIncome = 0;

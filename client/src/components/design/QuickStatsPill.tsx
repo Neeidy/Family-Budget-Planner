@@ -55,9 +55,7 @@ export function QuickStatsPill({
           lbl: "BU AY KALAN",
           val: formatMoneyShort(monthRemaining),
           hue:
-            monthRemaining < 0
-              ? "var(--status-danger)"
-              : "var(--text-primary)",
+            monthRemaining < 0 ? "var(--status-danger)" : "var(--text-primary)",
           sub: `${Math.round(monthPct)}% kullanıldı`,
           progress: monthPct,
         },
