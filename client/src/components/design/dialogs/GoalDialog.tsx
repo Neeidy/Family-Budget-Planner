@@ -1,3 +1,4 @@
+import { parseMoney } from "@/lib/format";
 import { useEffect, useState } from "react";
 import { useBudget } from "@/contexts/BudgetContext";
 import { usePerson } from "@/contexts/PersonContext";
@@ -11,6 +12,8 @@ import {
   CancelButton,
   PrimaryButton,
 } from "./DialogShell";
+import { getDefaults, rememberDefaults } from "@/lib/formDefaults";
+import { MoneyHint } from "@/components/design/MoneyHint";
 
 interface GoalDialogProps {
   open: boolean;
@@ -55,14 +58,19 @@ export function GoalDialog({ open, onClose, entity }: GoalDialogProps) {
       setCurrentAmount("0");
       setMonthlyAllocation("");
       setTargetDate(fourMonthsLaterISO());
-      setOwner((currentPerson as "Benim" | "Esim" | null) ?? "Ev");
+      const remembered = getDefaults<{ owner?: "Benim" | "Esim" | "Ev" }>(
+        "goal"
+      );
+      setOwner(
+        remembered.owner ?? (currentPerson as "Benim" | "Esim" | null) ?? "Ev"
+      );
       setNotes("");
     }
   }, [open, entity, currentPerson]);
 
-  const numTarget = parseFloat(targetAmount.replace(",", "."));
-  const numCurrent = parseFloat(currentAmount.replace(",", "."));
-  const numMonthly = parseFloat(monthlyAllocation.replace(",", "."));
+  const numTarget = parseMoney(targetAmount);
+  const numCurrent = parseMoney(currentAmount);
+  const numMonthly = parseMoney(monthlyAllocation);
   const valid =
     name.trim().length > 0 && Number.isFinite(numTarget) && numTarget > 0;
 
@@ -79,6 +87,9 @@ export function GoalDialog({ open, onClose, entity }: GoalDialogProps) {
     };
     if (isEdit && entity) updateSavingsGoal(entity.id, payload);
     else addSavingsGoal(payload);
+    rememberDefaults<{ owner?: "Benim" | "Esim" | "Ev" }>("goal", {
+      owner: payload.owner,
+    });
     onClose();
   };
 
@@ -127,6 +138,7 @@ export function GoalDialog({ open, onClose, entity }: GoalDialogProps) {
             step="0.01"
             min={0}
           />
+          <MoneyHint raw={targetAmount} />
         </Field>
         <Field label="Mevcut Tutar">
           <TextInput
@@ -138,6 +150,7 @@ export function GoalDialog({ open, onClose, entity }: GoalDialogProps) {
             step="0.01"
             min={0}
           />
+          <MoneyHint raw={currentAmount} />
         </Field>
       </div>
       <Field label="Aylık Eklenecek">
@@ -150,6 +163,7 @@ export function GoalDialog({ open, onClose, entity }: GoalDialogProps) {
           step="0.01"
           min={0}
         />
+        <MoneyHint raw={monthlyAllocation} />
       </Field>
       <Field label="Hedef Tarih">
         <TextInput value={targetDate} onChange={setTargetDate} type="date" />

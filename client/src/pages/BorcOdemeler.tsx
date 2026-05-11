@@ -14,6 +14,7 @@ import {
   AnnualPaymentDialog,
 } from "@/components/design";
 import { deleteWithUndo } from "@/lib/undoToast";
+import { usePersistedTab } from "@/lib/usePersistedTab";
 import type { AvatarWho, BadgeStatus } from "@/components/design";
 import { formatMoney } from "@/lib/format";
 import { applyPersonFilter } from "@/lib/personFilter";
@@ -1039,7 +1040,11 @@ function AnnualPaymentsTab({
 type DialogState<T> = { open: boolean; entity?: T };
 
 export default function BorcOdemeler() {
-  const [tab, setTab] = useState<Tab>("Borçlar");
+  const [tab, setTab] = usePersistedTab<Tab>(
+    "tab:borc-odemeler",
+    "Borçlar",
+    TABS
+  );
   const { filter } = usePersonFilter();
   const {
     addDebt,

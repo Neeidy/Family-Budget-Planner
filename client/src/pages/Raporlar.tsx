@@ -9,6 +9,7 @@ import {
 } from "@/components/design/charts";
 import { getCategoryMeta } from "@/components/design/CategoryPill";
 import { formatMoney } from "@/lib/format";
+import { usePersistedTab } from "@/lib/usePersistedTab";
 
 const TABS = ["Aylık Karşılaştırma", "Analitik"] as const;
 type Tab = (typeof TABS)[number];
@@ -660,7 +661,11 @@ function AnalitikTab({ range }: { range: Range }) {
 
 // ── Page entry ────────────────────────────────────────────────
 export default function Raporlar() {
-  const [tab, setTab] = useState<Tab>("Aylık Karşılaştırma");
+  const [tab, setTab] = usePersistedTab<Tab>(
+    "tab:raporlar",
+    "Aylık Karşılaştırma",
+    TABS
+  );
   const [range, setRange] = useState<Range>("3 Ay");
 
   return (

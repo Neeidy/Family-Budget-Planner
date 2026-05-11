@@ -16,6 +16,7 @@ import {
   BudgetLimitDialog,
 } from "@/components/design";
 import { deleteWithUndo } from "@/lib/undoToast";
+import { usePersistedTab } from "@/lib/usePersistedTab";
 import type { AvatarWho } from "@/components/design";
 import { formatMoney } from "@/lib/format";
 import { applyPersonFilter } from "@/lib/personFilter";
@@ -827,7 +828,11 @@ function DataTable({ columns, rows }: { columns: Column[]; rows: Row[] }) {
 type DialogState<T> = { open: boolean; entity?: T };
 
 export default function GelirGider() {
-  const [tab, setTab] = useState<Tab>("Gelirler");
+  const [tab, setTab] = usePersistedTab<Tab>(
+    "tab:gelir-gider",
+    "Gelirler",
+    TABS
+  );
   const { filter } = usePersonFilter();
   const {
     addIncome,
