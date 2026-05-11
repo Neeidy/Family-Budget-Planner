@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useSearch, useLocation } from "wouter";
 import { Plus, Trash2, Pencil, Calendar, Check } from "lucide-react";
 import { useBudget } from "@/contexts/BudgetContext";
+import { usePerson } from "@/contexts/PersonContext";
 import { usePersonFilter, PersonFilter } from "@/contexts/PersonFilterContext";
 import {
   TabBar,
@@ -304,6 +305,7 @@ function DebtCard({
   onChangeStatus?: (next: "Odendi" | "Bekliyor" | "Gecikti") => void;
 }) {
   const { updateDebt } = useBudget();
+  const { person1Name, person2Name } = usePerson();
   // monthlyPayment is "this month's payment" — rough progress placeholder
   const paid = Math.min(debt.totalDebt, debt.monthlyPayment);
   const paidProgress =
@@ -313,7 +315,11 @@ function DebtCard({
   const monthsLeft =
     debt.monthlyPayment > 0 ? Math.ceil(remaining / debt.monthlyPayment) : 0;
   const ownerLabel =
-    debt.owner === "Benim" ? "Yigit" : debt.owner === "Esim" ? "Arzu" : "Ev";
+    debt.owner === "Benim"
+      ? person1Name
+      : debt.owner === "Esim"
+        ? person2Name
+        : "Ev";
 
   return (
     <div className="card lift" style={{ position: "relative", padding: 24 }}>
@@ -672,6 +678,7 @@ function InstallmentCard({
   onDelete: () => void;
 }) {
   const { updateInstallment } = useBudget();
+  const { person1Name, person2Name } = usePerson();
   const paid = paidCount(inst);
   const progress = inst.installmentCount > 0 ? paid / inst.installmentCount : 0;
   const remainingCount = inst.installmentCount - paid;
@@ -708,10 +715,10 @@ function InstallmentCard({
           >
             <Avatar who={ownerToWho(inst.owner)} size={12} />{" "}
             {inst.owner === "Benim"
-              ? "Benim"
+              ? person1Name
               : inst.owner === "Esim"
-                ? "Eşim"
-                : "Ortak"}
+                ? person2Name
+                : "Ev"}
           </div>
         </div>
         <span

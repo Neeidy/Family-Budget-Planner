@@ -1,6 +1,7 @@
 import { parseMoney } from "@/lib/format";
 import { useEffect, useState } from "react";
 import { useBudget } from "@/contexts/BudgetContext";
+import { usePerson } from "@/contexts/PersonContext";
 import type { AnnualPayment } from "@/hooks/useBudgetData";
 import {
   DialogShell,
@@ -12,6 +13,8 @@ import {
   PrimaryButton,
 } from "./DialogShell";
 import { MoneyHint } from "@/components/design/MoneyHint";
+import { CATEGORIES, getSubcategories } from "@shared/categories";
+import { getDefaults, rememberDefaults } from "@/lib/formDefaults";
 
 const MONTHS_TR = [
   "Ocak",
@@ -34,12 +37,15 @@ interface AnnualPaymentDialogProps {
   entity?: AnnualPayment;
 }
 
+type AnnualOwner = "Benim" | "Esim" | "Ev";
+
 export function AnnualPaymentDialog({
   open,
   onClose,
   entity,
 }: AnnualPaymentDialogProps) {
   const { addAnnualPayment, updateAnnualPayment } = useBudget();
+  const { person1Name, person2Name } = usePerson();
   const isEdit = !!entity;
 
   const now = new Date();
@@ -50,6 +56,10 @@ export function AnnualPaymentDialog({
   const [paymentDay, setPaymentDay] = useState("");
   const [lastPaymentDate, setLastPaymentDate] = useState(todayISO);
   const [notes, setNotes] = useState("");
+  const [owner, setOwner] = useState<AnnualOwner>("Ev");
+  const [category, setCategory] = useState<string>("Diger");
+  const [subcategoryKey, setSubcategoryKey] = useState<string>("Diger");
+  const [customSubcategory, setCustomSubcategory] = useState<string>("");
 
   useEffect(() => {
     if (!open) return;
@@ -60,13 +70,26 @@ export function AnnualPaymentDialog({
       setPaymentDay(entity.paymentDay ? String(entity.paymentDay) : "");
       setLastPaymentDate(entity.lastPaymentDate || todayISO);
       setNotes(entity.notes ?? "");
+      setOwner((entity.owner as AnnualOwner) ?? "Ev");
+      setCategory(entity.category ?? "Diger");
+      setSubcategoryKey(entity.subcategoryKey ?? "Diger");
+      setCustomSubcategory(entity.customSubcategory ?? "");
     } else {
+      const r = getDefaults<{
+        owner?: AnnualOwner;
+        category?: string;
+        subcategoryKey?: string;
+      }>("annual");
       setName("");
       setAmount("");
       setPaymentMonth(now.getMonth() + 1);
       setPaymentDay("");
       setLastPaymentDate(todayISO);
       setNotes("");
+      setOwner(r.owner ?? "Ev");
+      setCategory(r.category ?? "Diger");
+      setSubcategoryKey(r.subcategoryKey ?? "Diger");
+      setCustomSubcategory("");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, entity]);
@@ -85,6 +108,8 @@ export function AnnualPaymentDialog({
     numAmount > 0 &&
     paymentDayValid;
 
+  const subcategories = getSubcategories(category);
+
   const handleSave = () => {
     if (!valid) return;
     const payload: Omit<AnnualPayment, "id"> = {
@@ -94,10 +119,30 @@ export function AnnualPaymentDialog({
       paymentDay: numPaymentDay,
       lastPaymentDate,
       notes,
+      owner,
+      category,
+      subcategoryKey,
+      customSubcategory:
+        subcategoryKey === "Diger" ? customSubcategory.trim() : "",
     };
     if (isEdit && entity) updateAnnualPayment(entity.id, payload);
     else addAnnualPayment(payload);
+    rememberDefaults<{
+      owner?: AnnualOwner;
+      category?: string;
+      subcategoryKey?: string;
+    }>("annual", { owner, category, subcategoryKey });
     onClose();
+  };
+
+  const selectStyle: React.CSSProperties = {
+    width: "100%",
+    padding: "8px 10px",
+    borderRadius: "var(--r-md)",
+    border: "1px solid var(--border-faint)",
+    background: "var(--bg-elevated)",
+    color: "var(--text-primary)",
+    fontSize: 14,
   };
 
   return (
@@ -134,6 +179,60 @@ export function AnnualPaymentDialog({
           min={0}
         />
         <MoneyHint raw={amount} />
+      </Field>
+      <Field label="Kişi">
+        <RadioRow
+          value={owner}
+          onChange={setOwner}
+          options={[
+            { value: "Benim", label: person1Name },
+            { value: "Esim", label: person2Name },
+            { value: "Ev", label: "Ev" },
+          ]}
+        />
+      </Field>
+      <Field label="Kategori">
+        <select
+          value={category}
+          onChange={e => {
+            setCategory(e.target.value);
+            setSubcategoryKey("Diger");
+            setCustomSubcategory("");
+          }}
+          style={selectStyle}
+        >
+          {CATEGORIES.map(c => (
+            <option key={c.key} value={c.key}>
+              {c.emoji} {c.label}
+            </option>
+          ))}
+        </select>
+      </Field>
+      <Field label="Alt Kategori">
+        <select
+          value={subcategoryKey}
+          onChange={e => setSubcategoryKey(e.target.value)}
+          style={selectStyle}
+        >
+          {subcategories.length === 0 ? (
+            <option value="Diger">Diğer</option>
+          ) : (
+            subcategories.map(s => (
+              <option key={s.key} value={s.key}>
+                {s.label}
+              </option>
+            ))
+          )}
+        </select>
+        {subcategoryKey === "Diger" && (
+          <div style={{ marginTop: 8 }}>
+            <TextInput
+              value={customSubcategory}
+              onChange={setCustomSubcategory}
+              placeholder="Özel isim (opsiyonel)"
+            />
+          </div>
+        )}
       </Field>
       <Field
         label="Her Yıl Ödeme Ayı"

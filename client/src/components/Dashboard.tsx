@@ -116,11 +116,7 @@ export function Dashboard() {
   const isMobile = useIsMobile();
   const mobile = !!isMobile;
 
-  // Person filter applied to data
-  const filteredIncomes = useMemo(
-    () => applyPersonFilter(budgetData.incomes, filter),
-    [budgetData.incomes, filter]
-  );
+  // Person filter applied to expenses (still needed for upcoming/topCategory/health)
   const filteredExpenses = useMemo(
     () => applyPersonFilter(budgetData.expenses, filter),
     [budgetData.expenses, filter]
@@ -128,10 +124,30 @@ export function Dashboard() {
 
   const fullTotals = calculateTotals();
 
+  // Filter-aware totals: gerçek total yük (own + ev payı). Owner card
+  // büyük rakam ile NET DEĞER kart ve Summary card aynı rakamı gösterir.
   const filteredTotals = useMemo(() => {
-    const totalIncome = filteredIncomes.reduce((s, i) => s + i.amount, 0);
-    const totalExpense = filteredExpenses.reduce((s, e) => s + e.amount, 0);
+    let totalIncome: number;
+    let totalExpense: number;
+
+    if (filter === "Tümü") {
+      totalIncome = fullTotals.totalActualIncome;
+      totalExpense = fullTotals.totalActualExpense;
+    } else if (filter === "Benim") {
+      totalIncome = fullTotals.myIncome;
+      totalExpense = fullTotals.myExpensesOwn + fullTotals.myHomeShare;
+    } else if (filter === "Esim") {
+      totalIncome = fullTotals.spouseIncome;
+      totalExpense = fullTotals.spouseExpensesOwn + fullTotals.spouseHomeShare;
+    } else {
+      // Ev
+      totalIncome = 0;
+      totalExpense = fullTotals.homeExpenses;
+    }
+
     const remaining = totalIncome - totalExpense;
+    // Birikim type'lı direct expenses filtered — owner-based; ev payı
+    // tarafı already aggregate, savings rate filtered subset üzerinden.
     const savingsAmount = filteredExpenses
       .filter(e => e.type === "Birikim")
       .reduce((s, e) => s + e.amount, 0);
@@ -145,7 +161,7 @@ export function Dashboard() {
       expenseRatio,
       savingsRate,
     };
-  }, [filteredIncomes, filteredExpenses]);
+  }, [filter, fullTotals, filteredExpenses]);
 
   const activeName = currentPerson === "Benim" ? person1Name : person2Name;
   const activeWho: AvatarWho = currentPerson === "Benim" ? "yigit" : "arzu";

@@ -45,10 +45,7 @@ export function parseMoney(input: string): number {
   if (lastDot >= 0 && lastComma >= 0) {
     const decimalChar = lastDot > lastComma ? "." : ",";
     const thousandChar = decimalChar === "." ? "," : ".";
-    normalized = trimmed
-      .split(thousandChar)
-      .join("")
-      .replace(decimalChar, ".");
+    normalized = trimmed.split(thousandChar).join("").replace(decimalChar, ".");
   } else if (lastComma >= 0) {
     // Comma-only → treat as decimal (Turkish/German default).
     normalized = trimmed.replace(",", ".");
