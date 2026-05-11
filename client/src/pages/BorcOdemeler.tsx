@@ -279,6 +279,7 @@ function DebtsTab({
               onEdit={() => onEdit(d)}
               onDelete={() => onDelete(d)}
               onMarkPaid={() => updateDebt(d.id, { status: "Odendi" })}
+              onChangeStatus={s => updateDebt(d.id, { status: s })}
             />
           ))}
         </div>
@@ -292,11 +293,13 @@ function DebtCard({
   onEdit,
   onDelete,
   onMarkPaid,
+  onChangeStatus,
 }: {
   debt: Debt;
   onEdit: () => void;
   onDelete: () => void;
   onMarkPaid?: () => void;
+  onChangeStatus?: (next: "Odendi" | "Bekliyor" | "Gecikti") => void;
 }) {
   // monthlyPayment is "this month's payment" — rough progress placeholder
   const paid = Math.min(debt.totalDebt, debt.monthlyPayment);
@@ -485,7 +488,11 @@ function DebtCard({
           </div>
         </div>
         <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
-          <StatusBadge status={statusToBadge(debt.status)} />
+          <StatusBadge
+            status={statusToBadge(debt.status)}
+            disabled={isDemoMode() || !onChangeStatus}
+            onChange={s => onChangeStatus?.(s)}
+          />
           {debt.status !== "Odendi" && onMarkPaid && (
             <button
               type="button"

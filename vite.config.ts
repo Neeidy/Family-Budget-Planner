@@ -28,6 +28,17 @@ const plugins = [
           },
         },
         {
+          // Hashed JS/CSS/woff2 chunks under /assets. SWR lets clients
+          // boot from cache when a chunk request fails (eliminates the
+          // transient ERR_FAILED we were seeing on flaky networks).
+          urlPattern: /\/assets\/.*\.(js|css|woff2)$/,
+          handler: "StaleWhileRevalidate",
+          options: {
+            cacheName: "static-assets",
+            expiration: { maxEntries: 60, maxAgeSeconds: 86400 * 30 },
+          },
+        },
+        {
           urlPattern: /^https:\/\/fonts\.googleapis\.com/,
           handler: "StaleWhileRevalidate",
           options: { cacheName: "google-fonts" },

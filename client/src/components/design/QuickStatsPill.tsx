@@ -44,13 +44,23 @@ export function QuickStatsPill({
       sub: "canlı toplam",
       icon: "●",
     },
-    {
-      lbl: "BU AY KALAN",
-      val: formatMoneyShort(monthRemaining),
-      hue: monthRemaining < 0 ? "var(--status-danger)" : "var(--text-primary)",
-      sub: `${Math.round(monthPct)}% kullanıldı`,
-      progress: monthPct,
-    },
+    monthBudget === 0
+      ? {
+          lbl: "BU AY KALAN",
+          val: "—",
+          hue: "var(--text-tertiary)",
+          sub: "Bütçe limiti yok",
+        }
+      : {
+          lbl: "BU AY KALAN",
+          val: formatMoneyShort(monthRemaining),
+          hue:
+            monthRemaining < 0
+              ? "var(--status-danger)"
+              : "var(--text-primary)",
+          sub: `${Math.round(monthPct)}% kullanıldı`,
+          progress: monthPct,
+        },
     {
       lbl: "YARIN",
       val: formatMoneyShort(tomorrowDue),
