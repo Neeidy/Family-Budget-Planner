@@ -129,3 +129,4 @@ client/public/__manus__/version.json
 # Audit screenshots / Playwright artifacts (local only, not part of source)
 /audit/
 /.playwright-mcp/
+/UK Family - Google Play package/

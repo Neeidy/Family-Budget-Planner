@@ -683,8 +683,10 @@ export function Dashboard() {
         <OwnerCard
           who="yigit"
           title={`${person1Name.toLocaleUpperCase("tr-TR")}'İN GİDERLERİ`}
-          amount={formatMoney(fullTotals.myExpensesOwn)}
-          subtitle={`Ev payı katkın: ${formatMoney(fullTotals.myHomeShare)}`}
+          amount={formatMoney(
+            fullTotals.myExpensesOwn + fullTotals.myHomeShare
+          )}
+          subtitle={`Kendi: ${formatMoney(fullTotals.myExpensesOwn)} · Ev payı: ${formatMoney(fullTotals.myHomeShare)}`}
           cats={yigitCats}
           expandable
           isExpanded={expandedOwner === "Benim"}
@@ -696,8 +698,10 @@ export function Dashboard() {
         <OwnerCard
           who="arzu"
           title={`${person2Name.toLocaleUpperCase("tr-TR")}'IN GİDERLERİ`}
-          amount={formatMoney(fullTotals.spouseExpensesOwn)}
-          subtitle={`Ev payı katkın: ${formatMoney(fullTotals.spouseHomeShare)}`}
+          amount={formatMoney(
+            fullTotals.spouseExpensesOwn + fullTotals.spouseHomeShare
+          )}
+          subtitle={`Kendi: ${formatMoney(fullTotals.spouseExpensesOwn)} · Ev payı: ${formatMoney(fullTotals.spouseHomeShare)}`}
           cats={arzuCats}
           expandable
           isExpanded={expandedOwner === "Esim"}

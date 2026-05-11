@@ -21,6 +21,7 @@ import type { AvatarWho } from "@/components/design";
 import { formatMoney } from "@/lib/format";
 import { applyPersonFilter } from "@/lib/personFilter";
 import { isDemoMode, demoDisabledProps } from "@/lib/demoMode";
+import { InlineMoney } from "@/components/design/InlineMoney";
 import { getCategoryMeta } from "@/components/design/CategoryPill";
 import type { Income, Expense, BudgetLimit } from "@/hooks/useBudgetData";
 
@@ -175,7 +176,7 @@ function IncomesTab({
   onEdit: (income: Income) => void;
   onDelete: (income: Income) => void;
 }) {
-  const { budgetData } = useBudget();
+  const { budgetData, updateIncome } = useBudget();
   const { person1Name, person2Name } = usePerson();
 
   const yigitTotal = budgetData.incomes
@@ -250,12 +251,13 @@ function IncomesTab({
                 person2Name={person2Name}
               />,
               <span style={{ fontWeight: 500 }}>{income.name}</span>,
-              <span
+              <InlineMoney
+                value={income.amount}
+                disabled={isDemoMode()}
+                onSave={v => updateIncome(income.id, { amount: v })}
                 className="hero-num"
                 style={{ fontWeight: 700, color: "var(--accent-green)" }}
-              >
-                {formatMoney(income.amount)}
-              </span>,
+              />,
               <span style={{ fontSize: 12, color: "var(--text-tertiary)" }}>
                 {new Date(income.date).toLocaleDateString("tr-TR")}
               </span>,
@@ -330,7 +332,43 @@ function ExpensesTab({
           description="Kira, market, fatura — tüm aylık giderlerinizi tek yerden takip edin."
         />
       ) : (
-        <DataTable
+        groupExpensesByMonth(filtered).map(group => (
+          <div
+            key={group.key}
+            style={{ display: "flex", flexDirection: "column", gap: 8 }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "baseline",
+                padding: "8px 4px",
+                borderBottom: "1px solid var(--border-faint)",
+              }}
+            >
+              <h3
+                style={{
+                  margin: 0,
+                  fontSize: 14,
+                  fontWeight: 700,
+                  letterSpacing: "-0.01em",
+                  color: "var(--text-primary)",
+                }}
+              >
+                {group.label}
+              </h3>
+              <span
+                className="tnum"
+                style={{
+                  fontSize: 11,
+                  color: "var(--text-tertiary)",
+                  fontWeight: 600,
+                }}
+              >
+                {group.items.length} kalem · {formatMoney(group.total)}
+              </span>
+            </div>
+            <DataTable
           columns={[
             { header: "Kişi", width: "auto" },
             { header: "Kategori", width: "auto" },
@@ -340,7 +378,7 @@ function ExpensesTab({
             { header: "Durum", width: 110, hideOnMobile: true },
             { header: "İşlem", width: 130, align: "center" },
           ]}
-          rows={filtered.map(expense => ({
+          rows={group.items.map(expense => ({
             key: expense.id,
             cells: [
               <OwnerBadge
@@ -366,13 +404,18 @@ function ExpensesTab({
                 )}
               </div>,
               <TypeBadge type={expense.type} />,
-              <span
+              <InlineMoney
+                value={expense.amount}
+                disabled={isDemoMode()}
+                onSave={v => updateExpense(expense.id, { amount: v })}
                 className="hero-num"
                 style={{ fontWeight: 700, color: "var(--status-danger)" }}
-              >
-                {formatMoney(expense.amount)}
-              </span>,
-              <StatusBadge status={statusToBadge(expense.status)} />,
+              />,
+              <StatusBadge
+                status={statusToBadge(expense.status)}
+                disabled={isDemoMode()}
+                onChange={s => updateExpense(expense.id, { status: s })}
+              />,
               <ExpenseRowActions
                 expense={expense}
                 onMakeOnce={() =>
@@ -384,9 +427,75 @@ function ExpensesTab({
             ],
           }))}
         />
+          </div>
+        ))
+      )}
+      {filtered.length > 0 && (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            padding: "12px 4px",
+            fontSize: 12,
+            color: "var(--text-tertiary)",
+          }}
+        >
+          <span>{filtered.length} kalem</span>
+          <span
+            className="tnum"
+            style={{ fontWeight: 700, color: "var(--text-secondary)" }}
+          >
+            Görüntülenen toplam:{" "}
+            {formatMoney(filtered.reduce((s, e) => s + e.amount, 0))}
+          </span>
+        </div>
       )}
     </div>
   );
+}
+
+// ── Month grouping helper ─────────────────────────────────────
+const TR_MONTHS = [
+  "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
+  "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık",
+];
+
+function groupExpensesByMonth(expenses: Expense[]): Array<{
+  key: string;
+  label: string;
+  total: number;
+  items: Expense[];
+}> {
+  const buckets = new Map<string, Expense[]>();
+  for (const e of expenses) {
+    const day = e.paymentDay || "";
+    // paymentDay is typically a day-of-month string ("1"-"31") not
+    // a full date. We don't have a created/updated timestamp per
+    // expense, so bucket everything into the current month.
+    let key: string;
+    const d = /^\d{4}-\d{2}/.exec(day);
+    if (d) {
+      key = day.slice(0, 7);
+    } else {
+      const now = new Date();
+      key = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+    }
+    const arr = buckets.get(key) ?? [];
+    arr.push(e);
+    buckets.set(key, arr);
+  }
+  return Array.from(buckets.entries())
+    .sort(([a], [b]) => b.localeCompare(a))
+    .map(([key, items]) => {
+      const [yy, mm] = key.split("-").map(Number);
+      return {
+        key,
+        label: `${TR_MONTHS[mm - 1]} ${yy}`,
+        total: items.reduce((s, e) => s + e.amount, 0),
+        items,
+      };
+    });
 }
 
 function statusToBadge(s: string): "Odendi" | "Bekliyor" | "Gecikti" {
