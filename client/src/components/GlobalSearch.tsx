@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useBudget } from "@/contexts/BudgetContext";
+import { usePerson } from "@/contexts/PersonContext";
 import { formatCurrency } from "@/lib/categories";
 import { useLocation } from "wouter";
 import {
@@ -34,6 +35,7 @@ export function GlobalSearch() {
   const [open, setOpen] = useState(false);
   const [, setLocation] = useLocation();
   const { budgetData } = useBudget();
+  const { person1Name, person2Name } = usePerson();
 
   // Cmd+K / Ctrl+K klavye kısayolu
   useEffect(() => {
@@ -67,7 +69,7 @@ export function GlobalSearch() {
     budgetData.incomes.forEach(i => {
       items.push({
         label: i.name,
-        sub: `Gelir • ${i.owner === "Benim" ? "Yiğit" : i.owner === "Esim" ? "Arzu" : "Ortak"}`,
+        sub: `Gelir • ${i.owner === "Benim" ? person1Name : i.owner === "Esim" ? person2Name : "Ev"}`,
         path: "/gelir-gider",
         amount: i.amount,
       });
@@ -114,7 +116,7 @@ export function GlobalSearch() {
     });
 
     return items;
-  }, [budgetData]);
+  }, [budgetData, person1Name, person2Name]);
 
   return (
     <>

@@ -15,6 +15,8 @@ interface TodaySummaryStripCompactProps {
   mobile: boolean;
   filter: FilterKey;
   upcoming: UpcomingItem[];
+  person1Name?: string;
+  person2Name?: string;
 }
 
 /**
@@ -27,11 +29,16 @@ export function TodaySummaryStripCompact({
   mobile,
   filter,
   upcoming,
+  person1Name = "Yigit",
+  person2Name = "Arzu",
 }: TodaySummaryStripCompactProps) {
   const totalDue = upcoming.reduce((s, u) => s + u.amount, 0);
-  const ownerName = (
-    { yigit: "Yigit", arzu: "Arzu", ev: "Ev", tumu: "Hepsi" } as const
-  )[filter];
+  const ownerName: string = {
+    yigit: person1Name,
+    arzu: person2Name,
+    ev: "Ev",
+    tumu: "Hepsi",
+  }[filter];
 
   return (
     <div

@@ -952,6 +952,7 @@ function BackupRow({
   onRestore: () => void;
   disabled: boolean;
 }) {
+  const { person1Name, person2Name } = usePerson();
   const dt = new Date(item.createdAt);
   const formattedDate = dt.toLocaleString("tr-TR", {
     day: "2-digit",
@@ -966,7 +967,14 @@ function BackupRow({
       : item.savedBy === "Esim"
         ? "arzu"
         : "ev";
-  const name = item.savedBy ?? "Otomatik";
+  const name =
+    item.savedBy === "Benim"
+      ? person1Name
+      : item.savedBy === "Esim"
+        ? person2Name
+        : item.savedBy === "Ev"
+          ? "Ev"
+          : "Otomatik";
 
   return (
     <div

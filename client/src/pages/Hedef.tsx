@@ -3,6 +3,7 @@ import { useSearch, useLocation } from "wouter";
 import { Plus, Trash2, Pencil } from "lucide-react";
 import { useBudget } from "@/contexts/BudgetContext";
 import { useFab } from "@/contexts/FabContext";
+import { usePerson } from "@/contexts/PersonContext";
 import { usePersonFilter } from "@/contexts/PersonFilterContext";
 import { useIsMobile } from "@/hooks/useMobile";
 import { Avatar, EmptyState, GoalDialog } from "@/components/design";
@@ -21,10 +22,14 @@ function ownerToWho(o: string): AvatarWho {
   return "ev";
 }
 
-function ownerLabel(o: string): string {
-  if (o === "Benim") return "Yigit";
-  if (o === "Esim") return "Arzu";
-  return "Ortak";
+function ownerLabel(
+  o: string,
+  person1Name: string,
+  person2Name: string
+): string {
+  if (o === "Benim") return person1Name;
+  if (o === "Esim") return person2Name;
+  return "Ev";
 }
 
 function pickEmoji(name: string): string {
@@ -325,6 +330,7 @@ function GoalCard({
   onDelete: () => void;
   onContribute: (amount: number) => void;
 }) {
+  const { person1Name, person2Name } = usePerson();
   const pct =
     goal.targetAmount > 0
       ? Math.round((goal.currentAmount / goal.targetAmount) * 100)
@@ -459,7 +465,7 @@ function GoalCard({
             >
               <Avatar who={ownerToWho(goal.owner)} size={18} />
               <span style={{ fontSize: 12, color: "var(--text-tertiary)" }}>
-                {ownerLabel(goal.owner)}
+                {ownerLabel(goal.owner, person1Name, person2Name)}
               </span>
             </div>
           </div>
