@@ -266,11 +266,18 @@ export function useBudgetData() {
 
   // Calculate totals
   const calculateTotals = useCallback(() => {
-    // Yıllık ödemeleri hesapla
-    const currentMonth = new Date().getMonth() + 1;
-    const annualPaymentsThisMonth = (budgetData.annualPayments || [])
-      .filter(p => p.paymentMonth === currentMonth)
-      .reduce((sum, p) => sum + p.amount, 0);
+    // Yıllık ödemeleri amortize et: yıllık tutar / 12 her ay yansır.
+    // Owner field'ı varsa Benim/Esim/Ev arasında dağıt, yoksa "Ev".
+    const annualByOwner = (ownerKey: "Benim" | "Esim" | "Ev") =>
+      (budgetData.annualPayments || [])
+        .filter(a => (a.owner ?? "Ev") === ownerKey)
+        .reduce((s, a) => s + a.amount / 12, 0);
+
+    const myAnnualMonthly = annualByOwner("Benim");
+    const spouseAnnualMonthly = annualByOwner("Esim");
+    const homeAnnualMonthly = annualByOwner("Ev");
+    const annualMonthlyTotal =
+      myAnnualMonthly + spouseAnnualMonthly + homeAnnualMonthly;
 
     // Kişi bazlı gelir
     const myIncome = budgetData.incomes
@@ -305,24 +312,28 @@ export function useBudgetData() {
     const totalActiveInstallments =
       myInstallments + spouseInstallments + homeInstallments;
 
-    // Ev giderlerini hesapla (direct expenses + ev taksitleri + bu ay yıllık)
+    // Ev giderlerini hesapla (direct expenses + ev taksitleri + ev yıllık amortize)
     const homeExpensesDirect = budgetData.expenses
       .filter(e => e.owner === "Ev")
       .reduce((sum, e) => sum + e.amount, 0);
     const homeExpenses =
-      homeExpensesDirect + homeInstallments + annualPaymentsThisMonth;
+      homeExpensesDirect + homeInstallments + homeAnnualMonthly;
 
     // "Own" totals: o kişinin doğrudan owner=Benim/Esim giderleri
-    // + kendi aktif taksitleri (ev payı dahil değil).
+    // + kendi aktif taksitleri + kendi yıllık amortize (ev payı dahil değil).
     const myExpensesOwn =
       budgetData.expenses
         .filter(e => e.owner === "Benim")
-        .reduce((sum, e) => sum + e.amount, 0) + myInstallments;
+        .reduce((sum, e) => sum + e.amount, 0) +
+      myInstallments +
+      myAnnualMonthly;
 
     const spouseExpensesOwn =
       budgetData.expenses
         .filter(e => e.owner === "Esim")
-        .reduce((sum, e) => sum + e.amount, 0) + spouseInstallments;
+        .reduce((sum, e) => sum + e.amount, 0) +
+      spouseInstallments +
+      spouseAnnualMonthly;
 
     // Her birinin ev payı katkısı (ortak giderlerin yarısı).
     const myHomeShare = homeExpenses / 2;
@@ -336,8 +347,8 @@ export function useBudgetData() {
 
     const totalActualExpense =
       budgetData.expenses.reduce((sum, e) => sum + e.amount, 0) +
-      annualPaymentsThisMonth +
-      totalActiveInstallments;
+      totalActiveInstallments +
+      annualMonthlyTotal;
 
     const fixedExpenses = budgetData.expenses
       .filter(e => e.type === "Sabit")
@@ -382,6 +393,12 @@ export function useBudgetData() {
       spouseExpensesOwn,
       myHomeShare,
       spouseHomeShare,
+      myIncome,
+      spouseIncome,
+      myAnnualMonthly,
+      spouseAnnualMonthly,
+      homeAnnualMonthly,
+      annualMonthlyTotal,
     };
   }, [budgetData]);
 
