@@ -4,10 +4,13 @@ interface CategoryMeta {
   colorVar: string;
 }
 
-/** Build a stable lookup key — strip diacritics + non-letter chars + lowercase */
+/** Build a stable lookup key — strip diacritics + non-letter chars + lowercase.
+ * NOTE: Uses plain toLowerCase, NOT toLocaleLowerCase("tr-TR"). Turkish locale
+ * maps "I" → "ı" (dotless), which then gets stripped by [^a-z], collapsing
+ * "AI" to "a" and triggering false substring matches (e.g. "kira"). */
 function normalizeKey(input: string): string {
   return input
-    .toLocaleLowerCase("tr-TR")
+    .toLowerCase()
     .normalize("NFD")
     .replace(/[̀-ͯ]/g, "")
     .replace(/[^a-z]/g, "");
@@ -157,9 +160,14 @@ export function getCategoryMeta(cat: string | undefined | null): CategoryMeta {
   const key = normalizeKey(cat);
   if (CATEGORIES[key]) return CATEGORIES[key];
 
-  // Substring fallback — try each registered key against the normalised input
-  for (const k of Object.keys(CATEGORIES)) {
-    if (key.includes(k) || k.includes(key)) return CATEGORIES[k];
+  // Substring fallback — try each registered key against the normalised input.
+  // Require key length >= 4 on both sides to prevent short-key false matches
+  // (e.g. "ai" sneaking into "araba", "ev" into "konutveev").
+  if (key.length >= 4) {
+    for (const k of Object.keys(CATEGORIES)) {
+      if (k.length < 4) continue;
+      if (key.includes(k) || k.includes(key)) return CATEGORIES[k];
+    }
   }
   return FALLBACK;
 }
