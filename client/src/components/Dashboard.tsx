@@ -615,7 +615,7 @@ export function Dashboard() {
                   whiteSpace: "nowrap",
                 }}
               >
-                Toplam Birikim
+                Toplam Gelir
               </div>
               <div
                 className="tnum"
@@ -627,7 +627,7 @@ export function Dashboard() {
                   whiteSpace: "nowrap",
                 }}
               >
-                +{formatMoney(netWorth.totalSavings)} ↑
+                {formatMoney(filteredTotals.totalIncome)} ↑
               </div>
             </div>
             <div
@@ -645,7 +645,7 @@ export function Dashboard() {
                   whiteSpace: "nowrap",
                 }}
               >
-                Toplam Borç
+                Toplam Gider
               </div>
               <div
                 className="tnum"
@@ -657,12 +657,30 @@ export function Dashboard() {
                   whiteSpace: "nowrap",
                 }}
               >
-                −{formatMoney(netWorth.totalDebt)} ↓
+                {formatMoney(filteredTotals.totalExpense)} ↓
               </div>
             </div>
           </div>
           {/* Floating HealthBubble inside card */}
-          <HealthBubble score={healthScore} mobile={mobile} onClick={goRapor} />
+          <div
+            title={`Tasarruf oranı %${Math.round(filteredTotals.savingsRate * 100)} · Gider oranı %${Math.round(filteredTotals.expenseRatio * 100)} → ${
+              healthScore >= 90
+                ? "A"
+                : healthScore >= 75
+                  ? "B"
+                  : healthScore >= 60
+                    ? "C"
+                    : healthScore >= 40
+                      ? "D"
+                      : "E"
+            }`}
+          >
+            <HealthBubble
+              score={healthScore}
+              mobile={mobile}
+              onClick={goRapor}
+            />
+          </div>
         </div>
 
         <TodaySummaryStripCompact
