@@ -208,32 +208,41 @@ export function AnnualPaymentDialog({
           ))}
         </select>
       </Field>
-      <Field label="Alt Kategori">
-        <select
-          value={subcategoryKey}
-          onChange={e => setSubcategoryKey(e.target.value)}
-          style={selectStyle}
-        >
-          {subcategories.length === 0 ? (
-            <option value="Diger">Diğer</option>
-          ) : (
-            subcategories.map(s => (
-              <option key={s.key} value={s.key}>
-                {s.label}
-              </option>
-            ))
-          )}
-        </select>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns:
+            subcategoryKey === "Diger" ? "1fr 1fr" : "1fr",
+          gap: 14,
+        }}
+      >
+        <Field label="Alt Kategori">
+          <select
+            value={subcategoryKey}
+            onChange={e => setSubcategoryKey(e.target.value)}
+            style={selectStyle}
+          >
+            {subcategories.length === 0 ? (
+              <option value="Diger">Diğer</option>
+            ) : (
+              subcategories.map(s => (
+                <option key={s.key} value={s.key}>
+                  {s.label}
+                </option>
+              ))
+            )}
+          </select>
+        </Field>
         {subcategoryKey === "Diger" && (
-          <div style={{ marginTop: 8 }}>
+          <Field label="Özel isim">
             <TextInput
               value={customSubcategory}
               onChange={setCustomSubcategory}
-              placeholder="Özel isim (opsiyonel)"
+              placeholder="Örn. Bisiklet bakımı"
             />
-          </div>
+          </Field>
         )}
-      </Field>
+      </div>
       <Field
         label="Her Yıl Ödeme Ayı"
         hint="Bu kalem her yıl bu ayda ödenmeye devam eder (örn. araba sigortası Mart)."
