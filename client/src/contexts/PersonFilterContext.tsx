@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useCallback, useContext, useState, ReactNode } from "react";
+import { getStored, setStored } from "@/lib/storage";
 
 export type PersonFilter = "Tümü" | "Benim" | "Esim" | "Ev";
 
@@ -9,8 +10,21 @@ interface PersonFilterContextType {
 
 const PersonFilterContext = createContext<PersonFilterContextType | null>(null);
 
+const STORAGE_KEY = "person-filter";
+
+function loadInitial(): PersonFilter {
+  const v = getStored<PersonFilter>(STORAGE_KEY, "Tümü");
+  return v === "Tümü" || v === "Benim" || v === "Esim" || v === "Ev"
+    ? v
+    : "Tümü";
+}
+
 export function PersonFilterProvider({ children }: { children: ReactNode }) {
-  const [filter, setFilter] = useState<PersonFilter>("Tümü");
+  const [filter, setFilterState] = useState<PersonFilter>(loadInitial);
+  const setFilter = useCallback((f: PersonFilter) => {
+    setFilterState(f);
+    setStored(STORAGE_KEY, f);
+  }, []);
   return (
     <PersonFilterContext.Provider value={{ filter, setFilter }}>
       {children}
