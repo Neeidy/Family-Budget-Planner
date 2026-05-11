@@ -1,3 +1,4 @@
+import { parseMoney } from "@/lib/format";
 import { useEffect, useState } from "react";
 import { useBudget } from "@/contexts/BudgetContext";
 import { usePerson } from "@/contexts/PersonContext";
@@ -11,6 +12,8 @@ import {
   CancelButton,
   PrimaryButton,
 } from "./DialogShell";
+import { getDefaults, rememberDefaults } from "@/lib/formDefaults";
+import { MoneyHint } from "@/components/design/MoneyHint";
 
 interface DebtDialogProps {
   open: boolean;
@@ -57,13 +60,18 @@ export function DebtDialog({ open, onClose, entity }: DebtDialogProps) {
       setMonthlyPayment("");
       setDueDate(todayPlusYearISO());
       setStatus("Bekliyor");
-      setOwner((currentPerson as "Benim" | "Esim" | null) ?? "Ev");
+      const remembered = getDefaults<{ owner?: "Benim" | "Esim" | "Ev" }>(
+        "debt"
+      );
+      setOwner(
+        remembered.owner ?? (currentPerson as "Benim" | "Esim" | null) ?? "Ev"
+      );
       setNotes("");
     }
   }, [open, entity, currentPerson]);
 
-  const numTotal = parseFloat(totalDebt.replace(",", "."));
-  const numMonthly = parseFloat(monthlyPayment.replace(",", "."));
+  const numTotal = parseMoney(totalDebt);
+  const numMonthly = parseMoney(monthlyPayment);
   const valid =
     name.trim().length > 0 &&
     Number.isFinite(numTotal) &&
@@ -84,6 +92,9 @@ export function DebtDialog({ open, onClose, entity }: DebtDialogProps) {
     };
     if (isEdit && entity) updateDebt(entity.id, payload);
     else addDebt(payload);
+    rememberDefaults<{ owner?: "Benim" | "Esim" | "Ev" }>("debt", {
+      owner: payload.owner,
+    });
     onClose();
   };
 
@@ -131,6 +142,7 @@ export function DebtDialog({ open, onClose, entity }: DebtDialogProps) {
             step="0.01"
             min={0}
           />
+          <MoneyHint raw={totalDebt} />
         </Field>
         <Field label="Aylık Ödeme">
           <TextInput
@@ -142,6 +154,7 @@ export function DebtDialog({ open, onClose, entity }: DebtDialogProps) {
             step="0.01"
             min={0}
           />
+          <MoneyHint raw={monthlyPayment} />
         </Field>
       </div>
       <Field label="Vade">

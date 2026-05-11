@@ -1,3 +1,4 @@
+import { parseMoney } from "@/lib/format";
 import { useEffect, useMemo, useState } from "react";
 import { useBudget } from "@/contexts/BudgetContext";
 import { usePerson } from "@/contexts/PersonContext";
@@ -12,6 +13,16 @@ import {
   CancelButton,
   PrimaryButton,
 } from "./DialogShell";
+import { MoneyHint } from "@/components/design/MoneyHint";
+import { getDefaults, rememberDefaults } from "@/lib/formDefaults";
+
+interface ExpenseFormDefaults {
+  owner?: "Benim" | "Esim" | "Ev";
+  category?: string;
+  subcategoryKey?: string;
+  type?: "Sabit" | "Degisken" | "Borc" | "Birikim";
+  status?: "Odendi" | "Bekliyor" | "Gecikti";
+}
 
 interface ExpenseDialogProps {
   open: boolean;
@@ -41,10 +52,7 @@ export function ExpenseDialog({ open, onClose, entity }: ExpenseDialogProps) {
   const [notes, setNotes] = useState("");
 
   // Available subcategories for the currently selected main category.
-  const subcategories = useMemo(
-    () => getSubcategories(category),
-    [category]
-  );
+  const subcategories = useMemo(() => getSubcategories(category), [category]);
 
   useEffect(() => {
     if (!open) return;
@@ -70,13 +78,17 @@ export function ExpenseDialog({ open, onClose, entity }: ExpenseDialogProps) {
       setPaymentDay(entity.paymentDay ?? "");
       setNotes(entity.notes ?? "");
     } else {
-      setCategory("Yiyecek");
-      setSubcategoryKey("Market");
+      // Smart defaults: remember last add (owner/category/sub/type/status)
+      const remembered = getDefaults<ExpenseFormDefaults>("expense");
+      setCategory(remembered.category ?? "Yiyecek");
+      setSubcategoryKey(remembered.subcategoryKey ?? "Market");
       setCustomSubcategory("");
       setAmount("");
-      setType("Degisken");
-      setStatus("Bekliyor");
-      setOwner((currentPerson as "Benim" | "Esim" | null) ?? "Ev");
+      setType(remembered.type ?? "Degisken");
+      setStatus(remembered.status ?? "Bekliyor");
+      setOwner(
+        remembered.owner ?? (currentPerson as "Benim" | "Esim" | null) ?? "Ev"
+      );
       setPaymentDay("");
       setNotes("");
     }
@@ -96,9 +108,9 @@ export function ExpenseDialog({ open, onClose, entity }: ExpenseDialogProps) {
   const resolvedSubcategoryLabel =
     subcategoryKey === "Diger" && customSubcategory.trim()
       ? customSubcategory.trim()
-      : subcategories.find(s => s.key === subcategoryKey)?.label ?? "Diğer";
+      : (subcategories.find(s => s.key === subcategoryKey)?.label ?? "Diğer");
 
-  const numAmount = parseFloat(amount.replace(",", "."));
+  const numAmount = parseMoney(amount);
   const valid =
     Number.isFinite(numAmount) &&
     numAmount > 0 &&
@@ -118,6 +130,13 @@ export function ExpenseDialog({ open, onClose, entity }: ExpenseDialogProps) {
     };
     if (isEdit && entity) updateExpense(entity.id, payload);
     else addExpense(payload);
+    rememberDefaults<ExpenseFormDefaults>("expense", {
+      owner: payload.owner,
+      category: payload.category,
+      subcategoryKey,
+      type: payload.type,
+      status: payload.status,
+    });
     onClose();
   };
 
@@ -237,6 +256,7 @@ export function ExpenseDialog({ open, onClose, entity }: ExpenseDialogProps) {
             step="0.01"
             min={0}
           />
+          <MoneyHint raw={amount} />
         </Field>
       </div>
       <Field label="Durum">

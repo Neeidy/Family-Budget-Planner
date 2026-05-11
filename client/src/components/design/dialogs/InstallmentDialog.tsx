@@ -1,3 +1,4 @@
+import { parseMoney } from "@/lib/format";
 import { useEffect, useState } from "react";
 import { useBudget } from "@/contexts/BudgetContext";
 import { usePerson } from "@/contexts/PersonContext";
@@ -11,6 +12,8 @@ import {
   CancelButton,
   PrimaryButton,
 } from "./DialogShell";
+import { getDefaults, rememberDefaults } from "@/lib/formDefaults";
+import { MoneyHint } from "@/components/design/MoneyHint";
 
 interface InstallmentDialogProps {
   open: boolean;
@@ -75,14 +78,19 @@ export function InstallmentDialog({
       setStartYear(String(now.getFullYear()));
       setStartMonth(String(now.getMonth() + 1));
       setPaymentDay("");
-      setOwner((currentPerson as "Benim" | "Esim" | null) ?? "Ev");
+      const remembered = getDefaults<{ owner?: "Ev" | "Benim" | "Esim" }>(
+        "installment"
+      );
+      setOwner(
+        remembered.owner ?? (currentPerson as "Benim" | "Esim" | null) ?? "Ev"
+      );
       setNotes("");
     }
   }, [open, entity, currentPerson]);
 
-  const numTotal = parseFloat(totalAmount.replace(",", "."));
+  const numTotal = parseMoney(totalAmount);
   const numCount = parseInt(installmentCount, 10);
-  const numMonthly = parseFloat(monthlyAmount.replace(",", "."));
+  const numMonthly = parseMoney(monthlyAmount);
   const numYear = parseInt(startYear, 10);
   const numMonth = parseInt(startMonth, 10);
   const numPaymentDay =
@@ -122,6 +130,9 @@ export function InstallmentDialog({
     };
     if (isEdit && entity) updateInstallment(entity.id, payload);
     else addInstallment(payload);
+    rememberDefaults<{ owner?: "Ev" | "Benim" | "Esim" }>("installment", {
+      owner: payload.owner,
+    });
     onClose();
   };
 
@@ -170,6 +181,7 @@ export function InstallmentDialog({
             step="0.01"
             min={0}
           />
+          <MoneyHint raw={totalAmount} />
         </Field>
         <Field label="Taksit Sayısı">
           <TextInput
@@ -191,6 +203,7 @@ export function InstallmentDialog({
           step="0.01"
           min={0}
         />
+        <MoneyHint raw={monthlyAmount} />
       </Field>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
         <Field label="Başlangıç Ayı">

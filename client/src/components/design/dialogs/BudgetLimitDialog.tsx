@@ -1,3 +1,4 @@
+import { parseMoney } from "@/lib/format";
 import { useEffect, useState } from "react";
 import { useBudget } from "@/contexts/BudgetContext";
 import { usePerson } from "@/contexts/PersonContext";
@@ -11,6 +12,8 @@ import {
   CancelButton,
   PrimaryButton,
 } from "./DialogShell";
+import { getDefaults, rememberDefaults } from "@/lib/formDefaults";
+import { MoneyHint } from "@/components/design/MoneyHint";
 
 interface BudgetLimitDialogProps {
   open: boolean;
@@ -42,11 +45,18 @@ export function BudgetLimitDialog({
     } else {
       setCategory("Yiyecek");
       setLimit("");
-      setOwner((currentPerson as "Benim" | "Esim" | null) ?? "Ev");
+      const remembered = getDefaults<{
+        owner?: "Benim" | "Esim" | "Ev";
+        category?: string;
+      }>("budgetLimit");
+      setOwner(
+        remembered.owner ?? (currentPerson as "Benim" | "Esim" | null) ?? "Ev"
+      );
+      if (remembered.category) setCategory(remembered.category);
     }
   }, [open, entity, currentPerson]);
 
-  const numLimit = parseFloat(limit.replace(",", "."));
+  const numLimit = parseMoney(limit);
   const valid = Number.isFinite(numLimit) && numLimit > 0;
 
   const handleSave = () => {
@@ -58,6 +68,10 @@ export function BudgetLimitDialog({
     };
     if (isEdit && entity) updateBudgetLimit(entity.id, payload);
     else addBudgetLimit(payload);
+    rememberDefaults<{ owner?: "Benim" | "Esim" | "Ev"; category?: string }>(
+      "budgetLimit",
+      { owner: payload.owner, category: payload.category }
+    );
     onClose();
   };
 
@@ -134,6 +148,7 @@ export function BudgetLimitDialog({
           min={0}
           autoFocus
         />
+        <MoneyHint raw={limit} />
       </Field>
     </DialogShell>
   );

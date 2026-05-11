@@ -1,3 +1,4 @@
+import { parseMoney } from "@/lib/format";
 import { useEffect, useState } from "react";
 import { useBudget } from "@/contexts/BudgetContext";
 import type { AnnualPayment } from "@/hooks/useBudgetData";
@@ -10,6 +11,7 @@ import {
   CancelButton,
   PrimaryButton,
 } from "./DialogShell";
+import { MoneyHint } from "@/components/design/MoneyHint";
 
 const MONTHS_TR = [
   "Ocak",
@@ -69,7 +71,7 @@ export function AnnualPaymentDialog({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, entity]);
 
-  const numAmount = parseFloat(amount.replace(",", "."));
+  const numAmount = parseMoney(amount);
   const numPaymentDay =
     paymentDay.trim() === "" ? undefined : parseInt(paymentDay, 10);
   const paymentDayValid =
@@ -131,6 +133,7 @@ export function AnnualPaymentDialog({
           step="0.01"
           min={0}
         />
+        <MoneyHint raw={amount} />
       </Field>
       <Field
         label="Her Yıl Ödeme Ayı"

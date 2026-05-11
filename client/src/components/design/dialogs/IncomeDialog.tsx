@@ -1,3 +1,4 @@
+import { parseMoney } from "@/lib/format";
 import { useEffect, useState } from "react";
 import { useBudget } from "@/contexts/BudgetContext";
 import { usePerson } from "@/contexts/PersonContext";
@@ -10,6 +11,8 @@ import {
   CancelButton,
   PrimaryButton,
 } from "./DialogShell";
+import { getDefaults, rememberDefaults } from "@/lib/formDefaults";
+import { MoneyHint } from "@/components/design/MoneyHint";
 
 interface IncomeDialogProps {
   open: boolean;
@@ -43,13 +46,14 @@ export function IncomeDialog({ open, onClose, entity }: IncomeDialogProps) {
     } else {
       setName("");
       setAmount("");
-      setOwner(currentPerson ?? "Benim");
+      const remembered = getDefaults<{ owner?: "Benim" | "Esim" }>("income");
+      setOwner(remembered.owner ?? currentPerson ?? "Benim");
       setDate(todayISO());
       setNotes("");
     }
   }, [open, entity, currentPerson]);
 
-  const numAmount = parseFloat(amount.replace(",", "."));
+  const numAmount = parseMoney(amount);
   const valid =
     name.trim().length > 0 && Number.isFinite(numAmount) && numAmount > 0;
 
@@ -64,6 +68,9 @@ export function IncomeDialog({ open, onClose, entity }: IncomeDialogProps) {
     };
     if (isEdit && entity) updateIncome(entity.id, payload);
     else addIncome(payload);
+    rememberDefaults<{ owner?: "Benim" | "Esim" }>("income", {
+      owner: payload.owner,
+    });
     onClose();
   };
 
@@ -109,6 +116,7 @@ export function IncomeDialog({ open, onClose, entity }: IncomeDialogProps) {
           step="0.01"
           min={0}
         />
+        <MoneyHint raw={amount} />
       </Field>
       <Field label="Tarih">
         <TextInput value={date} onChange={setDate} type="date" />
