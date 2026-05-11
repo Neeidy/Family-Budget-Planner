@@ -52,6 +52,10 @@ export interface AnnualPayment {
   paymentDay?: number; // 1-31, optional — falls back to 15 when null
   lastPaymentDate: string;
   notes: string;
+  owner?: "Benim" | "Esim" | "Ev"; // optional, defaults to "Ev"
+  category?: string; // optional, defaults to "Diger"
+  subcategoryKey?: string; // optional, defaults to "Diger"
+  customSubcategory?: string; // optional, set when subcategoryKey === "Diger"
 }
 
 export interface Installment {
