@@ -388,46 +388,50 @@ function DebtCard({
         )}
       </div>
 
-      {/* Progress + Ödenen/Kalan */}
-      <div style={{ marginBottom: 8 }}>
-        <div
-          style={{
-            height: 10,
-            background: "var(--bg-tint)",
-            borderRadius: 999,
-            overflow: "hidden",
-          }}
-        >
+      {/* Progress + Ödenen/Kalan — hidden when monthlyPayment is 0 */}
+      {debt.monthlyPayment > 0 && (
+        <>
+          <div style={{ marginBottom: 8 }}>
+            <div
+              style={{
+                height: 10,
+                background: "var(--bg-tint)",
+                borderRadius: 999,
+                overflow: "hidden",
+              }}
+            >
+              <div
+                style={{
+                  width: `${paidProgress * 100}%`,
+                  height: "100%",
+                  background:
+                    "linear-gradient(90deg, var(--accent-green), color-mix(in oklch, var(--accent-green) 70%, var(--owner-yigit)))",
+                  borderRadius: 999,
+                  transition: "width 600ms cubic-bezier(0.2, 0, 0, 1)",
+                }}
+              />
+            </div>
+          </div>
           <div
             style={{
-              width: `${paidProgress * 100}%`,
-              height: "100%",
-              background:
-                "linear-gradient(90deg, var(--accent-green), color-mix(in oklch, var(--accent-green) 70%, var(--owner-yigit)))",
-              borderRadius: 999,
-              transition: "width 600ms cubic-bezier(0.2, 0, 0, 1)",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              fontSize: 12,
             }}
-          />
-        </div>
-      </div>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          fontSize: 12,
-        }}
-      >
-        <span className="tnum" style={{ color: "var(--accent-green)" }}>
-          Ödenen: {formatMoney(paid)} (%{pctPaid})
-        </span>
-        <span
-          className="tnum"
-          style={{ color: "var(--status-danger)", fontWeight: 600 }}
-        >
-          Kalan: {formatMoney(remaining)}
-        </span>
-      </div>
+          >
+            <span className="tnum" style={{ color: "var(--accent-green)" }}>
+              Ödenen: {formatMoney(paid)} (%{pctPaid})
+            </span>
+            <span
+              className="tnum"
+              style={{ color: "var(--status-danger)", fontWeight: 600 }}
+            >
+              Kalan: {formatMoney(remaining)}
+            </span>
+          </div>
+        </>
+      )}
 
       {/* Bottom metric row — page-borc.jsx:125-145 */}
       <div
@@ -461,7 +465,7 @@ function DebtCard({
                 color: "var(--text-primary)",
               }}
             >
-              {formatMoney(debt.monthlyPayment)}
+              {debt.monthlyPayment > 0 ? formatMoney(debt.monthlyPayment) : "—"}
             </div>
           </div>
           <div>
