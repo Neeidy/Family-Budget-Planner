@@ -284,19 +284,25 @@ export function useBudgetData() {
       .filter(e => e.owner === "Ev")
       .reduce((sum, e) => sum + e.amount, 0);
 
-    // Benim giderlerim + ev payı
-    const myExpenses =
-      budgetData.expenses
-        .filter(e => e.owner === "Benim")
-        .reduce((sum, e) => sum + e.amount, 0) +
-      homeExpenses / 2;
+    // "Own" totals: yalnızca o kişinin doğrudan owner=Benim/Esim
+    // gider toplamları (ev payı dahil değil).
+    const myExpensesOwn = budgetData.expenses
+      .filter(e => e.owner === "Benim")
+      .reduce((sum, e) => sum + e.amount, 0);
 
-    // Eşimin giderleri + ev payı
-    const spouseExpenses =
-      budgetData.expenses
-        .filter(e => e.owner === "Esim")
-        .reduce((sum, e) => sum + e.amount, 0) +
-      homeExpenses / 2;
+    const spouseExpensesOwn = budgetData.expenses
+      .filter(e => e.owner === "Esim")
+      .reduce((sum, e) => sum + e.amount, 0);
+
+    // Her birinin ev payı katkısı (ortak giderlerin yarısı).
+    const myHomeShare = homeExpenses / 2;
+    const spouseHomeShare = homeExpenses / 2;
+
+    // Geriye uyumlu: eski myExpenses/spouseExpenses field'ları
+    // "own + ev payı" toplamını taşımaya devam eder. Yeni UI
+    // myExpensesOwn + myHomeShare ayrımını kullanır.
+    const myExpenses = myExpensesOwn + myHomeShare;
+    const spouseExpenses = spouseExpensesOwn + spouseHomeShare;
 
     const totalActualExpense =
       budgetData.expenses.reduce((sum, e) => sum + e.amount, 0) +
@@ -341,6 +347,10 @@ export function useBudgetData() {
       homeExpenses,
       myExpenses,
       spouseExpenses,
+      myExpensesOwn,
+      spouseExpensesOwn,
+      myHomeShare,
+      spouseHomeShare,
     };
   }, [budgetData]);
 
