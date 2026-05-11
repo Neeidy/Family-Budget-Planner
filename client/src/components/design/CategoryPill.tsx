@@ -127,8 +127,6 @@ const CATEGORIES: Record<string, CategoryMeta> = {
   loto: { name: "Loto", emoji: "🍀", colorVar: C_LOTO },
   lottoplus: { name: "LottoPlus", emoji: "🍀", colorVar: C_LOTO },
   euromillion: { name: "EuroMillion", emoji: "🍀", colorVar: C_LOTO },
-  joker: { name: "Joker", emoji: "🍀", colorVar: C_LOTO },
-  toto: { name: "Toto", emoji: "🍀", colorVar: C_LOTO },
 
   // Tabak
   tabak: { name: "Tabak", emoji: "🚬", colorVar: C_TABAK },

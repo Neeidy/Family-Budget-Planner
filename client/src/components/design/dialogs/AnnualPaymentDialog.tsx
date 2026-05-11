@@ -211,8 +211,7 @@ export function AnnualPaymentDialog({
       <div
         style={{
           display: "grid",
-          gridTemplateColumns:
-            subcategoryKey === "Diger" ? "1fr 1fr" : "1fr",
+          gridTemplateColumns: subcategoryKey === "Diger" ? "1fr 1fr" : "1fr",
           gap: 14,
         }}
       >
