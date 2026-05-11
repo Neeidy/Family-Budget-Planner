@@ -5,11 +5,7 @@ import { useBudget } from "@/contexts/BudgetContext";
 import { useFab } from "@/contexts/FabContext";
 import { usePersonFilter } from "@/contexts/PersonFilterContext";
 import { useIsMobile } from "@/hooks/useMobile";
-import {
-  Avatar,
-  EmptyState,
-  GoalDialog,
-} from "@/components/design";
+import { Avatar, EmptyState, GoalDialog } from "@/components/design";
 import { deleteWithUndo } from "@/lib/undoToast";
 import type { AvatarWho } from "@/components/design";
 import { formatMoney, formatMoneyShort } from "@/lib/format";

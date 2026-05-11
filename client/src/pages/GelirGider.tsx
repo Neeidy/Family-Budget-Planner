@@ -420,64 +420,64 @@ function ExpensesTab({
               </span>
             </div>
             <DataTable
-          columns={[
-            { header: "Kişi", width: "auto" },
-            { header: "Kategori", width: "auto" },
-            { header: "Gider Adı", width: "auto" },
-            { header: "Tipi", width: 100, hideOnMobile: true },
-            { header: "Miktar", width: 120, align: "right" },
-            { header: "Durum", width: 110, hideOnMobile: true },
-            { header: "İşlem", width: 130, align: "center" },
-          ]}
-          rows={group.items.map(expense => ({
-            key: expense.id,
-            cells: [
-              <OwnerBadge
-                owner={expense.owner}
-                person1Name={person1Name}
-                person2Name={person2Name}
-              />,
-              <CategoryPill cat={expense.category} size="sm" />,
-              <div>
-                <div style={{ fontWeight: 500 }}>
-                  {expense.subcategory || expense.category}
-                </div>
-                {expense.notes && (
-                  <div
-                    style={{
-                      fontSize: 11,
-                      color: "var(--text-tertiary)",
-                      marginTop: 2,
-                    }}
-                  >
-                    {expense.notes}
-                  </div>
-                )}
-              </div>,
-              <TypeBadge type={expense.type} />,
-              <InlineMoney
-                value={expense.amount}
-                disabled={isDemoMode()}
-                onSave={v => updateExpense(expense.id, { amount: v })}
-                className="hero-num"
-                style={{ fontWeight: 700, color: "var(--status-danger)" }}
-              />,
-              <StatusBadge
-                status={statusToBadge(expense.status)}
-                disabled={isDemoMode()}
-                onChange={s => updateExpense(expense.id, { status: s })}
-              />,
-              <ExpenseRowActions
-                expense={expense}
-                onMakeOnce={() =>
-                  updateExpense(expense.id, { type: "Degisken" })
-                }
-                onEdit={() => onEdit(expense)}
-                onDelete={() => onDelete(expense)}
-              />,
-            ],
-          }))}
-        />
+              columns={[
+                { header: "Kişi", width: "auto" },
+                { header: "Kategori", width: "auto" },
+                { header: "Gider Adı", width: "auto" },
+                { header: "Tipi", width: 100, hideOnMobile: true },
+                { header: "Miktar", width: 120, align: "right" },
+                { header: "Durum", width: 110, hideOnMobile: true },
+                { header: "İşlem", width: 130, align: "center" },
+              ]}
+              rows={group.items.map(expense => ({
+                key: expense.id,
+                cells: [
+                  <OwnerBadge
+                    owner={expense.owner}
+                    person1Name={person1Name}
+                    person2Name={person2Name}
+                  />,
+                  <CategoryPill cat={expense.category} size="sm" />,
+                  <div>
+                    <div style={{ fontWeight: 500 }}>
+                      {expense.subcategory || expense.category}
+                    </div>
+                    {expense.notes && (
+                      <div
+                        style={{
+                          fontSize: 11,
+                          color: "var(--text-tertiary)",
+                          marginTop: 2,
+                        }}
+                      >
+                        {expense.notes}
+                      </div>
+                    )}
+                  </div>,
+                  <TypeBadge type={expense.type} />,
+                  <InlineMoney
+                    value={expense.amount}
+                    disabled={isDemoMode()}
+                    onSave={v => updateExpense(expense.id, { amount: v })}
+                    className="hero-num"
+                    style={{ fontWeight: 700, color: "var(--status-danger)" }}
+                  />,
+                  <StatusBadge
+                    status={statusToBadge(expense.status)}
+                    disabled={isDemoMode()}
+                    onChange={s => updateExpense(expense.id, { status: s })}
+                  />,
+                  <ExpenseRowActions
+                    expense={expense}
+                    onMakeOnce={() =>
+                      updateExpense(expense.id, { type: "Degisken" })
+                    }
+                    onEdit={() => onEdit(expense)}
+                    onDelete={() => onDelete(expense)}
+                  />,
+                ],
+              }))}
+            />
           </div>
         ))
       )}
@@ -508,8 +508,18 @@ function ExpensesTab({
 
 // ── Month grouping helper ─────────────────────────────────────
 const TR_MONTHS = [
-  "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
-  "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık",
+  "Ocak",
+  "Şubat",
+  "Mart",
+  "Nisan",
+  "Mayıs",
+  "Haziran",
+  "Temmuz",
+  "Ağustos",
+  "Eylül",
+  "Ekim",
+  "Kasım",
+  "Aralık",
 ];
 
 function groupByMonth<T extends { amount: number }>(

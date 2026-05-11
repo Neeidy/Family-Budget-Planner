@@ -42,8 +42,7 @@ export function MonthPulse({
       val:
         (netMovement >= 0 ? "+" : "−") +
         formatMoneyShort(Math.abs(netMovement)),
-      hue:
-        netMovement >= 0 ? "var(--accent-green)" : "var(--status-danger)",
+      hue: netMovement >= 0 ? "var(--accent-green)" : "var(--status-danger)",
       sub: netMovement >= 0 ? "Gelir > Gider" : "Gider > Gelir",
       icon: netMovement >= 0 ? "↑" : "↓",
     },

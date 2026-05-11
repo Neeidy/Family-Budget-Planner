@@ -841,8 +841,8 @@ export function Dashboard() {
                 lineHeight: 1.5,
               }}
             >
-              Henüz bütçe limiti yok. Gelir &amp; Gider sayfasında
-              "Bütçe Limitleri" sekmesinden ekleyebilirsiniz.
+              Henüz bütçe limiti yok. Gelir &amp; Gider sayfasında "Bütçe
+              Limitleri" sekmesinden ekleyebilirsiniz.
             </div>
           )}
           {bvaSamples.map(b => {

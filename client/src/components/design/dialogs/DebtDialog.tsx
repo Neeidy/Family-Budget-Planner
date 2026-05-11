@@ -49,7 +49,9 @@ export function DebtDialog({ open, onClose, entity }: DebtDialogProps) {
     if (entity) {
       setName(entity.name);
       setTotalDebt(String(entity.totalDebt));
-      setMonthlyPayment(entity.monthlyPayment > 0 ? String(entity.monthlyPayment) : "");
+      setMonthlyPayment(
+        entity.monthlyPayment > 0 ? String(entity.monthlyPayment) : ""
+      );
       setDueDate(entity.dueDate || todayPlusYearISO());
       setStatus(entity.status);
       setOwner(entity.owner);
