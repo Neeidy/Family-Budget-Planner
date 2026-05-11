@@ -72,6 +72,7 @@ export function DialogShell({
       >
         <div
           style={{
+            flex: "0 0 auto",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
@@ -108,12 +109,21 @@ export function DialogShell({
             <X style={{ width: 14, height: 14 }} />
           </button>
         </div>
-        <div style={{ padding: 24, overflowY: "auto", flex: 1 }}>
+        <div
+          style={{
+            flex: "1 1 auto",
+            minHeight: 0,
+            overflowY: "auto",
+            WebkitOverflowScrolling: "touch",
+            padding: 24,
+          }}
+        >
           {children}
         </div>
         {footer && (
           <div
             style={{
+              flex: "0 0 auto",
               display: "flex",
               justifyContent: "flex-end",
               gap: 10,
