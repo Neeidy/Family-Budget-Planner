@@ -7,6 +7,7 @@ import { usePersonFilter, PersonFilter } from "@/contexts/PersonFilterContext";
 import {
   TabBar,
   Avatar,
+  CategoryPill,
   StatusBadge,
   EmptyState,
   LenderIcon,
@@ -843,6 +844,7 @@ function AnnualPaymentsTab({
   onDelete: (p: AnnualPayment) => void;
 }) {
   const { budgetData, updateAnnualPayment } = useBudget();
+  const { person1Name, person2Name } = usePerson();
   const list = budgetData.annualPayments ?? [];
 
   // Group by month
@@ -1030,6 +1032,31 @@ function AnnualPaymentsTab({
                   onSave={v => updateAnnualPayment(p.id, { amount: v })}
                   disabled={isDemoMode()}
                 />
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  flexWrap: "wrap",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <Avatar who={ownerToWho(p.owner ?? "Ev")} size={18} />
+                  <span
+                    style={{
+                      fontSize: 12,
+                      color: "var(--text-tertiary)",
+                    }}
+                  >
+                    {p.owner === "Benim"
+                      ? person1Name
+                      : p.owner === "Esim"
+                        ? person2Name
+                        : "Ev"}
+                  </span>
+                </div>
+                {p.category && <CategoryPill cat={p.category} size="sm" />}
               </div>
               {p.lastPaymentDate && (
                 <div style={{ fontSize: 11, color: "var(--text-tertiary)" }}>

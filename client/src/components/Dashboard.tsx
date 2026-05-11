@@ -166,25 +166,6 @@ export function Dashboard() {
   const activeName = currentPerson === "Benim" ? person1Name : person2Name;
   const activeWho: AvatarWho = currentPerson === "Benim" ? "yigit" : "arzu";
 
-  // Net Değer (always full data)
-  const netWorth = useMemo(() => {
-    const totalSavings = (budgetData.savingsGoals || []).reduce(
-      (s, g) => s + (g.currentAmount || 0),
-      0
-    );
-    const totalDebt = (budgetData.debts || []).reduce(
-      (s, d) => s + (d.totalDebt || 0),
-      0
-    );
-    const monthDelta = filteredTotals.savingsAmount; // rough proxy "↑ this month"
-    return {
-      netWorth: totalSavings - totalDebt,
-      totalSavings,
-      totalDebt,
-      monthDelta,
-    };
-  }, [budgetData.savingsGoals, budgetData.debts, filteredTotals.savingsAmount]);
-
   const debtToIncomeRatio =
     filteredTotals.totalIncome > 0
       ? (budgetData.debts || []).reduce(
@@ -567,7 +548,7 @@ export function Dashboard() {
             overflow: mobile ? "visible" : "hidden",
           }}
         >
-          <div className="section-label">NET DEĞER</div>
+          <div className="section-label">BU AY NET</div>
           <div
             className="tnum"
             style={{
@@ -576,32 +557,16 @@ export function Dashboard() {
               marginTop: 8,
               letterSpacing: "-0.035em",
               lineHeight: 1.05,
+              color:
+                filteredTotals.remaining >= 0
+                  ? "var(--accent-green)"
+                  : "var(--status-danger)",
             }}
           >
-            {formatMoney(netWorth.netWorth).replace(/,\d{2}/, "")}
+            {formatMoney(filteredTotals.remaining).replace(/,\d{2}/, "")}
             <span style={{ color: "var(--text-tertiary)", fontSize: "0.5em" }}>
-              {formatMoney(netWorth.netWorth).match(/,\d{2}/)?.[0] ?? ",00"}
-            </span>
-          </div>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              marginTop: 6,
-            }}
-          >
-            <span
-              className="pill"
-              style={{
-                background: "var(--accent-green-soft)",
-                color: "var(--accent-green)",
-                fontSize: 11,
-                fontWeight: 700,
-                padding: "3px 8px",
-              }}
-            >
-              ↑ {formatMoney(netWorth.monthDelta)} bu ay
+              {formatMoney(filteredTotals.remaining).match(/,\d{2}/)?.[0] ??
+                ",00"}
             </span>
           </div>
           <div
