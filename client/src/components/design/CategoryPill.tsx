@@ -23,6 +23,11 @@ const C_ABONELIK = "var(--cat-abonelik)";
 const C_GIYIM = "var(--cat-giyim)";
 const C_SPOR = "var(--cat-spor)";
 const C_PORSUK = "var(--cat-porsuk)";
+const C_AI = "var(--cat-ai)";
+const C_KISISELBAKIM = "var(--cat-kisiselbakim)";
+const C_TATIL = "var(--cat-tatil)";
+const C_LOTO = "var(--cat-loto)";
+const C_TABAK = "var(--cat-tabak)";
 const C_DIGER = "var(--cat-diger)";
 
 /**
@@ -86,8 +91,47 @@ const CATEGORIES: Record<string, CategoryMeta> = {
 
   // Giyim & spor & porsuk
   giyim: { name: "Giyim", emoji: "👕", colorVar: C_GIYIM },
+  kiyafet: { name: "Kıyafet", emoji: "👕", colorVar: C_GIYIM },
   spor: { name: "Spor", emoji: "⚽", colorVar: C_SPOR },
   porsuk: { name: "Porsuk", emoji: "🐈", colorVar: C_PORSUK },
+
+  // AI
+  ai: { name: "AI", emoji: "🤖", colorVar: C_AI },
+  chatgpt: { name: "ChatGPT", emoji: "🤖", colorVar: C_AI },
+  claude: { name: "Claude", emoji: "🤖", colorVar: C_AI },
+  grok: { name: "Grok", emoji: "🤖", colorVar: C_AI },
+  github: { name: "GitHub", emoji: "🐙", colorVar: C_AI },
+
+  // Kişisel Bakım
+  kisiselbakim: {
+    name: "Kişisel Bakım",
+    emoji: "💇",
+    colorVar: C_KISISELBAKIM,
+  },
+  kuafor: { name: "Kuaför", emoji: "💇", colorVar: C_KISISELBAKIM },
+  kozmetik: { name: "Kozmetik", emoji: "💄", colorVar: C_KISISELBAKIM },
+  krem: { name: "Krem", emoji: "🧴", colorVar: C_KISISELBAKIM },
+  serum: { name: "Serum", emoji: "🧪", colorVar: C_KISISELBAKIM },
+  parfum: { name: "Parfüm", emoji: "🌸", colorVar: C_KISISELBAKIM },
+
+  // Tatil
+  tatil: { name: "Tatil", emoji: "✈️", colorVar: C_TATIL },
+  bilet: { name: "Bilet", emoji: "🎫", colorVar: C_TATIL },
+  otel: { name: "Otel", emoji: "🏨", colorVar: C_TATIL },
+  aktivite: { name: "Aktivite", emoji: "🎢", colorVar: C_TATIL },
+
+  // Loto
+  loto: { name: "Loto", emoji: "🍀", colorVar: C_LOTO },
+  lottoplus: { name: "LottoPlus", emoji: "🍀", colorVar: C_LOTO },
+  euromillion: { name: "EuroMillion", emoji: "🍀", colorVar: C_LOTO },
+  joker: { name: "Joker", emoji: "🍀", colorVar: C_LOTO },
+  toto: { name: "Toto", emoji: "🍀", colorVar: C_LOTO },
+
+  // Tabak
+  tabak: { name: "Tabak", emoji: "🚬", colorVar: C_TABAK },
+  snuss: { name: "Snuss", emoji: "🚬", colorVar: C_TABAK },
+  sigara: { name: "Sigara", emoji: "🚬", colorVar: C_TABAK },
+  veev: { name: "Veev", emoji: "💨", colorVar: C_TABAK },
   okul: { name: "Okul", emoji: "📚", colorVar: C_PORSUK },
   egitim: { name: "Eğitim", emoji: "📚", colorVar: C_PORSUK },
   egitimvegelisim: { name: "Eğitim", emoji: "📚", colorVar: C_PORSUK },
