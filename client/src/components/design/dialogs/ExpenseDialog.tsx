@@ -203,38 +203,46 @@ export function ExpenseDialog({ open, onClose, entity }: ExpenseDialogProps) {
           })}
         </div>
       </Field>
-      <Field label="Alt Kategori">
-        <select
-          value={subcategoryKey}
-          onChange={e => setSubcategoryKey(e.target.value)}
-          style={{
-            width: "100%",
-            padding: "10px 12px",
-            borderRadius: 10,
-            border: "1px solid var(--border-faint)",
-            background: "var(--bg-elevated)",
-            color: "var(--text-primary)",
-            fontFamily: "inherit",
-            fontSize: 14,
-          }}
-        >
-          {subcategories.map(s => (
-            <option key={s.key} value={s.key}>
-              {s.label}
-            </option>
-          ))}
-        </select>
-      </Field>
-      {subcategoryKey === "Diger" && (
-        <Field label="Özel isim">
-          <TextInput
-            value={customSubcategory}
-            onChange={setCustomSubcategory}
-            placeholder="Örn. Bisiklet bakımı"
-            autoFocus
-          />
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: subcategoryKey === "Diger" ? "1fr 1fr" : "1fr",
+          gap: 14,
+        }}
+      >
+        <Field label="Alt Kategori">
+          <select
+            value={subcategoryKey}
+            onChange={e => setSubcategoryKey(e.target.value)}
+            style={{
+              width: "100%",
+              padding: "10px 12px",
+              borderRadius: 10,
+              border: "1px solid var(--border-faint)",
+              background: "var(--bg-elevated)",
+              color: "var(--text-primary)",
+              fontFamily: "inherit",
+              fontSize: 14,
+            }}
+          >
+            {subcategories.map(s => (
+              <option key={s.key} value={s.key}>
+                {s.label}
+              </option>
+            ))}
+          </select>
         </Field>
-      )}
+        {subcategoryKey === "Diger" && (
+          <Field label="Özel isim">
+            <TextInput
+              value={customSubcategory}
+              onChange={setCustomSubcategory}
+              placeholder="Örn. Bisiklet bakımı"
+              autoFocus
+            />
+          </Field>
+        )}
+      </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
         <Field label="Tip">
           <RadioRow

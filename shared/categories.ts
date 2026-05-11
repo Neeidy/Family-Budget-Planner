@@ -203,8 +203,6 @@ export const CATEGORIES: MainCategory[] = [
     subcategories: [
       { key: "LottoPlus", label: "LottoPlus" },
       { key: "EuroMillion", label: "EuroMillion" },
-      { key: "Joker", label: "Joker" },
-      { key: "Toto", label: "Toto" },
       { key: "Diger", label: "Diğer" },
     ],
   },
