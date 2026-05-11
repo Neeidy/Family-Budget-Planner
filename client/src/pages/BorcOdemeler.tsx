@@ -16,6 +16,7 @@ import {
 import { InlineMoney } from "@/components/design/InlineMoney";
 import { deleteWithUndo } from "@/lib/undoToast";
 import { usePersistedTab } from "@/lib/usePersistedTab";
+import { useFab } from "@/contexts/FabContext";
 import type { AvatarWho, BadgeStatus } from "@/components/design";
 import { formatMoney } from "@/lib/format";
 import { applyPersonFilter } from "@/lib/personFilter";
@@ -1125,6 +1126,21 @@ export default function BorcOdemeler() {
       deleteFn: deleteAnnualPayment,
       restoreFn: ({ id: _id, ...rest }) => addAnnualPayment(rest),
     });
+
+  // Context-aware FAB
+  const { requestedAction, clearAction } = useFab();
+  useEffect(() => {
+    if (requestedAction === "debt") {
+      setDebtDialog({ open: true });
+      clearAction();
+    } else if (requestedAction === "installment") {
+      setInstDialog({ open: true });
+      clearAction();
+    } else if (requestedAction === "annual") {
+      setAnnualDialog({ open: true });
+      clearAction();
+    }
+  }, [requestedAction, clearAction]);
 
   // Open dialog from MobileFAB QuickAdd via ?action= query param
   const search = useSearch();

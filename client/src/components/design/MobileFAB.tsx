@@ -8,6 +8,8 @@ import {
   Target,
   X,
 } from "lucide-react";
+import { getStored } from "@/lib/storage";
+import { useFab, type FabAction } from "@/contexts/FabContext";
 
 interface NavItem {
   key: string;
@@ -36,16 +38,41 @@ interface MobileFABProps {
   onNotifications?: () => void;
 }
 
+function actionForLocation(pathname: string): FabAction {
+  if (pathname === "/gelir-gider") {
+    const tab = getStored<string>("tab:gelir-gider", "Gelirler");
+    if (tab === "Gelirler") return "income";
+    if (tab === "Giderler") return "expense";
+    if (tab === "Bütçe Limitleri") return "limit";
+    return null;
+  }
+  if (pathname === "/borc-odemeler") {
+    const tab = getStored<string>("tab:borc-odemeler", "Borçlar");
+    if (tab === "Borçlar") return "debt";
+    if (tab === "Taksitler") return "installment";
+    if (tab === "Yıllık Ödemeler") return "annual";
+    return null;
+  }
+  if (pathname === "/hedef") return "goal";
+  return null;
+}
+
 export function MobileFAB(_props: MobileFABProps) {
   const [location, setLocation] = useLocation();
   const [quickAddOpen, setQuickAddOpen] = useState(false);
+  const { requestAction } = useFab();
 
   const handleFab = (e: React.MouseEvent<HTMLButtonElement>) => {
     const el = e.currentTarget;
     el.style.animation = "none";
     void el.offsetWidth;
     el.style.animation = "fabPress 280ms cubic-bezier(0.2, 0, 0, 1)";
-    setQuickAddOpen(true);
+    const action = actionForLocation(location);
+    if (action) {
+      requestAction(action);
+    } else {
+      setQuickAddOpen(true);
+    }
   };
 
   return (

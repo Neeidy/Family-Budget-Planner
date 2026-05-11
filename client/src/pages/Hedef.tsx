@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useSearch, useLocation } from "wouter";
 import { Plus, Trash2, Pencil } from "lucide-react";
 import { useBudget } from "@/contexts/BudgetContext";
+import { useFab } from "@/contexts/FabContext";
 import { usePersonFilter } from "@/contexts/PersonFilterContext";
 import { useIsMobile } from "@/hooks/useMobile";
 import {
@@ -752,6 +753,15 @@ export default function Hedef() {
       deleteFn: deleteSavingsGoal,
       restoreFn: ({ id: _id, ...rest }) => addSavingsGoal(rest),
     });
+
+  // Context-aware FAB
+  const { requestedAction, clearAction } = useFab();
+  useEffect(() => {
+    if (requestedAction === "goal") {
+      setGoalDialog({ open: true });
+      clearAction();
+    }
+  }, [requestedAction, clearAction]);
 
   // Open dialog from MobileFAB QuickAdd via ?action= query param
   const search = useSearch();

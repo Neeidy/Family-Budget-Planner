@@ -17,6 +17,7 @@ import {
 } from "@/components/design";
 import { deleteWithUndo } from "@/lib/undoToast";
 import { usePersistedTab } from "@/lib/usePersistedTab";
+import { useFab } from "@/contexts/FabContext";
 import type { AvatarWho } from "@/components/design";
 import { formatMoney } from "@/lib/format";
 import { applyPersonFilter } from "@/lib/personFilter";
@@ -1041,6 +1042,21 @@ export default function GelirGider() {
       deleteFn: deleteBudgetLimit,
       restoreFn: ({ id: _id, ...rest }) => addBudgetLimit(rest),
     });
+
+  // Context-aware FAB
+  const { requestedAction, clearAction } = useFab();
+  useEffect(() => {
+    if (requestedAction === "income") {
+      setIncomeDialog({ open: true });
+      clearAction();
+    } else if (requestedAction === "expense") {
+      setExpenseDialog({ open: true });
+      clearAction();
+    } else if (requestedAction === "limit") {
+      setLimitDialog({ open: true });
+      clearAction();
+    }
+  }, [requestedAction, clearAction]);
 
   // Open dialog from MobileFAB QuickAdd via ?action= query param
   const search = useSearch();
