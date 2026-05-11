@@ -1,6 +1,5 @@
 import { ReactNode, useEffect, useId } from "react";
 import { X } from "lucide-react";
-import { useIsMobile } from "@/hooks/useMobile";
 
 interface DialogShellProps {
   open: boolean;
@@ -19,7 +18,6 @@ export function DialogShell({
   children,
   footer,
 }: DialogShellProps) {
-  const isMobile = useIsMobile();
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -36,109 +34,20 @@ export function DialogShell({
 
   if (!open) return null;
 
-  const outerStyle: React.CSSProperties = isMobile
-    ? {
-        position: "fixed",
-        inset: 0,
-        zIndex: 200,
-        display: "flex",
-        flexDirection: "column",
-        padding: 0,
-        background: "var(--bg-base)",
-        animation: "fadeIn 200ms ease-out",
-      }
-    : {
-        position: "fixed",
-        inset: 0,
-        zIndex: 200,
-        overflowY: "auto",
-        padding: "32px 16px",
-        display: "flex",
-        alignItems: "flex-start",
-        justifyContent: "center",
-        background: "color-mix(in oklch, var(--bg-base) 75%, transparent)",
-        backdropFilter: "blur(8px)",
-        WebkitBackdropFilter: "blur(8px)",
-        animation: "fadeIn 200ms ease-out",
-      };
-
-  const innerStyle: React.CSSProperties = isMobile
-    ? {
-        width: "100%",
-        height: "100dvh",
-        maxHeight: "100dvh",
-        borderRadius: 0,
-        display: "flex",
-        flexDirection: "column",
-        background: "var(--bg-surface)",
-        boxShadow: "none",
-      }
-    : {
-        width: "100%",
-        maxWidth: width,
-        background: "var(--bg-surface)",
-        borderRadius: 24,
-        boxShadow:
-          "0 24px 64px -12px rgba(0,0,0,0.7), 0 0 0 1px var(--border-faint)",
-        overflow: "visible",
-        display: "flex",
-        flexDirection: "column",
-        animation: "fadeUp 240ms cubic-bezier(0.2, 0, 0, 1)",
-      };
-
-  const headerStyle: React.CSSProperties = {
-    flex: "0 0 auto",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: "20px 24px",
-    borderBottom: "1px solid var(--border-faint)",
-    ...(isMobile && {
-      position: "sticky" as const,
-      top: 0,
-      background: "var(--bg-surface)",
-      zIndex: 1,
-    }),
-  };
-
-  const bodyStyle: React.CSSProperties = isMobile
-    ? {
-        flex: "1 1 auto",
-        overflowY: "auto",
-        WebkitOverflowScrolling: "touch",
-        padding: "20px 16px",
-        minHeight: 0,
-      }
-    : {
-        padding: 24,
-      };
-
-  const footerStyle: React.CSSProperties = {
-    flex: "0 0 auto",
-    display: "flex",
-    justifyContent: "flex-end",
-    gap: 10,
-    padding: "16px 24px",
-    borderTop: "1px solid var(--border-faint)",
-    background: "var(--bg-base)",
-    ...(isMobile && {
-      position: "sticky" as const,
-      bottom: 0,
-      background: "var(--bg-surface)",
-      paddingBottom: "calc(16px + env(safe-area-inset-bottom))",
-    }),
-  };
-
   return (
     <div
       role="dialog"
       aria-modal="true"
       aria-labelledby="dialog-title"
       onClick={onClose}
-      style={outerStyle}
+      className="dialog-shell-outer"
     >
-      <div onClick={e => e.stopPropagation()} style={innerStyle}>
-        <div style={headerStyle}>
+      <div
+        onClick={e => e.stopPropagation()}
+        className="dialog-shell-inner"
+        style={{ ["--dialog-w" as string]: `${width}px` }}
+      >
+        <div className="dialog-shell-header">
           <div
             id="dialog-title"
             style={{
@@ -168,8 +77,8 @@ export function DialogShell({
             <X style={{ width: 14, height: 14 }} />
           </button>
         </div>
-        <div style={bodyStyle}>{children}</div>
-        {footer && <div style={footerStyle}>{footer}</div>}
+        <div className="dialog-shell-body">{children}</div>
+        {footer && <div className="dialog-shell-footer">{footer}</div>}
       </div>
     </div>
   );
