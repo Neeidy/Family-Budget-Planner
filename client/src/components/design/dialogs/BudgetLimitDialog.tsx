@@ -90,41 +90,26 @@ export function BudgetLimitDialog({
       }
     >
       <Field label="Kategori">
-        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-          {CATEGORIES.map(c => {
-            const active = category === c.key;
-            return (
-              <button
-                key={c.key}
-                type="button"
-                onClick={() => setCategory(c.key)}
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 6,
-                  padding: "6px 12px",
-                  borderRadius: 999,
-                  fontSize: 12,
-                  fontWeight: 600,
-                  background: active
-                    ? "var(--accent-green)"
-                    : "var(--bg-elevated)",
-                  color: active
-                    ? "oklch(0.15 0.03 155)"
-                    : "var(--text-secondary)",
-                  border:
-                    "1px solid " +
-                    (active ? "transparent" : "var(--border-faint)"),
-                  cursor: "pointer",
-                  fontFamily: "inherit",
-                }}
-              >
-                <span>{c.emoji}</span>
-                <span>{c.label}</span>
-              </button>
-            );
-          })}
-        </div>
+        <select
+          value={category}
+          onChange={e => setCategory(e.target.value)}
+          style={{
+            width: "100%",
+            padding: "12px 14px",
+            background: "var(--bg-elevated)",
+            border: "1px solid var(--border-faint)",
+            borderRadius: 10,
+            color: "var(--text-primary)",
+            fontSize: 14,
+            fontFamily: "inherit",
+          }}
+        >
+          {CATEGORIES.map(c => (
+            <option key={c.key} value={c.key}>
+              {c.emoji} {c.label}
+            </option>
+          ))}
+        </select>
       </Field>
       <Field label="Kişi">
         <RadioRow
