@@ -188,13 +188,24 @@ const expenses = [
   {
     id: "demo-e-14",
     category: "Porsuk",
-    subcategory: "Kedi Maması + Kum",
+    subcategory: "Mama",
     type: "Sabit",
     amount: 45,
     paymentDay: "20",
     status: "Odendi",
     owner: "Ev",
     notes: "Kedi: Boncuk (4 yaş, tekir)",
+  },
+  {
+    id: "demo-e-15",
+    category: "Araba",
+    subcategory: "Yakıt",
+    type: "Sabit",
+    amount: 120,
+    paymentDay: "25",
+    status: "Bekliyor",
+    owner: "Ev",
+    notes: "Aylık ortalama OMV/Shell",
   },
 ];
 
@@ -270,6 +281,24 @@ const annualPayments = [
     paymentMonth: 6,
     lastPaymentDate: "2025-06-12",
     notes: "Aşı + genel kontrol",
+  },
+  {
+    id: "demo-y-4",
+    name: "Araba Sigortası",
+    amount: 890,
+    paymentMonth: 3,
+    paymentDay: 15,
+    lastPaymentDate: "2026-03-15",
+    notes: "Donau Versicherung — kasko + Haftpflicht",
+  },
+  {
+    id: "demo-y-5",
+    name: "Vignette",
+    amount: 100,
+    paymentMonth: 1,
+    paymentDay: 10,
+    lastPaymentDate: "2026-01-10",
+    notes: "Autobahn yıllık",
   },
 ];
 
