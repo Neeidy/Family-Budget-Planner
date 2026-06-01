@@ -1,5 +1,6 @@
 import { parseMoney } from "@/lib/format";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useBudget } from "@/contexts/BudgetContext";
 import { usePerson } from "@/contexts/PersonContext";
 import type { Installment } from "@/hooks/useBudgetData";
@@ -21,19 +22,19 @@ interface InstallmentDialogProps {
   entity?: Installment;
 }
 
-const MONTHS_TR = [
-  "Ocak",
-  "Şubat",
-  "Mart",
-  "Nisan",
-  "Mayıs",
-  "Haziran",
-  "Temmuz",
-  "Ağustos",
-  "Eylül",
-  "Ekim",
-  "Kasım",
-  "Aralık",
+const MONTH_SHORT_KEYS = [
+  "jan",
+  "feb",
+  "mar",
+  "apr",
+  "may",
+  "jun",
+  "jul",
+  "aug",
+  "sep",
+  "oct",
+  "nov",
+  "dec",
 ];
 
 export function InstallmentDialog({
@@ -41,6 +42,7 @@ export function InstallmentDialog({
   onClose,
   entity,
 }: InstallmentDialogProps) {
+  const { t } = useTranslation();
   const { addInstallment, updateInstallment } = useBudget();
   const { person1Name, person2Name, currentPerson } = usePerson();
   const isEdit = !!entity;
@@ -140,38 +142,42 @@ export function InstallmentDialog({
     <DialogShell
       open={open}
       onClose={onClose}
-      title={isEdit ? "Taksiti Düzenle" : "Yeni Taksit Ekle"}
+      title={
+        isEdit
+          ? t("dialog.installment.title_edit")
+          : t("dialog.installment.title_add")
+      }
       width={540}
       footer={
         <>
           <CancelButton onClick={onClose} />
           <PrimaryButton onClick={handleSave} disabled={!valid}>
-            Kaydet
+            {t("common.save")}
           </PrimaryButton>
         </>
       }
     >
-      <Field label="Taksit Adı">
+      <Field label={t("dialog.installment.field.name")}>
         <TextInput
           value={name}
           onChange={setName}
-          placeholder="Örn. Yeni Telefon"
+          placeholder={t("dialog.installment.name_placeholder")}
           autoFocus
         />
       </Field>
-      <Field label="Kişi">
+      <Field label={t("dialog.common.person")}>
         <RadioRow
           value={owner}
           onChange={setOwner}
           options={[
             { value: "Benim", label: person1Name },
             { value: "Esim", label: person2Name },
-            { value: "Ev", label: "Ev" },
+            { value: "Ev", label: t("dialog.common.home") },
           ]}
         />
       </Field>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-        <Field label="Toplam Tutar">
+        <Field label={t("dialog.installment.field.total_amount")}>
           <TextInput
             value={totalAmount}
             onChange={setTotalAmount}
@@ -183,17 +189,17 @@ export function InstallmentDialog({
           />
           <MoneyHint raw={totalAmount} />
         </Field>
-        <Field label="Taksit Sayısı">
+        <Field label={t("dialog.installment.field.count")}>
           <TextInput
             value={installmentCount}
             onChange={setInstallmentCount}
-            placeholder="12"
+            placeholder={t("dialog.installment.count_placeholder")}
             type="number"
             min={1}
           />
         </Field>
       </div>
-      <Field label="Aylık Tutar">
+      <Field label={t("dialog.installment.field.monthly_amount")}>
         <TextInput
           value={monthlyAmount}
           onChange={setMonthlyAmount}
@@ -206,17 +212,17 @@ export function InstallmentDialog({
         <MoneyHint raw={monthlyAmount} />
       </Field>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-        <Field label="Başlangıç Ayı">
+        <Field label={t("dialog.installment.field.start_month")}>
           <RadioRow
             value={numMonth}
             onChange={v => setStartMonth(String(v))}
-            options={MONTHS_TR.map((label, i) => ({
+            options={MONTH_SHORT_KEYS.map((key, i) => ({
               value: i + 1,
-              label: label.slice(0, 3),
+              label: t(`month.short.${key}`),
             }))}
           />
         </Field>
-        <Field label="Yıl">
+        <Field label={t("dialog.installment.field.start_year")}>
           <TextInput
             value={startYear}
             onChange={setStartYear}
@@ -226,21 +232,23 @@ export function InstallmentDialog({
           />
         </Field>
       </div>
-      <Field label="Ödeme Günü (opsiyonel)">
+      <Field
+        label={`${t("dialog.installment.field.payment_day")} ${t("common.optional")}`}
+      >
         <TextInput
           value={paymentDay}
           onChange={setPaymentDay}
-          placeholder="Örn: 15 (1–31)"
+          placeholder={t("dialog.installment.payment_day_placeholder")}
           type="number"
           min={1}
           max={31}
         />
       </Field>
-      <Field label="Notlar (opsiyonel)">
+      <Field label={t("dialog.common.notes_optional")}>
         <TextAreaInput
           value={notes}
           onChange={setNotes}
-          placeholder="Ek bilgi…"
+          placeholder={t("dialog.common.notes_placeholder")}
         />
       </Field>
     </DialogShell>

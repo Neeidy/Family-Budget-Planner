@@ -1,5 +1,6 @@
 import { parseMoney } from "@/lib/format";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useBudget } from "@/contexts/BudgetContext";
 import { usePerson } from "@/contexts/PersonContext";
 import type { BudgetLimit } from "@/hooks/useBudgetData";
@@ -26,6 +27,7 @@ export function BudgetLimitDialog({
   onClose,
   entity,
 }: BudgetLimitDialogProps) {
+  const { t } = useTranslation();
   const { addBudgetLimit, updateBudgetLimit } = useBudget();
   const { person1Name, person2Name, currentPerson } = usePerson();
   const isEdit = !!entity;
@@ -79,17 +81,21 @@ export function BudgetLimitDialog({
     <DialogShell
       open={open}
       onClose={onClose}
-      title={isEdit ? "Bütçe Limitini Düzenle" : "Yeni Bütçe Limiti"}
+      title={
+        isEdit
+          ? t("dialog.budget_limit.title_edit")
+          : t("dialog.budget_limit.title_add")
+      }
       footer={
         <>
           <CancelButton onClick={onClose} />
           <PrimaryButton onClick={handleSave} disabled={!valid}>
-            Kaydet
+            {t("common.save")}
           </PrimaryButton>
         </>
       }
     >
-      <Field label="Kategori">
+      <Field label={t("dialog.budget_limit.field.category")}>
         <select
           value={category}
           onChange={e => setCategory(e.target.value)}
@@ -111,18 +117,18 @@ export function BudgetLimitDialog({
           ))}
         </select>
       </Field>
-      <Field label="Kişi">
+      <Field label={t("dialog.budget_limit.field.person")}>
         <RadioRow
           value={owner}
           onChange={setOwner}
           options={[
             { value: "Benim", label: person1Name },
             { value: "Esim", label: person2Name },
-            { value: "Ev", label: "Ev" },
+            { value: "Ev", label: t("dialog.common.home") },
           ]}
         />
       </Field>
-      <Field label="Aylık Limit">
+      <Field label={t("dialog.budget_limit.field.limit")}>
         <TextInput
           value={limit}
           onChange={setLimit}

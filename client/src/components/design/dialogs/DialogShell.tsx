@@ -1,5 +1,6 @@
 import { ReactNode, useEffect, useId, useState } from "react";
 import { createPortal } from "react-dom";
+import { useTranslation } from "react-i18next";
 import { X } from "lucide-react";
 
 interface DialogShellProps {
@@ -15,7 +16,7 @@ function useIsMobileViewport() {
   const [isMobile, setIsMobile] = useState(
     () =>
       typeof window !== "undefined" &&
-      window.matchMedia("(max-width: 768px)").matches,
+      window.matchMedia("(max-width: 768px)").matches
   );
   useEffect(() => {
     const mql = window.matchMedia("(max-width: 768px)");
@@ -35,6 +36,7 @@ export function DialogShell({
   children,
   footer,
 }: DialogShellProps) {
+  const { t } = useTranslation();
   const isMobile = useIsMobileViewport();
 
   useEffect(() => {
@@ -188,7 +190,7 @@ export function DialogShell({
           <button
             type="button"
             onClick={onClose}
-            aria-label="Kapat"
+            aria-label={t("dialog.common.close_aria")}
             style={{
               background: "var(--bg-elevated)",
               border: "none",
@@ -207,7 +209,7 @@ export function DialogShell({
         {footer && <div style={footerStyle}>{footer}</div>}
       </div>
     </div>,
-    document.body,
+    document.body
   );
 }
 
@@ -400,6 +402,7 @@ export function RadioRow<T extends string | number>({
 // ─── Footer buttons ────────────────────────────────────────────
 
 export function CancelButton({ onClick }: { onClick: () => void }) {
+  const { t } = useTranslation();
   return (
     <button
       type="button"
@@ -416,7 +419,7 @@ export function CancelButton({ onClick }: { onClick: () => void }) {
         cursor: "pointer",
       }}
     >
-      İptal
+      {t("dialog.common.cancel")}
     </button>
   );
 }

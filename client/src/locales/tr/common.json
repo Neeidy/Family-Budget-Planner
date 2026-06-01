@@ -229,6 +229,23 @@
     "person_subtitle": "{{name}} olarak giriş yap"
   },
   "dialog": {
+    "common": {
+      "close_aria": "Kapat",
+      "save": "Kaydet",
+      "cancel": "İptal",
+      "person": "Kişi",
+      "home": "Ev",
+      "other": "Diğer",
+      "notes_optional": "Notlar (opsiyonel)",
+      "notes_placeholder": "Ek bilgi…",
+      "custom_name": "Özel isim",
+      "custom_placeholder": "Örn. Bisiklet bakımı"
+    },
+    "delete_confirm": {
+      "title": "Silmek istediğinizden emin misiniz?",
+      "message_suffix": "kalıcı olarak silinecek.",
+      "undo_note": "Bu işlem geri alınamaz, ancak son silme Ctrl+Z ile geri alınabilir."
+    },
     "expense": {
       "title_add": "Yeni Gider Ekle",
       "title_edit": "Gideri Düzenle",
@@ -236,15 +253,14 @@
         "person": "Kişi",
         "category": "Kategori",
         "subcategory": "Alt Kategori",
-        "custom_subcategory": "Özel Alt Kategori",
+        "custom_subcategory": "Özel isim",
         "amount": "Miktar",
         "type": "Tip",
         "status": "Durum",
         "payment_day": "Ödeme Günü",
         "notes": "Notlar"
       },
-      "custom_placeholder": "Örn. Spor salonu",
-      "payment_day_hint": "(opsiyonel)",
+      "payment_day_placeholder": "Örn. 15",
       "notes_placeholder": "Ek bilgi…"
     },
     "income": {
@@ -270,14 +286,14 @@
       "title_edit": "Borcu Düzenle",
       "field": {
         "name": "Borç Adı",
-        "total_debt": "Toplam Borç",
+        "total_debt": "Toplam Tutar",
         "monthly_payment": "Aylık Ödeme",
-        "due_date": "Vade Tarihi",
+        "due_date": "Vade",
         "status": "Durum",
         "notes": "Notlar"
       },
       "name_placeholder": "Örn. Kredi Kartı",
-      "monthly_optional_hint": "(opsiyonel)"
+      "monthly_hint": "Boş bırakılabilir veya 0 (kredi kartı gibi sabit aylık ödemesi olmayan borçlar için)"
     },
     "installment": {
       "title_add": "Yeni Taksit Ekle",
@@ -287,31 +303,34 @@
         "total_amount": "Toplam Tutar",
         "count": "Taksit Sayısı",
         "monthly_amount": "Aylık Tutar",
-        "start_month": "Başlangıç Ay",
-        "start_year": "Başlangıç Yıl",
+        "start_month": "Başlangıç Ayı",
+        "start_year": "Yıl",
         "payment_day": "Ödeme Günü",
         "notes": "Notlar"
       },
-      "name_placeholder": "Örn. Telefon Taksiti",
-      "count_placeholder": "12"
+      "name_placeholder": "Örn. Yeni Telefon",
+      "count_placeholder": "12",
+      "payment_day_placeholder": "Örn: 15 (1–31)"
     },
     "annual": {
-      "title_add": "Yeni Yıllık Ödeme Ekle",
+      "title_add": "Yeni Yıllık Ödeme",
       "title_edit": "Yıllık Ödemeyi Düzenle",
       "field": {
         "name": "Ödeme Adı",
-        "amount": "Miktar",
-        "payment_month": "Ödeme Ayı",
-        "payment_day": "Ödeme Günü",
-        "last_payment": "Son Ödeme",
+        "amount": "Tutar",
+        "payment_month": "Her Yıl Ödeme Ayı",
+        "payment_day": "Her Yıl Ödeme Günü",
+        "last_payment": "Son Fiili Ödeme Tarihi",
         "person": "Kişi",
         "category": "Kategori",
         "subcategory": "Alt Kategori",
         "notes": "Notlar"
       },
-      "name_placeholder": "Örn. Sigorta",
-      "payment_day_hint": "(opsiyonel)",
-      "last_payment_hint": "(opsiyonel)"
+      "name_placeholder": "Örn. Vergi, Sigorta yenileme",
+      "payment_month_hint": "Bu kalem her yıl bu ayda ödenmeye devam eder (örn. araba sigortası Mart).",
+      "payment_day_hint": "Ay içinde sabit bir gün varsa yaz; yoksa ayın 15'i kabul edilir.",
+      "payment_day_placeholder": "Örn: 15 (1–31)",
+      "last_payment_hint": "En son ne zaman ödedin? Boş bırakılabilir."
     },
     "goal": {
       "title_add": "Yeni Hedef Ekle",
@@ -320,19 +339,19 @@
         "name": "Hedef Adı",
         "target_amount": "Hedef Tutar",
         "current_amount": "Mevcut Tutar",
-        "monthly_allocation": "Aylık Pay",
+        "monthly_allocation": "Aylık Eklenecek",
         "target_date": "Hedef Tarih",
         "notes": "Notlar"
       },
-      "name_placeholder": "Örn. Tatil, Yedek Fon"
+      "name_placeholder": "Örn. Tatil, Yeni Araç"
     },
     "budget_limit": {
-      "title_add": "Yeni Limit Ekle",
-      "title_edit": "Limiti Düzenle",
+      "title_add": "Yeni Bütçe Limiti",
+      "title_edit": "Bütçe Limitini Düzenle",
       "field": {
         "person": "Kişi",
         "category": "Kategori",
-        "limit": "Limit",
+        "limit": "Aylık Limit",
         "notes": "Notlar"
       }
     }

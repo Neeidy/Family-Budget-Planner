@@ -1,5 +1,6 @@
 import { parseMoney } from "@/lib/format";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useBudget } from "@/contexts/BudgetContext";
 import { usePerson } from "@/contexts/PersonContext";
 import type { SavingsGoal } from "@/hooks/useBudgetData";
@@ -28,6 +29,7 @@ const fourMonthsLaterISO = () => {
 };
 
 export function GoalDialog({ open, onClose, entity }: GoalDialogProps) {
+  const { t } = useTranslation();
   const { addSavingsGoal, updateSavingsGoal } = useBudget();
   const { person1Name, person2Name, currentPerson } = usePerson();
   const isEdit = !!entity;
@@ -97,38 +99,38 @@ export function GoalDialog({ open, onClose, entity }: GoalDialogProps) {
     <DialogShell
       open={open}
       onClose={onClose}
-      title={isEdit ? "Hedefi Düzenle" : "Yeni Hedef Ekle"}
+      title={isEdit ? t("dialog.goal.title_edit") : t("dialog.goal.title_add")}
       width={540}
       footer={
         <>
           <CancelButton onClick={onClose} />
           <PrimaryButton onClick={handleSave} disabled={!valid}>
-            Kaydet
+            {t("common.save")}
           </PrimaryButton>
         </>
       }
     >
-      <Field label="Hedef Adı">
+      <Field label={t("dialog.goal.field.name")}>
         <TextInput
           value={name}
           onChange={setName}
-          placeholder="Örn. Tatil, Yeni Araç"
+          placeholder={t("dialog.goal.name_placeholder")}
           autoFocus
         />
       </Field>
-      <Field label="Kişi">
+      <Field label={t("dialog.common.person")}>
         <RadioRow
           value={owner}
           onChange={setOwner}
           options={[
             { value: "Benim", label: person1Name },
             { value: "Esim", label: person2Name },
-            { value: "Ev", label: "Ev" },
+            { value: "Ev", label: t("dialog.common.home") },
           ]}
         />
       </Field>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-        <Field label="Hedef Tutar">
+        <Field label={t("dialog.goal.field.target_amount")}>
           <TextInput
             value={targetAmount}
             onChange={setTargetAmount}
@@ -140,7 +142,7 @@ export function GoalDialog({ open, onClose, entity }: GoalDialogProps) {
           />
           <MoneyHint raw={targetAmount} />
         </Field>
-        <Field label="Mevcut Tutar">
+        <Field label={t("dialog.goal.field.current_amount")}>
           <TextInput
             value={currentAmount}
             onChange={setCurrentAmount}
@@ -153,7 +155,7 @@ export function GoalDialog({ open, onClose, entity }: GoalDialogProps) {
           <MoneyHint raw={currentAmount} />
         </Field>
       </div>
-      <Field label="Aylık Eklenecek">
+      <Field label={t("dialog.goal.field.monthly_allocation")}>
         <TextInput
           value={monthlyAllocation}
           onChange={setMonthlyAllocation}
@@ -165,14 +167,14 @@ export function GoalDialog({ open, onClose, entity }: GoalDialogProps) {
         />
         <MoneyHint raw={monthlyAllocation} />
       </Field>
-      <Field label="Hedef Tarih">
+      <Field label={t("dialog.goal.field.target_date")}>
         <TextInput value={targetDate} onChange={setTargetDate} type="date" />
       </Field>
-      <Field label="Notlar (opsiyonel)">
+      <Field label={t("dialog.common.notes_optional")}>
         <TextAreaInput
           value={notes}
           onChange={setNotes}
-          placeholder="Ek bilgi…"
+          placeholder={t("dialog.common.notes_placeholder")}
         />
       </Field>
     </DialogShell>
