@@ -5,6 +5,7 @@ export interface Income {
   id: string;
   name: string;
   amount: number;
+  type?: "Sabit" | "Ek";
   owner: "Benim" | "Esim";
   date: string;
   notes: string;
