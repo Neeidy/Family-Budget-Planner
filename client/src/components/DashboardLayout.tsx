@@ -49,6 +49,8 @@ import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useBudget } from "@/contexts/BudgetContext";
 import { Undo2, Bell } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { LanguageToggle } from "@/components/design/LanguageToggle";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Ana Sayfa", path: "/" },
@@ -114,6 +116,7 @@ function DashboardLayoutContent({
   const [location, setLocation] = useLocation();
   const { state, toggleSidebar, setOpenMobile } = useSidebar();
   const { theme, toggleTheme } = useTheme();
+  const { t } = useTranslation();
   const { currentPerson, person1Name, person2Name } = usePerson();
   const utils = trpc.useUtils();
   const logoutMutation = trpc.familyAuth.logout.useMutation({
@@ -223,7 +226,9 @@ function DashboardLayoutContent({
   }, [canUndo, undo]);
 
   const demo = isDemoMode();
-  const brandTitle = demo ? "Kerem & Yağmur Bütçesi" : "ÜK Ailesi Bütçe";
+  const brandTitle = demo
+    ? t("sidebar.brand_title.demo")
+    : t("sidebar.brand_title.butce");
   const brandTagline = demo ? "Demo aile profili" : "Aile bütçe paneli";
 
   return (
@@ -417,24 +422,30 @@ function DashboardLayoutContent({
           <SidebarFooter className="p-3 border-t">
             {!isCollapsed ? (
               <div className="space-y-2">
+                {/* Language toggle */}
+                <div className="px-2 py-1">
+                  <LanguageToggle />
+                </div>
                 {/* Dark/Light toggle butonu */}
                 <button
                   onClick={toggleTheme}
                   className="w-full flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-accent/20 transition-colors text-sm font-medium"
-                  aria-label="Tema degistir"
+                  aria-label={
+                    theme === "dark" ? t("nav.light_mode") : t("nav.dark_mode")
+                  }
                 >
                   {theme === "dark" ? (
                     <>
                       <Sun className="h-4 w-4 text-amber-500 shrink-0" />
                       <span className="text-muted-foreground text-xs">
-                        Aydinlik Mod
+                        {t("nav.light_mode")}
                       </span>
                     </>
                   ) : (
                     <>
                       <Moon className="h-4 w-4 text-indigo-500 shrink-0" />
                       <span className="text-muted-foreground text-xs">
-                        Karanlik Mod
+                        {t("nav.dark_mode")}
                       </span>
                     </>
                   )}
@@ -442,22 +453,22 @@ function DashboardLayoutContent({
                 <button
                   onClick={() => setNotificationsOpen(true)}
                   className="w-full flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-accent/20 transition-colors text-sm font-medium"
-                  aria-label="Bildirimler"
+                  aria-label={t("nav.notifications")}
                 >
                   <Bell className="h-4 w-4 text-muted-foreground shrink-0" />
                   <span className="text-muted-foreground text-xs">
-                    Bildirimler
+                    {t("nav.notifications")}
                   </span>
                 </button>
                 {canUndo && (
                   <button
                     onClick={undo}
-                    title={`Geri al: ${undoDescription}`}
+                    title={`${t("toast.undo")}: ${undoDescription}`}
                     className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-accent/20 transition-colors text-sm text-amber-600 dark:text-amber-400"
                   >
                     <Undo2 className="h-3.5 w-3.5 shrink-0" />
                     <span className="text-xs truncate">
-                      Geri Al: {undoDescription}
+                      {t("toast.undo")}: {undoDescription}
                     </span>
                   </button>
                 )}
@@ -465,8 +476,8 @@ function DashboardLayoutContent({
                   <Cloud className="h-3 w-3 text-muted-foreground shrink-0" />
                   <span className="text-xs text-muted-foreground truncate">
                     {saveMutation.isPending
-                      ? "Kaydediliyor..."
-                      : "Bulut Senkron"}
+                      ? t("common.loading")
+                      : t("nav.cloud_sync")}
                   </span>
                 </div>
               </div>
@@ -475,7 +486,9 @@ function DashboardLayoutContent({
                 <button
                   onClick={toggleTheme}
                   className="h-8 w-8 flex items-center justify-center hover:bg-accent/20 rounded-lg transition-colors"
-                  aria-label="Tema degistir"
+                  aria-label={
+                    theme === "dark" ? t("nav.light_mode") : t("nav.dark_mode")
+                  }
                 >
                   {theme === "dark" ? (
                     <Sun className="h-4 w-4 text-amber-500" />
@@ -486,7 +499,7 @@ function DashboardLayoutContent({
                 <button
                   onClick={() => setNotificationsOpen(true)}
                   className="h-8 w-8 flex items-center justify-center hover:bg-accent/20 rounded-lg transition-colors"
-                  aria-label="Bildirimler"
+                  aria-label={t("nav.notifications")}
                 >
                   <Bell className="h-4 w-4 text-muted-foreground" />
                 </button>
@@ -573,11 +586,12 @@ function DashboardLayoutContent({
                     whiteSpace: "nowrap",
                   }}
                 >
-                  {activeMenuItem?.label ?? "Ana Sayfa"}
+                  {activeMenuItem?.label ?? t("nav.home")}
                 </div>
               </div>
             </div>
             <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+              <LanguageToggle />
               <button
                 onClick={toggleTheme}
                 style={{
@@ -590,7 +604,9 @@ function DashboardLayoutContent({
                   display: "flex",
                   alignItems: "center",
                 }}
-                aria-label="Tema değiştir"
+                aria-label={
+                  theme === "dark" ? t("nav.light_mode") : t("nav.dark_mode")
+                }
               >
                 {theme === "dark" ? (
                   <Sun className="h-4 w-4 text-amber-500" />
@@ -611,7 +627,7 @@ function DashboardLayoutContent({
                   display: "flex",
                   alignItems: "center",
                 }}
-                aria-label="Bildirimler"
+                aria-label={t("nav.notifications")}
               >
                 <Bell className="h-4 w-4" />
               </button>

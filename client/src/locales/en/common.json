@@ -1,0 +1,408 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "confirm": "Confirm",
+    "close": "Close",
+    "loading": "Loading…",
+    "optional": "(optional)",
+    "required": "(required)",
+    "search": "Search",
+    "filter": "Filter",
+    "all": "All",
+    "none": "None"
+  },
+  "nav": {
+    "home": "Home",
+    "income_expense": "Income & Expense",
+    "debt_payment": "Debt & Payments",
+    "savings_goal": "Savings & Goals",
+    "reports": "Reports",
+    "settings": "Settings",
+    "notifications": "Notifications",
+    "cloud_sync": "Cloud Sync",
+    "light_mode": "Light Mode",
+    "dark_mode": "Dark Mode",
+    "logout": "Log Out",
+    "active_user": "Active User"
+  },
+  "sidebar": {
+    "brand_title": {
+      "butce": "UK Family Budget",
+      "demo": "Demo Family Budget"
+    },
+    "brand_tagline": {
+      "butce": "Vienna",
+      "demo": "Showcase"
+    }
+  },
+  "filter": {
+    "all": "All",
+    "person1": "{{name}}",
+    "person2": "{{name}}",
+    "home": "Home"
+  },
+  "dashboard": {
+    "greeting": "Hello, {{name}}!",
+    "view_as": "Viewing as: {{name}}",
+    "this_month_net": "This Month Net",
+    "total_income": "Total Income",
+    "total_expense": "Total Expense",
+    "net_movement_this_month": "Net movement this month",
+    "savings_rate": "Savings Rate",
+    "active_category": "Active Category",
+    "tomorrow_due": "Due Tomorrow",
+    "no_upcoming": "No upcoming payments",
+    "owner_card": {
+      "own": "Own",
+      "home_share": "Home Share",
+      "each_one": "Each one"
+    },
+    "summary": {
+      "income": "Income",
+      "expense": "Expense",
+      "remaining": "Remaining",
+      "savings": "Savings"
+    },
+    "budget_vs_actual": "Budget vs Actual",
+    "no_budget_limit_hint": "No budget limit yet",
+    "health_pulse": {
+      "gain_gt_loss": "Earnings exceed expenses this month 🎯",
+      "loss_gt_gain": "Expenses exceed earnings this month ⚠"
+    }
+  },
+  "gelir_gider": {
+    "title": "Income & Expense",
+    "subtitle": "Monthly movements",
+    "tab": {
+      "income": "Income",
+      "expense": "Expenses",
+      "limits": "Budget Limits"
+    },
+    "add_income": "Add Income",
+    "add_expense": "Add Expense",
+    "add_limit": "Add Limit",
+    "no_income": "No income yet",
+    "no_expense": "No expenses yet",
+    "no_limit": "No limits yet",
+    "month_total_label": "Month total",
+    "table": {
+      "person": "Person",
+      "name": "Name",
+      "amount": "Amount",
+      "date": "Date",
+      "action": "Action"
+    }
+  },
+  "borc": {
+    "title": "Debt & Payments",
+    "subtitle": "Debts, installments, annual payments",
+    "tab": {
+      "debts": "Debts",
+      "installments": "Installments",
+      "annual": "Annual"
+    },
+    "add_debt": "Add Debt",
+    "add_installment": "Add Installment",
+    "add_annual": "Add Annual",
+    "total_debt": "Total Debt",
+    "monthly_payment": "Monthly Payment",
+    "remaining": "Remaining",
+    "installment_progress": "Installment Progress",
+    "months_remaining": "{{count}} months left",
+    "this_month_paid_action": "Paid this month",
+    "year_calendar_title": "Annual Calendar",
+    "no_debts": "No debts yet",
+    "no_installments": "No installments yet",
+    "no_annual": "No annual payments yet",
+    "annual_total": "Annual Total",
+    "monthly_average": "Monthly Average"
+  },
+  "hedef": {
+    "title": "Savings & Goals",
+    "subtitle": "Your goals and savings",
+    "tab": {
+      "active": "Active",
+      "completed": "Completed",
+      "all": "All"
+    },
+    "add_goal": "Add Goal",
+    "total_savings": "Total Savings",
+    "this_month_added": "Added this month",
+    "target_label": "Target",
+    "progress_label": "Progress",
+    "days_left": "{{count}} days left",
+    "monthly_per_month": "{{amount}}/month",
+    "new_goal_card": {
+      "title": "New Goal",
+      "subtitle": "Add a savings goal"
+    },
+    "no_active_goals": "No active goals",
+    "no_completed_goals": "No completed goals",
+    "quick_contribute_label": "Quick Add",
+    "projected": {
+      "on_track": "On track",
+      "behind": "{{months}} months behind",
+      "no_allocation": "No monthly allocation",
+      "target_passed": "Target date passed"
+    }
+  },
+  "raporlar": {
+    "title": "Reports",
+    "subtitle": "Monthly comparison and analytics",
+    "tab": {
+      "monthly_comparison": "Monthly Comparison",
+      "analytics": "Analytics"
+    },
+    "period": {
+      "this_month": "This Month",
+      "last_month": "Last Month",
+      "3m": "Last 3 Months",
+      "6m": "Last 6 Months",
+      "1y": "Last Year",
+      "all": "All Time"
+    },
+    "income_vs_expense_chart": "Income vs Expense",
+    "avg_monthly_spend": "Avg. Monthly Spend",
+    "compared_to_last_month": "vs last month",
+    "top_increasing_category": "Top Increasing Category",
+    "least_spent_category": "Least Spent Category",
+    "no_data": "No data"
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Profile, appearance, language and data",
+    "section": {
+      "profile": "Profile",
+      "appearance": "Appearance",
+      "language": "Language",
+      "data": "Data",
+      "backup_history": "Backup History"
+    },
+    "profile": {
+      "names": "Names",
+      "save_names": "Save Names"
+    },
+    "theme": {
+      "light": "Light",
+      "dark": "Dark"
+    },
+    "language": {
+      "label": "Language",
+      "tr": "Türkçe",
+      "en": "English",
+      "de": "Deutsch"
+    },
+    "data": {
+      "export": "Export",
+      "import": "Import",
+      "confirm_import": "Current data will be deleted. Continue?"
+    },
+    "backup": {
+      "empty": "No backups",
+      "restore": "Restore",
+      "savedby": "Saved by"
+    },
+    "password": {
+      "change_label": "Change Password",
+      "current": "Current Password",
+      "new": "New Password",
+      "confirm": "New Password (Repeat)"
+    }
+  },
+  "login": {
+    "welcome": "Welcome, please sign in",
+    "kim_giris": "WHO'S SIGNING IN?",
+    "aile_sifresi": "FAMILY PASSWORD",
+    "password_placeholder": "Enter your password",
+    "giris_yap": "Sign In →",
+    "demo_subtitle": "Showcase experience",
+    "tagline": "Manage the family budget together",
+    "access_note": "🔒 Only family members can access this app. If you don't know the password, ask a family member.",
+    "person_subtitle": "Sign in as {{name}}"
+  },
+  "dialog": {
+    "expense": {
+      "title_add": "Add New Expense",
+      "title_edit": "Edit Expense",
+      "field": {
+        "person": "Person",
+        "category": "Category",
+        "subcategory": "Subcategory",
+        "custom_subcategory": "Custom Subcategory",
+        "amount": "Amount",
+        "type": "Type",
+        "status": "Status",
+        "payment_day": "Payment Day",
+        "notes": "Notes"
+      },
+      "custom_placeholder": "e.g. Gym",
+      "payment_day_hint": "(optional)",
+      "notes_placeholder": "Additional info…"
+    },
+    "income": {
+      "title_add": "Add New Income",
+      "title_edit": "Edit Income",
+      "field": {
+        "name": "Income Name",
+        "amount": "Amount",
+        "date": "Date",
+        "type": "Type",
+        "notes": "Notes"
+      },
+      "name_placeholder": "e.g. Salary, Side Income",
+      "type": {
+        "fixed_label": "Fixed (recurs every month)",
+        "fixed_hint": "Fixed income, carries over",
+        "extra_label": "Extra (this month only)",
+        "extra_hint": "One-time income"
+      }
+    },
+    "debt": {
+      "title_add": "Add New Debt",
+      "title_edit": "Edit Debt",
+      "field": {
+        "name": "Debt Name",
+        "total_debt": "Total Debt",
+        "monthly_payment": "Monthly Payment",
+        "due_date": "Due Date",
+        "status": "Status",
+        "notes": "Notes"
+      },
+      "name_placeholder": "e.g. Credit Card",
+      "monthly_optional_hint": "(optional)"
+    },
+    "installment": {
+      "title_add": "Add New Installment",
+      "title_edit": "Edit Installment",
+      "field": {
+        "name": "Installment Name",
+        "total_amount": "Total Amount",
+        "count": "Installment Count",
+        "monthly_amount": "Monthly Amount",
+        "start_month": "Start Month",
+        "start_year": "Start Year",
+        "payment_day": "Payment Day",
+        "notes": "Notes"
+      },
+      "name_placeholder": "e.g. Phone Installment",
+      "count_placeholder": "12"
+    },
+    "annual": {
+      "title_add": "Add New Annual Payment",
+      "title_edit": "Edit Annual Payment",
+      "field": {
+        "name": "Payment Name",
+        "amount": "Amount",
+        "payment_month": "Payment Month",
+        "payment_day": "Payment Day",
+        "last_payment": "Last Payment",
+        "person": "Person",
+        "category": "Category",
+        "subcategory": "Subcategory",
+        "notes": "Notes"
+      },
+      "name_placeholder": "e.g. Insurance",
+      "payment_day_hint": "(optional)",
+      "last_payment_hint": "(optional)"
+    },
+    "goal": {
+      "title_add": "Add New Goal",
+      "title_edit": "Edit Goal",
+      "field": {
+        "name": "Goal Name",
+        "target_amount": "Target Amount",
+        "current_amount": "Current Amount",
+        "monthly_allocation": "Monthly Allocation",
+        "target_date": "Target Date",
+        "notes": "Notes"
+      },
+      "name_placeholder": "e.g. Vacation, Emergency Fund"
+    },
+    "budget_limit": {
+      "title_add": "Add New Limit",
+      "title_edit": "Edit Limit",
+      "field": {
+        "person": "Person",
+        "category": "Category",
+        "limit": "Limit",
+        "notes": "Notes"
+      }
+    }
+  },
+  "status": {
+    "paid": "Paid",
+    "pending": "Pending",
+    "overdue": "Overdue"
+  },
+  "type": {
+    "fixed": "Fixed",
+    "variable": "Variable",
+    "debt": "Debt",
+    "savings": "Savings",
+    "extra": "Extra"
+  },
+  "month": {
+    "short": {
+      "jan": "Jan",
+      "feb": "Feb",
+      "mar": "Mar",
+      "apr": "Apr",
+      "may": "May",
+      "jun": "Jun",
+      "jul": "Jul",
+      "aug": "Aug",
+      "sep": "Sep",
+      "oct": "Oct",
+      "nov": "Nov",
+      "dec": "Dec"
+    },
+    "long": {
+      "january": "January",
+      "february": "February",
+      "march": "March",
+      "april": "April",
+      "may": "May",
+      "june": "June",
+      "july": "July",
+      "august": "August",
+      "september": "September",
+      "october": "October",
+      "november": "November",
+      "december": "December"
+    }
+  },
+  "category": {
+    "konut": "Housing",
+    "yiyecek": "Food",
+    "araba": "Car",
+    "ulasim": "Transport",
+    "saglik": "Health",
+    "eglence": "Entertainment",
+    "abonelik": "Subscriptions",
+    "ai": "AI",
+    "giyim": "Clothing",
+    "spor": "Sports",
+    "kisisel_bakim": "Personal Care",
+    "tatil": "Vacation",
+    "porsuk": "Pet",
+    "loto": "Lottery",
+    "tabak": "Tobacco",
+    "diger": "Other"
+  },
+  "toast": {
+    "deleted": "{{name}} deleted",
+    "undo": "Undo",
+    "saved": "Saved",
+    "error_invalid_data": "Invalid data",
+    "success_imported": "Imported",
+    "error_import_failed": "Import failed"
+  },
+  "empty": {
+    "no_data": "No data yet",
+    "add_first": "Add your first entry"
+  }
+}

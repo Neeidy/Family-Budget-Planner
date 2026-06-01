@@ -1,10 +1,16 @@
+import i18n from "@/i18n";
+import { LOCALE_INTL, type Locale } from "@/lib/locale";
+
+function currentIntl(): string {
+  const lng = (i18n.language || "tr") as Locale;
+  return LOCALE_INTL[lng] ?? "tr-TR";
+}
+
 /**
- * EUR currency formatter — Turkish locale, 2 decimals.
- * All money displays in the new design layer should use this.
- * Pair with `className="hero-num"` (Faz B utility) for tabular figures.
+ * EUR currency formatter — locale-aware, 2 decimals.
  */
-export function formatMoney(amount: number): string {
-  return new Intl.NumberFormat("tr-TR", {
+export function formatMoney(amount: number, intl?: string): string {
+  return new Intl.NumberFormat(intl ?? currentIntl(), {
     style: "currency",
     currency: "EUR",
     minimumFractionDigits: 2,
@@ -13,12 +19,13 @@ export function formatMoney(amount: number): string {
 }
 
 /** Compact short form: €1.2k / €350 */
-export function formatMoneyShort(amount: number): string {
+export function formatMoneyShort(amount: number, intl?: string): string {
   const abs = Math.abs(amount);
   if (abs >= 1000) {
-    return `€${(amount / 1000).toFixed(1)}k`;
+    const sign = amount < 0 ? "-" : "";
+    return `${sign}€${(abs / 1000).toFixed(1)}k`;
   }
-  return formatMoney(amount);
+  return formatMoney(amount, intl);
 }
 
 /**
@@ -47,7 +54,6 @@ export function parseMoney(input: string): number {
     const thousandChar = decimalChar === "." ? "," : ".";
     normalized = trimmed.split(thousandChar).join("").replace(decimalChar, ".");
   } else if (lastComma >= 0) {
-    // Comma-only → treat as decimal (Turkish/German default).
     normalized = trimmed.replace(",", ".");
   }
 
@@ -55,11 +61,24 @@ export function parseMoney(input: string): number {
   return Number.isFinite(num) ? num : NaN;
 }
 
-/** Percentage formatter — 1 decimal */
-export function formatPct(value: number): string {
-  return new Intl.NumberFormat("tr-TR", {
+/** Percentage formatter — 1 decimal, locale-aware */
+export function formatPct(value: number, intl?: string): string {
+  return new Intl.NumberFormat(intl ?? currentIntl(), {
     style: "percent",
     minimumFractionDigits: 1,
     maximumFractionDigits: 1,
   }).format(value);
+}
+
+/** Locale-aware short date (e.g. 5 May 2026 / May 5, 2026 / 5. Mai 2026) */
+export function formatDate(iso: string, intl?: string): string {
+  try {
+    return new Intl.DateTimeFormat(intl ?? currentIntl(), {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    }).format(new Date(iso));
+  } catch {
+    return iso;
+  }
 }

@@ -22,6 +22,8 @@ import { trpc } from "@/lib/trpc";
 import { Avatar } from "@/components/design";
 import { formatMoney } from "@/lib/format";
 import { isDemoMode } from "@/lib/demoMode";
+import { useTranslation } from "react-i18next";
+import { LanguageToggle } from "@/components/design/LanguageToggle";
 
 // ── Section card wrapper ──────────────────────────────────────
 function Section({
@@ -176,6 +178,7 @@ function PasswordInput({
 
 // ── Settings ──────────────────────────────────────────────────
 export default function Settings() {
+  const { t } = useTranslation();
   const { theme, toggleTheme } = useTheme();
   const {
     person1Name,
@@ -454,24 +457,9 @@ export default function Settings() {
                 fontWeight: 600,
               }}
             >
-              Dil
+              {t("settings.language.label")}
             </div>
-            <select
-              disabled
-              style={{
-                padding: "10px 14px",
-                borderRadius: "var(--r-md)",
-                fontSize: 13,
-                fontWeight: 600,
-                background: "var(--bg-elevated)",
-                border: "1px solid var(--border-faint)",
-                color: "var(--text-primary)",
-                cursor: "not-allowed",
-                opacity: 0.7,
-              }}
-            >
-              <option>Türkçe</option>
-            </select>
+            <LanguageToggle />
           </div>
         </div>
       </Section>
