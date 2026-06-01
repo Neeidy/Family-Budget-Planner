@@ -140,6 +140,10 @@
       "title": "New Goal",
       "subtitle": "Add a savings goal"
     },
+    "hero": {
+      "active_count": "{{count}} active goals",
+      "savings_progress_avg": "average completion"
+    },
     "no_active_goals": "No active goals",
     "no_completed_goals": "No completed goals",
     "quick_contribute_label": "Quick Add",

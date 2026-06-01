@@ -2,9 +2,11 @@ interface TabBarProps {
   tabs: string[];
   active: string;
   onChange: (t: string) => void;
+  /** Optional display labels aligned to `tabs` by index. Falls back to tab value. */
+  labels?: string[];
 }
 
-export function TabBar({ tabs, active, onChange }: TabBarProps) {
+export function TabBar({ tabs, active, onChange, labels }: TabBarProps) {
   return (
     <div
       style={{
@@ -16,8 +18,9 @@ export function TabBar({ tabs, active, onChange }: TabBarProps) {
         boxShadow: "var(--shadow-card)",
       }}
     >
-      {tabs.map(t => {
+      {tabs.map((t, i) => {
         const isActive = active === t;
+        const display = labels?.[i] ?? t;
         return (
           <button
             key={t}
@@ -38,7 +41,7 @@ export function TabBar({ tabs, active, onChange }: TabBarProps) {
               whiteSpace: "nowrap",
             }}
           >
-            {t}
+            {display}
           </button>
         );
       })}

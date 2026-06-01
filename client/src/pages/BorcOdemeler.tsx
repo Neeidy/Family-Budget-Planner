@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { useSearch, useLocation } from "wouter";
+import { useTranslation } from "react-i18next";
 import { Plus, Trash2, Pencil, Calendar, Check } from "lucide-react";
 import { useBudget } from "@/contexts/BudgetContext";
 import { usePerson } from "@/contexts/PersonContext";
@@ -57,12 +58,13 @@ function statusToBadge(s: string): BadgeStatus {
 
 // ── PageHeader ────────────────────────────────────────────────
 function PageHeader({ tab, onAdd }: { tab: Tab; onAdd: () => void }) {
+  const { t } = useTranslation();
   const ctaLabel =
     tab === "Borçlar"
-      ? "Borç Ekle"
+      ? t("borc.add_debt")
       : tab === "Taksitler"
-        ? "Taksit Ekle"
-        : "Yıllık Ödeme Ekle";
+        ? t("borc.add_installment")
+        : t("borc.add_annual");
   const dp = demoDisabledProps();
   return (
     <div
@@ -84,12 +86,12 @@ function PageHeader({ tab, onAdd }: { tab: Tab; onAdd: () => void }) {
             color: "var(--text-primary)",
           }}
         >
-          Borç & Ödemeler
+          {t("borc.title")}
         </h1>
         <p
           style={{ fontSize: 13, color: "var(--text-tertiary)", marginTop: 6 }}
         >
-          Borç, taksit ve yıllık ödemelerinizi takip edin
+          {t("borc.subtitle")}
         </p>
       </div>
       <button
@@ -204,6 +206,7 @@ function DebtsTab({
   onEdit: (debt: Debt) => void;
   onDelete: (debt: Debt) => void;
 }) {
+  const { t } = useTranslation();
   const { budgetData, updateDebt } = useBudget();
 
   const filtered = useMemo(
@@ -222,12 +225,12 @@ function DebtsTab({
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <HeroCard
-        label="TOPLAM KALAN BORÇ"
+        label={t("borc.total_debt").toUpperCase()}
         value={formatMoney(remaining)}
         accent="var(--status-danger)"
         subInfo={
           <>
-            {activeCount} aktif borç • Aylık ödeme:{" "}
+            {activeCount} • {t("borc.monthly_payment")}:{" "}
             <span
               className="tnum"
               style={{ color: "var(--text-secondary)", fontWeight: 600 }}
@@ -246,17 +249,17 @@ function DebtsTab({
         }}
       >
         <MiniStatCard
-          label="Toplam Borç"
+          label={t("borc.total_debt")}
           amount={totalDebt}
           color="var(--status-danger)"
         />
         <MiniStatCard
-          label="Bu Ay Ödenecek"
+          label={t("borc.monthly_payment")}
           amount={totalMonthly}
           color="var(--status-warning)"
         />
         <MiniStatCard
-          label="Kalan Borç"
+          label={t("borc.remaining")}
           amount={remaining}
           color="var(--owner-yigit)"
         />
@@ -265,8 +268,8 @@ function DebtsTab({
       {filtered.length === 0 ? (
         <EmptyState
           emoji="💳"
-          title="Borç listesi boş"
-          description="Kredi kartı, banka kredisi veya kişisel borçlarınızı ekleyerek takip edin."
+          title={t("borc.no_debts")}
+          description={t("empty.add_first")}
         />
       ) : (
         <div
@@ -1109,11 +1112,17 @@ function AnnualPaymentsTab({
 type DialogState<T> = { open: boolean; entity?: T };
 
 export default function BorcOdemeler() {
+  const { t } = useTranslation();
   const [tab, setTab] = usePersistedTab<Tab>(
     "tab:borc-odemeler",
     "Borçlar",
     TABS
   );
+  const tabLabels = [
+    t("borc.tab.debts"),
+    t("borc.tab.installments"),
+    t("borc.tab.annual"),
+  ];
   const { filter } = usePersonFilter();
   const {
     addDebt,
@@ -1205,7 +1214,12 @@ export default function BorcOdemeler() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
       <PageHeader tab={tab} onAdd={handleAdd} />
-      <TabBar tabs={[...TABS]} active={tab} onChange={t => setTab(t as Tab)} />
+      <TabBar
+        tabs={[...TABS]}
+        labels={tabLabels}
+        active={tab}
+        onChange={nextTab => setTab(nextTab as Tab)}
+      />
 
       {tab === "Borçlar" && (
         <DebtsTab

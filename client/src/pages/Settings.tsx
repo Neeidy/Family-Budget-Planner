@@ -342,17 +342,20 @@ export default function Settings() {
             color: "var(--text-primary)",
           }}
         >
-          Ayarlar
+          {t("settings.title")}
         </h1>
         <p
           style={{ fontSize: 13, color: "var(--text-tertiary)", marginTop: 6 }}
         >
-          Profil, görünüm ve yedek tercihlerinizi yönetin
+          {t("settings.subtitle")}
         </p>
       </div>
 
       {/* PROFİL */}
-      <Section title="Profil" description="Aile üyelerinin görünen isimleri">
+      <Section
+        title={t("settings.section.profile")}
+        description={t("settings.profile.names")}
+      >
         <div
           style={{
             display: "grid",
@@ -398,17 +401,20 @@ export default function Settings() {
           >
             {saved ? (
               <>
-                <Check style={{ width: 14, height: 14 }} /> Kaydedildi
+                <Check style={{ width: 14, height: 14 }} /> {t("toast.saved")}
               </>
             ) : (
-              "İsimleri Kaydet"
+              t("settings.profile.save_names")
             )}
           </button>
         </div>
       </Section>
 
       {/* GÖRÜNÜM */}
-      <Section title="Görünüm" description="Tema ve dil tercihleri">
+      <Section
+        title={t("settings.section.appearance")}
+        description={`${t("settings.theme.light")} / ${t("settings.language.label")}`}
+      >
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <div>
             <div
@@ -421,7 +427,8 @@ export default function Settings() {
                 fontWeight: 600,
               }}
             >
-              Tema
+              {t("settings.theme.light").toUpperCase()} /{" "}
+              {t("settings.theme.dark").toUpperCase()}
             </div>
             <div
               style={{
@@ -433,13 +440,13 @@ export default function Settings() {
               }}
             >
               <ThemeButton
-                label="Açık"
+                label={t("settings.theme.light")}
                 active={theme === "light"}
                 icon={<Sun style={{ width: 14, height: 14 }} />}
                 onClick={() => theme === "dark" && toggleTheme()}
               />
               <ThemeButton
-                label="Karanlık"
+                label={t("settings.theme.dark")}
                 active={theme === "dark"}
                 icon={<Moon style={{ width: 14, height: 14 }} />}
                 onClick={() => theme === "light" && toggleTheme()}
@@ -465,7 +472,10 @@ export default function Settings() {
       </Section>
 
       {/* VERİ YÖNETİMİ */}
-      <Section title="Veri Yönetimi" description="JSON yedek alma / yükleme">
+      <Section
+        title={t("settings.section.data")}
+        description={`${t("settings.data.export")} / ${t("settings.data.import")}`}
+      >
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
           <GhostButton
             onClick={exportData}
@@ -475,7 +485,8 @@ export default function Settings() {
               isDemoMode() ? "Demo modunda düzenleme yapılamaz" : undefined
             }
           >
-            <Download style={{ width: 14, height: 14 }} /> Verileri İndir (JSON)
+            <Download style={{ width: 14, height: 14 }} />{" "}
+            {t("settings.data.export")} (JSON)
           </GhostButton>
           <GhostButton
             onClick={() => fileInputRef.current?.click()}
@@ -484,7 +495,8 @@ export default function Settings() {
               isDemoMode() ? "Demo modunda düzenleme yapılamaz" : undefined
             }
           >
-            <Upload style={{ width: 14, height: 14 }} /> Yedekten Yükle
+            <Upload style={{ width: 14, height: 14 }} />{" "}
+            {t("settings.data.import")}
           </GhostButton>
           <input
             ref={fileInputRef}
@@ -559,8 +571,8 @@ export default function Settings() {
 
       {/* ŞİFRE DEĞİŞTİR */}
       <Section
-        title="Şifre Değiştir"
-        description="Aile giriş şifresini güncelleyin"
+        title={t("settings.password.change_label")}
+        description={t("settings.password.change_label")}
       >
         <div
           style={{
@@ -581,7 +593,7 @@ export default function Settings() {
                 letterSpacing: "0.08em",
               }}
             >
-              Mevcut Şifre
+              {t("settings.password.current")}
             </div>
             <PasswordInput
               value={currentPw}
@@ -602,7 +614,7 @@ export default function Settings() {
                 letterSpacing: "0.08em",
               }}
             >
-              Yeni Şifre
+              {t("settings.password.new")}
             </div>
             <PasswordInput
               value={newPw}
@@ -623,7 +635,7 @@ export default function Settings() {
                 letterSpacing: "0.08em",
               }}
             >
-              Yeni Şifre (Tekrar)
+              {t("settings.password.confirm")}
             </div>
             <PasswordInput
               value={confirmPw}

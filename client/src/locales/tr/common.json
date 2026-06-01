@@ -140,6 +140,10 @@
       "title": "Yeni Hedef",
       "subtitle": "Bir birikim hedefi ekle"
     },
+    "hero": {
+      "active_count": "{{count}} aktif hedef",
+      "savings_progress_avg": "ortalama tamamlanma"
+    },
     "no_active_goals": "Aktif hedef yok",
     "no_completed_goals": "Tamamlanmış hedef yok",
     "quick_contribute_label": "Hızlı Ekle",

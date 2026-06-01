@@ -1,408 +1,412 @@
 {
   "common": {
-    "save": "Kaydet",
-    "cancel": "İptal",
-    "delete": "Sil",
-    "edit": "Düzenle",
-    "add": "Ekle",
-    "confirm": "Onayla",
-    "close": "Kapat",
-    "loading": "Yükleniyor…",
-    "optional": "(opsiyonel)",
-    "required": "(zorunlu)",
-    "search": "Ara",
-    "filter": "Filtrele",
-    "all": "Tümü",
-    "none": "Hiçbiri"
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "add": "Hinzufügen",
+    "confirm": "Bestätigen",
+    "close": "Schließen",
+    "loading": "Lädt…",
+    "optional": "(optional)",
+    "required": "(erforderlich)",
+    "search": "Suchen",
+    "filter": "Filter",
+    "all": "Alle",
+    "none": "Keine"
   },
   "nav": {
-    "home": "Ana Sayfa",
-    "income_expense": "Gelir & Gider",
-    "debt_payment": "Borç & Ödemeler",
-    "savings_goal": "Birikim & Hedef",
-    "reports": "Raporlar",
-    "settings": "Ayarlar",
-    "notifications": "Bildirimler",
-    "cloud_sync": "Bulut Senkron",
-    "light_mode": "Aydınlık Mod",
-    "dark_mode": "Karanlık Mod",
-    "logout": "Çıkış",
-    "active_user": "Aktif Kullanıcı"
+    "home": "Startseite",
+    "income_expense": "Einnahmen & Ausgaben",
+    "debt_payment": "Schulden & Zahlungen",
+    "savings_goal": "Sparen & Ziele",
+    "reports": "Berichte",
+    "settings": "Einstellungen",
+    "notifications": "Benachrichtigungen",
+    "cloud_sync": "Cloud-Sync",
+    "light_mode": "Heller Modus",
+    "dark_mode": "Dunkler Modus",
+    "logout": "Abmelden",
+    "active_user": "Aktiver Nutzer"
   },
   "sidebar": {
     "brand_title": {
-      "butce": "ÜK Ailesi Bütçe",
-      "demo": "Demo Aile Bütçe"
+      "butce": "UK Familienbudget",
+      "demo": "Demo-Familienbudget"
     },
     "brand_tagline": {
-      "butce": "Viyana",
+      "butce": "Wien",
       "demo": "Showcase"
     }
   },
   "filter": {
-    "all": "Tümü",
+    "all": "Alle",
     "person1": "{{name}}",
     "person2": "{{name}}",
-    "home": "Ev"
+    "home": "Haushalt"
   },
   "dashboard": {
-    "greeting": "Merhaba, {{name}}!",
-    "view_as": "Görüntülenen: {{name}}",
-    "this_month_net": "Bu Ay Net",
-    "total_income": "Toplam Gelir",
-    "total_expense": "Toplam Gider",
-    "net_movement_this_month": "Bu ayki net hareket",
-    "savings_rate": "Birikim Oranı",
-    "active_category": "Aktif Kategori",
-    "tomorrow_due": "Yarınki Ödeme",
-    "no_upcoming": "Yaklaşan ödeme yok",
+    "greeting": "Hallo, {{name}}!",
+    "view_as": "Angezeigt als: {{name}}",
+    "this_month_net": "Diesen Monat netto",
+    "total_income": "Gesamteinnahmen",
+    "total_expense": "Gesamtausgaben",
+    "net_movement_this_month": "Netto-Bewegung diesen Monat",
+    "savings_rate": "Sparquote",
+    "active_category": "Aktive Kategorie",
+    "tomorrow_due": "Morgen fällig",
+    "no_upcoming": "Keine anstehenden Zahlungen",
     "owner_card": {
-      "own": "Kendi",
-      "home_share": "Ev Payı",
-      "each_one": "Kişi başı"
+      "own": "Eigen",
+      "home_share": "Haushaltsanteil",
+      "each_one": "Pro Person"
     },
     "summary": {
-      "income": "Gelir",
-      "expense": "Gider",
-      "remaining": "Kalan",
-      "savings": "Birikim"
+      "income": "Einnahmen",
+      "expense": "Ausgaben",
+      "remaining": "Verbleibend",
+      "savings": "Ersparnisse"
     },
-    "budget_vs_actual": "Bütçe vs Gerçek",
-    "no_budget_limit_hint": "Henüz bütçe limiti yok",
+    "budget_vs_actual": "Budget vs. Ist",
+    "no_budget_limit_hint": "Noch keine Budgetgrenze",
     "health_pulse": {
-      "gain_gt_loss": "Bu ay kazancın gideri aşıyor 🎯",
-      "loss_gt_gain": "Bu ay gider kazancı aştı ⚠"
+      "gain_gt_loss": "Einnahmen übersteigen Ausgaben diesen Monat 🎯",
+      "loss_gt_gain": "Ausgaben übersteigen Einnahmen diesen Monat ⚠"
     }
   },
   "gelir_gider": {
-    "title": "Gelir & Gider",
-    "subtitle": "Aylık hareketler",
+    "title": "Einnahmen & Ausgaben",
+    "subtitle": "Monatliche Bewegungen",
     "tab": {
-      "income": "Gelirler",
-      "expense": "Giderler",
-      "limits": "Bütçe Limitleri"
+      "income": "Einnahmen",
+      "expense": "Ausgaben",
+      "limits": "Budgetgrenzen"
     },
-    "add_income": "Gelir Ekle",
-    "add_expense": "Gider Ekle",
-    "add_limit": "Limit Ekle",
-    "no_income": "Henüz gelir yok",
-    "no_expense": "Henüz gider yok",
-    "no_limit": "Henüz limit yok",
-    "month_total_label": "Ay toplamı",
+    "add_income": "Einnahme hinzufügen",
+    "add_expense": "Ausgabe hinzufügen",
+    "add_limit": "Limit hinzufügen",
+    "no_income": "Noch keine Einnahmen",
+    "no_expense": "Noch keine Ausgaben",
+    "no_limit": "Noch keine Limits",
+    "month_total_label": "Monatssumme",
     "table": {
-      "person": "Kişi",
-      "name": "Ad",
-      "amount": "Miktar",
-      "date": "Tarih",
-      "action": "İşlem"
+      "person": "Person",
+      "name": "Name",
+      "amount": "Betrag",
+      "date": "Datum",
+      "action": "Aktion"
     }
   },
   "borc": {
-    "title": "Borç & Ödemeler",
-    "subtitle": "Borçlar, taksitler, yıllıklar",
+    "title": "Schulden & Zahlungen",
+    "subtitle": "Schulden, Raten, jährliche Zahlungen",
     "tab": {
-      "debts": "Borçlar",
-      "installments": "Taksitler",
-      "annual": "Yıllıklar"
+      "debts": "Schulden",
+      "installments": "Raten",
+      "annual": "Jährlich"
     },
-    "add_debt": "Borç Ekle",
-    "add_installment": "Taksit Ekle",
-    "add_annual": "Yıllık Ekle",
-    "total_debt": "Toplam Borç",
-    "monthly_payment": "Aylık Ödeme",
-    "remaining": "Kalan",
-    "installment_progress": "Taksit İlerleme",
-    "months_remaining": "{{count}} ay kaldı",
-    "this_month_paid_action": "Bu ay ödendi",
-    "year_calendar_title": "Yıllık Takvim",
-    "no_debts": "Henüz borç yok",
-    "no_installments": "Henüz taksit yok",
-    "no_annual": "Henüz yıllık yok",
-    "annual_total": "Yıllık Toplam",
-    "monthly_average": "Aylık Ortalama"
+    "add_debt": "Schuld hinzufügen",
+    "add_installment": "Rate hinzufügen",
+    "add_annual": "Jährlich hinzufügen",
+    "total_debt": "Gesamtschuld",
+    "monthly_payment": "Monatliche Zahlung",
+    "remaining": "Verbleibend",
+    "installment_progress": "Ratenfortschritt",
+    "months_remaining": "Noch {{count}} Monate",
+    "this_month_paid_action": "Diesen Monat bezahlt",
+    "year_calendar_title": "Jahreskalender",
+    "no_debts": "Noch keine Schulden",
+    "no_installments": "Noch keine Raten",
+    "no_annual": "Noch keine jährlichen Zahlungen",
+    "annual_total": "Jahressumme",
+    "monthly_average": "Monatlicher Durchschnitt"
   },
   "hedef": {
-    "title": "Birikim & Hedef",
-    "subtitle": "Hedeflerin ve birikim",
+    "title": "Sparen & Ziele",
+    "subtitle": "Deine Ziele und Ersparnisse",
     "tab": {
-      "active": "Aktif",
-      "completed": "Tamamlanan",
-      "all": "Tümü"
+      "active": "Aktiv",
+      "completed": "Abgeschlossen",
+      "all": "Alle"
     },
-    "add_goal": "Hedef Ekle",
-    "total_savings": "Toplam Birikim",
-    "this_month_added": "Bu ay eklenen",
-    "target_label": "Hedef",
-    "progress_label": "İlerleme",
-    "days_left": "{{count}} gün kaldı",
-    "monthly_per_month": "{{amount}}/ay",
+    "add_goal": "Ziel hinzufügen",
+    "total_savings": "Gesamtersparnis",
+    "this_month_added": "Diesen Monat",
+    "target_label": "Ziel",
+    "progress_label": "Fortschritt",
+    "days_left": "Noch {{count}} Tage",
+    "monthly_per_month": "{{amount}}/Monat",
     "new_goal_card": {
-      "title": "Yeni Hedef",
-      "subtitle": "Bir birikim hedefi ekle"
+      "title": "Neues Ziel",
+      "subtitle": "Sparziel hinzufügen"
     },
-    "no_active_goals": "Aktif hedef yok",
-    "no_completed_goals": "Tamamlanmış hedef yok",
-    "quick_contribute_label": "Hızlı Ekle",
+    "hero": {
+      "active_count": "{{count}} aktive Ziele",
+      "savings_progress_avg": "durchschnittlicher Fortschritt"
+    },
+    "no_active_goals": "Keine aktiven Ziele",
+    "no_completed_goals": "Keine abgeschlossenen Ziele",
+    "quick_contribute_label": "Schnell einzahlen",
     "projected": {
-      "on_track": "Hedefte ilerliyor",
-      "behind": "{{months}} ay geride",
-      "no_allocation": "Aylık ödeme yok",
-      "target_passed": "Hedef tarihi geçti"
+      "on_track": "Im Plan",
+      "behind": "{{months}} Monate hinten",
+      "no_allocation": "Keine monatliche Zuweisung",
+      "target_passed": "Zieltermin überschritten"
     }
   },
   "raporlar": {
-    "title": "Raporlar",
-    "subtitle": "Aylık karşılaştırma ve analiz",
+    "title": "Berichte",
+    "subtitle": "Monatsvergleich und Analyse",
     "tab": {
-      "monthly_comparison": "Aylık Karşılaştırma",
-      "analytics": "Analiz"
+      "monthly_comparison": "Monatsvergleich",
+      "analytics": "Analyse"
     },
     "period": {
-      "this_month": "Bu Ay",
-      "last_month": "Geçen Ay",
-      "3m": "Son 3 Ay",
-      "6m": "Son 6 Ay",
-      "1y": "Son 1 Yıl",
-      "all": "Tüm Zamanlar"
+      "this_month": "Diesen Monat",
+      "last_month": "Letzten Monat",
+      "3m": "Letzte 3 Monate",
+      "6m": "Letzte 6 Monate",
+      "1y": "Letztes Jahr",
+      "all": "Gesamter Zeitraum"
     },
-    "income_vs_expense_chart": "Gelir vs Gider",
-    "avg_monthly_spend": "Aylık Ortalama Harcama",
-    "compared_to_last_month": "Geçen aya göre",
-    "top_increasing_category": "En Çok Artan Kategori",
-    "least_spent_category": "En Az Harcanan Kategori",
-    "no_data": "Veri yok"
+    "income_vs_expense_chart": "Einnahmen vs. Ausgaben",
+    "avg_monthly_spend": "Durchschnittliche Monatsausgaben",
+    "compared_to_last_month": "im Vergleich zum Vormonat",
+    "top_increasing_category": "Am stärksten steigende Kategorie",
+    "least_spent_category": "Geringste Ausgaben in Kategorie",
+    "no_data": "Keine Daten"
   },
   "settings": {
-    "title": "Ayarlar",
-    "subtitle": "Profil, görünüm, dil ve veri",
+    "title": "Einstellungen",
+    "subtitle": "Profil, Erscheinungsbild, Sprache und Daten",
     "section": {
       "profile": "Profil",
-      "appearance": "Görünüm",
-      "language": "Dil",
-      "data": "Veri",
-      "backup_history": "Yedek Geçmişi"
+      "appearance": "Erscheinungsbild",
+      "language": "Sprache",
+      "data": "Daten",
+      "backup_history": "Sicherungsverlauf"
     },
     "profile": {
-      "names": "İsimler",
-      "save_names": "İsimleri Kaydet"
+      "names": "Namen",
+      "save_names": "Namen speichern"
     },
     "theme": {
-      "light": "Aydınlık",
-      "dark": "Karanlık"
+      "light": "Hell",
+      "dark": "Dunkel"
     },
     "language": {
-      "label": "Dil",
+      "label": "Sprache",
       "tr": "Türkçe",
       "en": "English",
       "de": "Deutsch"
     },
     "data": {
-      "export": "Dışa Aktar",
-      "import": "İçe Aktar",
-      "confirm_import": "Mevcut veri silinecek. Devam edilsin mi?"
+      "export": "Exportieren",
+      "import": "Importieren",
+      "confirm_import": "Aktuelle Daten werden gelöscht. Fortfahren?"
     },
     "backup": {
-      "empty": "Yedek yok",
-      "restore": "Geri Yükle",
-      "savedby": "Kaydeden"
+      "empty": "Keine Sicherungen",
+      "restore": "Wiederherstellen",
+      "savedby": "Gespeichert von"
     },
     "password": {
-      "change_label": "Şifre Değiştir",
-      "current": "Mevcut Şifre",
-      "new": "Yeni Şifre",
-      "confirm": "Yeni Şifre (Tekrar)"
+      "change_label": "Passwort ändern",
+      "current": "Aktuelles Passwort",
+      "new": "Neues Passwort",
+      "confirm": "Neues Passwort (Wiederholen)"
     }
   },
   "login": {
-    "welcome": "Hoş geldiniz, lütfen giriş yapın",
-    "kim_giris": "KİM GİRİŞ YAPIYOR?",
-    "aile_sifresi": "AİLE ŞİFRESİ",
-    "password_placeholder": "Şifrenizi girin",
-    "giris_yap": "Giriş Yap →",
-    "demo_subtitle": "Showcase deneyimi",
-    "tagline": "Aile bütçesini birlikte yönetin",
-    "access_note": "🔒 Bu uygulamaya sadece aile üyeleri erişebilir. Şifre bilmiyorsanız aile üyelerinden birine sorun.",
-    "person_subtitle": "{{name}} olarak giriş yap"
+    "welcome": "Willkommen, bitte anmelden",
+    "kim_giris": "WER MELDET SICH AN?",
+    "aile_sifresi": "FAMILIENPASSWORT",
+    "password_placeholder": "Passwort eingeben",
+    "giris_yap": "Anmelden →",
+    "demo_subtitle": "Showcase-Erlebnis",
+    "tagline": "Familienbudget gemeinsam verwalten",
+    "access_note": "🔒 Nur Familienmitglieder haben Zugang. Wenn du das Passwort nicht kennst, frag ein Familienmitglied.",
+    "person_subtitle": "Anmelden als {{name}}"
   },
   "dialog": {
     "expense": {
-      "title_add": "Yeni Gider Ekle",
-      "title_edit": "Gideri Düzenle",
+      "title_add": "Neue Ausgabe",
+      "title_edit": "Ausgabe bearbeiten",
       "field": {
-        "person": "Kişi",
-        "category": "Kategori",
-        "subcategory": "Alt Kategori",
-        "custom_subcategory": "Özel Alt Kategori",
-        "amount": "Miktar",
-        "type": "Tip",
-        "status": "Durum",
-        "payment_day": "Ödeme Günü",
-        "notes": "Notlar"
+        "person": "Person",
+        "category": "Kategorie",
+        "subcategory": "Unterkategorie",
+        "custom_subcategory": "Eigene Unterkategorie",
+        "amount": "Betrag",
+        "type": "Typ",
+        "status": "Status",
+        "payment_day": "Zahlungstag",
+        "notes": "Notizen"
       },
-      "custom_placeholder": "Örn. Spor salonu",
-      "payment_day_hint": "(opsiyonel)",
-      "notes_placeholder": "Ek bilgi…"
+      "custom_placeholder": "z. B. Fitnessstudio",
+      "payment_day_hint": "(optional)",
+      "notes_placeholder": "Zusätzliche Info…"
     },
     "income": {
-      "title_add": "Yeni Gelir Ekle",
-      "title_edit": "Geliri Düzenle",
+      "title_add": "Neue Einnahme",
+      "title_edit": "Einnahme bearbeiten",
       "field": {
-        "name": "Gelir Adı",
-        "amount": "Miktar",
-        "date": "Tarih",
-        "type": "Tip",
-        "notes": "Notlar"
+        "name": "Einnahmename",
+        "amount": "Betrag",
+        "date": "Datum",
+        "type": "Typ",
+        "notes": "Notizen"
       },
-      "name_placeholder": "Örn. Maaş, Yan Gelir",
+      "name_placeholder": "z. B. Gehalt, Nebeneinkommen",
       "type": {
-        "fixed_label": "Sabit (her ay tekrar eder)",
-        "fixed_hint": "Sabit gelir, her ay devreder",
-        "extra_label": "Ek (sadece bu ay)",
-        "extra_hint": "Tek seferlik gelir"
+        "fixed_label": "Fix (wiederkehrend)",
+        "fixed_hint": "Festes Einkommen, wird übernommen",
+        "extra_label": "Extra (nur dieser Monat)",
+        "extra_hint": "Einmaliges Einkommen"
       }
     },
     "debt": {
-      "title_add": "Yeni Borç Ekle",
-      "title_edit": "Borcu Düzenle",
+      "title_add": "Neue Schuld",
+      "title_edit": "Schuld bearbeiten",
       "field": {
-        "name": "Borç Adı",
-        "total_debt": "Toplam Borç",
-        "monthly_payment": "Aylık Ödeme",
-        "due_date": "Vade Tarihi",
-        "status": "Durum",
-        "notes": "Notlar"
+        "name": "Schuldname",
+        "total_debt": "Gesamtschuld",
+        "monthly_payment": "Monatsrate",
+        "due_date": "Fälligkeitsdatum",
+        "status": "Status",
+        "notes": "Notizen"
       },
-      "name_placeholder": "Örn. Kredi Kartı",
-      "monthly_optional_hint": "(opsiyonel)"
+      "name_placeholder": "z. B. Kreditkarte",
+      "monthly_optional_hint": "(optional)"
     },
     "installment": {
-      "title_add": "Yeni Taksit Ekle",
-      "title_edit": "Taksiti Düzenle",
+      "title_add": "Neue Rate",
+      "title_edit": "Rate bearbeiten",
       "field": {
-        "name": "Taksit Adı",
-        "total_amount": "Toplam Tutar",
-        "count": "Taksit Sayısı",
-        "monthly_amount": "Aylık Tutar",
-        "start_month": "Başlangıç Ay",
-        "start_year": "Başlangıç Yıl",
-        "payment_day": "Ödeme Günü",
-        "notes": "Notlar"
+        "name": "Ratenname",
+        "total_amount": "Gesamtbetrag",
+        "count": "Anzahl Raten",
+        "monthly_amount": "Monatsbetrag",
+        "start_month": "Startmonat",
+        "start_year": "Startjahr",
+        "payment_day": "Zahlungstag",
+        "notes": "Notizen"
       },
-      "name_placeholder": "Örn. Telefon Taksiti",
+      "name_placeholder": "z. B. Handy-Rate",
       "count_placeholder": "12"
     },
     "annual": {
-      "title_add": "Yeni Yıllık Ödeme Ekle",
-      "title_edit": "Yıllık Ödemeyi Düzenle",
+      "title_add": "Neue jährliche Zahlung",
+      "title_edit": "Jährliche Zahlung bearbeiten",
       "field": {
-        "name": "Ödeme Adı",
-        "amount": "Miktar",
-        "payment_month": "Ödeme Ayı",
-        "payment_day": "Ödeme Günü",
-        "last_payment": "Son Ödeme",
-        "person": "Kişi",
-        "category": "Kategori",
-        "subcategory": "Alt Kategori",
-        "notes": "Notlar"
+        "name": "Zahlungsname",
+        "amount": "Betrag",
+        "payment_month": "Zahlungsmonat",
+        "payment_day": "Zahlungstag",
+        "last_payment": "Letzte Zahlung",
+        "person": "Person",
+        "category": "Kategorie",
+        "subcategory": "Unterkategorie",
+        "notes": "Notizen"
       },
-      "name_placeholder": "Örn. Sigorta",
-      "payment_day_hint": "(opsiyonel)",
-      "last_payment_hint": "(opsiyonel)"
+      "name_placeholder": "z. B. Versicherung",
+      "payment_day_hint": "(optional)",
+      "last_payment_hint": "(optional)"
     },
     "goal": {
-      "title_add": "Yeni Hedef Ekle",
-      "title_edit": "Hedefi Düzenle",
+      "title_add": "Neues Ziel",
+      "title_edit": "Ziel bearbeiten",
       "field": {
-        "name": "Hedef Adı",
-        "target_amount": "Hedef Tutar",
-        "current_amount": "Mevcut Tutar",
-        "monthly_allocation": "Aylık Pay",
-        "target_date": "Hedef Tarih",
-        "notes": "Notlar"
+        "name": "Zielname",
+        "target_amount": "Zielbetrag",
+        "current_amount": "Aktueller Betrag",
+        "monthly_allocation": "Monatliche Zuweisung",
+        "target_date": "Zieldatum",
+        "notes": "Notizen"
       },
-      "name_placeholder": "Örn. Tatil, Yedek Fon"
+      "name_placeholder": "z. B. Urlaub, Notfallfonds"
     },
     "budget_limit": {
-      "title_add": "Yeni Limit Ekle",
-      "title_edit": "Limiti Düzenle",
+      "title_add": "Neues Limit",
+      "title_edit": "Limit bearbeiten",
       "field": {
-        "person": "Kişi",
-        "category": "Kategori",
+        "person": "Person",
+        "category": "Kategorie",
         "limit": "Limit",
-        "notes": "Notlar"
+        "notes": "Notizen"
       }
     }
   },
   "status": {
-    "paid": "Ödendi",
-    "pending": "Bekliyor",
-    "overdue": "Gecikti"
+    "paid": "Bezahlt",
+    "pending": "Offen",
+    "overdue": "Überfällig"
   },
   "type": {
-    "fixed": "Sabit",
-    "variable": "Değişken",
-    "debt": "Borç",
-    "savings": "Birikim",
-    "extra": "Ek"
+    "fixed": "Fix",
+    "variable": "Variabel",
+    "debt": "Schuld",
+    "savings": "Sparen",
+    "extra": "Extra"
   },
   "month": {
     "short": {
-      "jan": "Oca",
-      "feb": "Şub",
-      "mar": "Mar",
-      "apr": "Nis",
-      "may": "May",
-      "jun": "Haz",
-      "jul": "Tem",
-      "aug": "Ağu",
-      "sep": "Eyl",
-      "oct": "Eki",
-      "nov": "Kas",
-      "dec": "Ara"
+      "jan": "Jän",
+      "feb": "Feb",
+      "mar": "Mär",
+      "apr": "Apr",
+      "may": "Mai",
+      "jun": "Jun",
+      "jul": "Jul",
+      "aug": "Aug",
+      "sep": "Sep",
+      "oct": "Okt",
+      "nov": "Nov",
+      "dec": "Dez"
     },
     "long": {
-      "january": "Ocak",
-      "february": "Şubat",
-      "march": "Mart",
-      "april": "Nisan",
-      "may": "Mayıs",
-      "june": "Haziran",
-      "july": "Temmuz",
-      "august": "Ağustos",
-      "september": "Eylül",
-      "october": "Ekim",
-      "november": "Kasım",
-      "december": "Aralık"
+      "january": "Jänner",
+      "february": "Februar",
+      "march": "März",
+      "april": "April",
+      "may": "Mai",
+      "june": "Juni",
+      "july": "Juli",
+      "august": "August",
+      "september": "September",
+      "october": "Oktober",
+      "november": "November",
+      "december": "Dezember"
     }
   },
   "category": {
-    "konut": "Konut",
-    "yiyecek": "Yiyecek",
-    "araba": "Araba",
-    "ulasim": "Ulaşım",
-    "saglik": "Sağlık",
-    "eglence": "Eğlence",
-    "abonelik": "Abonelik",
-    "ai": "AI",
-    "giyim": "Giyim",
-    "spor": "Spor",
-    "kisisel_bakim": "Kişisel Bakım",
-    "tatil": "Tatil",
-    "porsuk": "Porsuk",
-    "loto": "Loto",
+    "konut": "Wohnen",
+    "yiyecek": "Lebensmittel",
+    "araba": "Auto",
+    "ulasim": "Verkehr",
+    "saglik": "Gesundheit",
+    "eglence": "Unterhaltung",
+    "abonelik": "Abos",
+    "ai": "KI",
+    "giyim": "Kleidung",
+    "spor": "Sport",
+    "kisisel_bakim": "Körperpflege",
+    "tatil": "Urlaub",
+    "porsuk": "Haustier",
+    "loto": "Lotto",
     "tabak": "Tabak",
-    "diger": "Diğer"
+    "diger": "Sonstiges"
   },
   "toast": {
-    "deleted": "{{name}} silindi",
-    "undo": "Geri Al",
-    "saved": "Kaydedildi",
-    "error_invalid_data": "Geçersiz veri",
-    "success_imported": "İçe aktarıldı",
-    "error_import_failed": "İçe aktarma başarısız"
+    "deleted": "{{name}} gelöscht",
+    "undo": "Rückgängig",
+    "saved": "Gespeichert",
+    "error_invalid_data": "Ungültige Daten",
+    "success_imported": "Importiert",
+    "error_import_failed": "Import fehlgeschlagen"
   },
   "empty": {
-    "no_data": "Henüz veri yok",
-    "add_first": "İlk kaydını ekle"
+    "no_data": "Noch keine Daten",
+    "add_first": "Ersten Eintrag hinzufügen"
   }
 }
