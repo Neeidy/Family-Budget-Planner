@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { useSearch, useLocation } from "wouter";
+import { useTranslation } from "react-i18next";
 import { Plus, Trash2, Pencil } from "lucide-react";
 import { useBudget } from "@/contexts/BudgetContext";
 import { useFab } from "@/contexts/FabContext";
@@ -75,6 +76,7 @@ function pickColor(owner: string): string {
 
 // ── Header ────────────────────────────────────────────────────
 function PageHeader({ onAdd }: { onAdd: () => void }) {
+  const { t } = useTranslation();
   const dp = demoDisabledProps();
   return (
     <div
@@ -96,12 +98,12 @@ function PageHeader({ onAdd }: { onAdd: () => void }) {
             color: "var(--text-primary)",
           }}
         >
-          Birikim & Hedef
+          {t("hedef.title")}
         </h1>
         <p
           style={{ fontSize: 13, color: "var(--text-tertiary)", marginTop: 6 }}
         >
-          Tasarruf hedeflerinizi takip edin ve birlikte ulaşın
+          {t("hedef.subtitle")}
         </p>
       </div>
       <button
@@ -125,7 +127,7 @@ function PageHeader({ onAdd }: { onAdd: () => void }) {
         }}
       >
         <Plus style={{ width: 14, height: 14 }} />
-        Hedef Ekle
+        {t("hedef.add_goal")}
       </button>
     </div>
   );
@@ -141,10 +143,11 @@ function StatusChips({
   onChange: (v: StatusFilter) => void;
   counts: Record<StatusFilter, number>;
 }) {
+  const { t } = useTranslation();
   const items: Array<{ key: StatusFilter; label: string }> = [
-    { key: "Aktif", label: "Aktif" },
-    { key: "Tamamlanan", label: "Tamamlanan" },
-    { key: "Tümü", label: "Tümü" },
+    { key: "Aktif", label: t("hedef.tab.active") },
+    { key: "Tamamlanan", label: t("hedef.tab.completed") },
+    { key: "Tümü", label: t("hedef.tab.all") },
   ];
   return (
     <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -197,6 +200,7 @@ function HeroCard({
   avgPct: number;
   mobile: boolean;
 }) {
+  const { t } = useTranslation();
   const totalStr = formatMoney(totalSaved);
   const decMatch = totalStr.match(/,\d{2}$/);
   const totalMain = decMatch ? totalStr.replace(/,\d{2}$/, "") : totalStr;
@@ -222,7 +226,9 @@ function HeroCard({
         }}
       >
         <div>
-          <div className="section-label">TOPLAM BİRİKİM</div>
+          <div className="section-label">
+            {t("hedef.total_savings").toUpperCase()}
+          </div>
           <div
             className="tnum"
             style={{
@@ -245,11 +251,11 @@ function HeroCard({
               marginTop: 8,
             }}
           >
-            {activeCount} aktif hedef •{" "}
+            {t("hedef.hero.active_count", { count: activeCount })} •{" "}
             <span style={{ color: "var(--accent-green)", fontWeight: 600 }}>
               %{avgPct}
             </span>{" "}
-            ortalama tamamlanma
+            {t("hedef.hero.savings_progress_avg")}
           </div>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
@@ -270,7 +276,7 @@ function HeroCard({
                 letterSpacing: "0.08em",
               }}
             >
-              Bu Ay
+              {t("hedef.this_month_added")}
             </div>
             <div
               className="tnum"
@@ -301,7 +307,7 @@ function HeroCard({
                 letterSpacing: "0.08em",
               }}
             >
-              Hedef
+              {t("hedef.target_label")}
             </div>
             <div
               className="tnum"
@@ -736,6 +742,7 @@ function NewGoalCard({
 
 // ── Page entry ────────────────────────────────────────────────
 export default function Hedef() {
+  const { t } = useTranslation();
   const { budgetData, addSavingsGoal, updateSavingsGoal, deleteSavingsGoal } =
     useBudget();
   const { filter } = usePersonFilter();
@@ -864,14 +871,14 @@ export default function Hedef() {
       {visible.length === 0 && counts.Tümü === 0 ? (
         <EmptyState
           emoji="🎯"
-          title="Henüz hedef yok"
-          description="Yaz tatili, yeni telefon, acil fon — finansal hedef belirleyerek birikim yapmaya başlayın."
+          title={t("hedef.no_active_goals")}
+          description={t("empty.add_first")}
         />
       ) : visible.length === 0 ? (
         <EmptyState
           emoji="🔍"
-          title="Bu filtrede hedef yok"
-          description="Filtreyi değiştirerek diğer hedefleri görebilirsiniz."
+          title={t("hedef.no_active_goals")}
+          description={t("empty.no_data")}
         />
       ) : (
         <div

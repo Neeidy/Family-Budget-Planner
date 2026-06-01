@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ArrowDown, ArrowUp } from "lucide-react";
 import { useBudget } from "@/contexts/BudgetContext";
 import { TabBar, CategoryPill } from "@/components/design";
@@ -40,6 +41,15 @@ function PageHeader({
   range: Range;
   onRangeChange: (r: Range) => void;
 }) {
+  const { t } = useTranslation();
+  const rangeLabels: Record<Range, string> = {
+    "Bu Ay": t("raporlar.period.this_month"),
+    "Geçen Ay": t("raporlar.period.last_month"),
+    "3 Ay": t("raporlar.period.3m"),
+    "6 Ay": t("raporlar.period.6m"),
+    "1 Yıl": t("raporlar.period.1y"),
+    Tümü: t("raporlar.period.all"),
+  };
   return (
     <div
       style={{
@@ -60,12 +70,12 @@ function PageHeader({
             color: "var(--text-primary)",
           }}
         >
-          Raporlar
+          {t("raporlar.title")}
         </h1>
         <p
           style={{ fontSize: 13, color: "var(--text-tertiary)", marginTop: 6 }}
         >
-          Aylık karşılaştırma ve analitik
+          {t("raporlar.subtitle")}
         </p>
       </div>
       <div
@@ -96,7 +106,7 @@ function PageHeader({
               whiteSpace: "nowrap",
             }}
           >
-            {r}
+            {rangeLabels[r]}
           </button>
         ))}
       </div>
@@ -373,6 +383,7 @@ function DeltaCard({
   delta: string;
   positive: boolean;
 }) {
+  const { t } = useTranslation();
   return (
     <div
       style={{
@@ -390,7 +401,7 @@ function DeltaCard({
         <CategoryPill cat={cat} />
       ) : (
         <div style={{ fontSize: 13, color: "var(--text-tertiary)" }}>
-          Veri yok
+          {t("raporlar.no_data")}
         </div>
       )}
       <div
@@ -439,6 +450,7 @@ function DeltaCard({
 
 // ── ANALİTİK TAB ───────────────────────────────────────────────
 function AnalitikTab({ range }: { range: Range }) {
+  const { t } = useTranslation();
   const { budgetData } = useBudget();
   void range;
 
@@ -538,7 +550,7 @@ function AnalitikTab({ range }: { range: Range }) {
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {top5.length === 0 ? (
             <div style={{ fontSize: 13, color: "var(--text-tertiary)" }}>
-              Veri yok
+              {t("raporlar.no_data")}
             </div>
           ) : (
             top5.map(([cat, val], i) => {
@@ -661,17 +673,27 @@ function AnalitikTab({ range }: { range: Range }) {
 
 // ── Page entry ────────────────────────────────────────────────
 export default function Raporlar() {
+  const { t } = useTranslation();
   const [tab, setTab] = usePersistedTab<Tab>(
     "tab:raporlar",
     "Aylık Karşılaştırma",
     TABS
   );
   const [range, setRange] = useState<Range>("3 Ay");
+  const tabLabels = [
+    t("raporlar.tab.monthly_comparison"),
+    t("raporlar.tab.analytics"),
+  ];
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
       <PageHeader range={range} onRangeChange={setRange} />
-      <TabBar tabs={[...TABS]} active={tab} onChange={t => setTab(t as Tab)} />
+      <TabBar
+        tabs={[...TABS]}
+        labels={tabLabels}
+        active={tab}
+        onChange={nextTab => setTab(nextTab as Tab)}
+      />
 
       {tab === "Aylık Karşılaştırma" && <AylikTab range={range} />}
       {tab === "Analitik" && <AnalitikTab range={range} />}

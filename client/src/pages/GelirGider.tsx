@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { useSearch, useLocation } from "wouter";
+import { useTranslation } from "react-i18next";
 import { Plus, Trash2, Pencil, RotateCw } from "lucide-react";
 import { useBudget } from "@/contexts/BudgetContext";
 import { usePerson } from "@/contexts/PersonContext";
@@ -83,12 +84,13 @@ function SubFilterChips<T extends string>({
 
 // ── Page header w/ "+ Ekle" button ──
 function PageHeader({ tab, onAdd }: { tab: Tab; onAdd: () => void }) {
+  const { t } = useTranslation();
   const ctaLabel =
     tab === "Gelirler"
-      ? "+ Gelir Ekle"
+      ? `+ ${t("gelir_gider.add_income")}`
       : tab === "Giderler"
-        ? "+ Gider Ekle"
-        : "+ Limit Ekle";
+        ? `+ ${t("gelir_gider.add_expense")}`
+        : `+ ${t("gelir_gider.add_limit")}`;
   const demoProps = demoDisabledProps(ctaLabel);
   return (
     <div
@@ -110,12 +112,12 @@ function PageHeader({ tab, onAdd }: { tab: Tab; onAdd: () => void }) {
             color: "var(--text-primary)",
           }}
         >
-          Gelir & Gider
+          {t("gelir_gider.title")}
         </h1>
         <p
           style={{ fontSize: 13, color: "var(--text-tertiary)", marginTop: 6 }}
         >
-          Aylık gelir ve giderlerinizi yönetin
+          {t("gelir_gider.subtitle")}
         </p>
       </div>
       <button
@@ -177,6 +179,7 @@ function IncomesTab({
   onEdit: (income: Income) => void;
   onDelete: (income: Income) => void;
 }) {
+  const { t } = useTranslation();
   const { budgetData, updateIncome } = useBudget();
   const { person1Name, person2Name } = usePerson();
 
@@ -231,8 +234,8 @@ function IncomesTab({
       {sortedIncomes.length === 0 ? (
         <EmptyState
           emoji="💰"
-          title="Henüz gelir eklenmemiş"
-          description="Maaş, yan gelir veya kira gelirinizi ekleyerek aylık bütçenizi takip etmeye başlayın."
+          title={t("gelir_gider.no_income")}
+          description={t("empty.add_first")}
         />
       ) : (
         groupByMonth(sortedIncomes, i => i.date).map(group => (
@@ -336,6 +339,7 @@ function ExpensesTab({
   onEdit: (expense: Expense) => void;
   onDelete: (expense: Expense) => void;
 }) {
+  const { t } = useTranslation();
   const { budgetData, updateExpense } = useBudget();
   const { person1Name, person2Name } = usePerson();
   const [statusFilter, setStatusFilter] = useState<ExpenseStatus>("tumu");
@@ -379,8 +383,8 @@ function ExpensesTab({
       {filtered.length === 0 ? (
         <EmptyState
           emoji="🛒"
-          title="Henüz gider eklenmemiş"
-          description="Kira, market, fatura — tüm aylık giderlerinizi tek yerden takip edin."
+          title={t("gelir_gider.no_expense")}
+          description={t("empty.add_first")}
         />
       ) : (
         groupExpensesByMonth(filtered).map(group => (
@@ -580,6 +584,7 @@ function BudgetLimitsTab({
   onEdit: (limit: BudgetLimit) => void;
   onDelete: (limit: BudgetLimit) => void;
 }) {
+  const { t } = useTranslation();
   const { budgetData } = useBudget();
 
   // Filter budget limits by owner, but keep all if no owner field is set
@@ -602,8 +607,8 @@ function BudgetLimitsTab({
     return (
       <EmptyState
         emoji="🎯"
-        title="Henüz limit yok"
-        description="Kategori başına aylık harcama limiti belirleyerek bütçenizi disiplin altına alın."
+        title={t("gelir_gider.no_limit")}
+        description={t("empty.add_first")}
       />
     );
   }
@@ -1001,11 +1006,17 @@ function DataTable({ columns, rows }: { columns: Column[]; rows: Row[] }) {
 type DialogState<T> = { open: boolean; entity?: T };
 
 export default function GelirGider() {
+  const { t } = useTranslation();
   const [tab, setTab] = usePersistedTab<Tab>(
     "tab:gelir-gider",
     "Gelirler",
     TABS
   );
+  const tabLabels = [
+    t("gelir_gider.tab.income"),
+    t("gelir_gider.tab.expense"),
+    t("gelir_gider.tab.limits"),
+  ];
   const { filter } = usePersonFilter();
   const {
     addIncome,
@@ -1098,7 +1109,12 @@ export default function GelirGider() {
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
       <PageHeader tab={tab} onAdd={handleAdd} />
 
-      <TabBar tabs={[...TABS]} active={tab} onChange={t => setTab(t as Tab)} />
+      <TabBar
+        tabs={[...TABS]}
+        labels={tabLabels}
+        active={tab}
+        onChange={nextTab => setTab(nextTab as Tab)}
+      />
 
       {tab === "Gelirler" && (
         <IncomesTab
