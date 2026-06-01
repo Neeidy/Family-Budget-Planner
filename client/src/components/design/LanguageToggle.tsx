@@ -30,9 +30,7 @@ export function LanguageToggle() {
               padding: "4px 8px",
               borderRadius: 6,
               background: active ? "var(--accent-green)" : "transparent",
-              color: active
-                ? "oklch(0.15 0.03 155)"
-                : "var(--text-secondary)",
+              color: active ? "oklch(0.15 0.03 155)" : "var(--text-secondary)",
               border: "none",
               cursor: "pointer",
               fontSize: 14,
