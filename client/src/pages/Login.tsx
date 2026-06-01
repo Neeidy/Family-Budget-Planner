@@ -1,12 +1,15 @@
 import { useState, useCallback, CSSProperties } from "react";
 import { useLocation } from "wouter";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { Loader2, Eye, EyeOff, Sun, Moon } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { usePerson } from "@/contexts/PersonContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Avatar } from "@/components/design";
+import { LanguageToggle } from "@/components/design/LanguageToggle";
 import { isDemoMode } from "@/lib/demoMode";
+import { toastAccessAwareError } from "@/lib/accessErrorToast";
 
 // ── UserSelectButton ─────────────────────────────────────────────
 
@@ -148,6 +151,7 @@ function DemoProfileButton({
 
 export default function Login() {
   const [, setLocation] = useLocation();
+  const { t } = useTranslation();
   const { person1Name, person2Name } = usePerson();
   const { theme, toggleTheme } = useTheme();
   const utils = trpc.useUtils();
@@ -168,7 +172,7 @@ export default function Login() {
       setLocation("/");
     },
     onError: err => {
-      toast.error(err.message || "Demo girişi başarısız");
+      toastAccessAwareError(err, t("toast.error_invalid_data"));
     },
   });
 
@@ -184,18 +188,18 @@ export default function Login() {
       setLocation("/");
     },
     onError: err => {
-      toast.error(err.message || "Şifre hatalı");
+      toastAccessAwareError(err, t("toast.error_invalid_data"));
     },
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedPerson) {
-      toast.error("Lütfen kim olduğunuzu seçin");
+      toast.error(t("login.kim_giris"));
       return;
     }
     if (!password) {
-      toast.error("Lütfen şifreyi girin");
+      toast.error(t("login.password_placeholder"));
       return;
     }
     loginMutation.mutate({ password, person: selectedPerson });
@@ -249,6 +253,17 @@ export default function Login() {
 
   return (
     <div style={containerStyle} onMouseMove={handleMouseMove}>
+      {/* Language toggle */}
+      <div
+        style={{
+          position: "absolute",
+          top: 16,
+          left: 16,
+          zIndex: 10,
+        }}
+      >
+        <LanguageToggle />
+      </div>
       {/* Theme toggle */}
       <button
         type="button"
@@ -268,7 +283,7 @@ export default function Login() {
           alignItems: "center",
           justifyContent: "center",
         }}
-        aria-label="Tema değiştir"
+        aria-label={isDark ? t("nav.light_mode") : t("nav.dark_mode")}
       >
         {isDark ? (
           <Sun
@@ -387,7 +402,9 @@ export default function Login() {
               color: "var(--text-primary)",
             }}
           >
-            {demo ? "Kerem & Yağmur Bütçesi" : "ÜK Ailesi Bütçe"}
+            {demo
+              ? t("sidebar.brand_title.demo")
+              : t("sidebar.brand_title.butce")}
           </h1>
           <div
             style={{
@@ -396,16 +413,14 @@ export default function Login() {
               marginTop: 6,
             }}
           >
-            {demo
-              ? "Demo profil seçin — şifre gerekmez"
-              : "Hoş geldiniz, lütfen giriş yapın"}
+            {demo ? t("login.demo_subtitle") : t("login.welcome")}
           </div>
         </div>
 
         {/* Avatar select card */}
         <div style={cardStyle}>
           <div className="section-label" style={{ marginBottom: 12 }}>
-            {demo ? "DEMO PROFİL SEÇ" : "KİM GİRİŞ YAPIYOR?"}
+            {t("login.kim_giris")}
           </div>
           {demo ? (
             <>
@@ -453,7 +468,7 @@ export default function Login() {
                   textAlign: "center",
                 }}
               >
-                Profil tıklayarak demo'ya gir
+                {t("login.demo_subtitle")}
               </div>
             </>
           ) : (
@@ -489,10 +504,7 @@ export default function Login() {
                     textAlign: "center",
                   }}
                 >
-                  <strong style={{ color: "var(--text-secondary)" }}>
-                    {selectedName}
-                  </strong>{" "}
-                  olarak giriş yapacaksınız
+                  {t("login.person_subtitle", { name: selectedName })}
                 </div>
               )}
             </>
@@ -513,7 +525,7 @@ export default function Login() {
                 marginBottom: 8,
               }}
             >
-              Aile Şifresi
+              {t("login.aile_sifresi")}
             </label>
             <div
               style={{
@@ -531,7 +543,7 @@ export default function Login() {
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={e => setPassword(e.target.value)}
-                placeholder="Şifrenizi girin"
+                placeholder={t("login.password_placeholder")}
                 autoComplete="current-password"
                 disabled={isLoading}
                 style={{
@@ -607,10 +619,10 @@ export default function Login() {
                       animation: "spin 1s linear infinite",
                     }}
                   />
-                  Giriş yapılıyor...
+                  {t("common.loading")}
                 </>
               ) : (
-                <>Giriş Yap →</>
+                <>{t("login.giris_yap")}</>
               )}
             </button>
           </form>
@@ -626,9 +638,7 @@ export default function Login() {
             padding: "0 12px",
           }}
         >
-          {demo
-            ? "🎭 Demo gösterimi · Veriler örnektir, kaydedilmez. Tüm yazma işlemleri kapalıdır."
-            : "🔒 Bu uygulamaya sadece aile üyeleri erişebilir. Şifre bilmiyorsanız aile üyelerinden birine sorun."}
+          {demo ? t("login.demo_subtitle") : t("login.access_note")}
         </p>
       </div>
     </div>
