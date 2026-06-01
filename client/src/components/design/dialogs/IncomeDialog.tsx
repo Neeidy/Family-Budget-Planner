@@ -29,6 +29,7 @@ export function IncomeDialog({ open, onClose, entity }: IncomeDialogProps) {
 
   const [name, setName] = useState("");
   const [amount, setAmount] = useState("");
+  const [type, setType] = useState<"Sabit" | "Ek">("Sabit");
   const [owner, setOwner] = useState<"Benim" | "Esim">(
     currentPerson ?? "Benim"
   );
@@ -40,13 +41,18 @@ export function IncomeDialog({ open, onClose, entity }: IncomeDialogProps) {
     if (entity) {
       setName(entity.name);
       setAmount(String(entity.amount));
+      setType(entity.type ?? "Sabit");
       setOwner(entity.owner);
       setDate(entity.date || todayISO());
       setNotes(entity.notes ?? "");
     } else {
       setName("");
       setAmount("");
-      const remembered = getDefaults<{ owner?: "Benim" | "Esim" }>("income");
+      const remembered = getDefaults<{
+        owner?: "Benim" | "Esim";
+        type?: "Sabit" | "Ek";
+      }>("income");
+      setType(remembered.type ?? "Sabit");
       setOwner(remembered.owner ?? currentPerson ?? "Benim");
       setDate(todayISO());
       setNotes("");
@@ -62,15 +68,17 @@ export function IncomeDialog({ open, onClose, entity }: IncomeDialogProps) {
     const payload = {
       name: name.trim(),
       amount: numAmount,
+      type,
       owner,
       date,
       notes,
     };
     if (isEdit && entity) updateIncome(entity.id, payload);
     else addIncome(payload);
-    rememberDefaults<{ owner?: "Benim" | "Esim" }>("income", {
-      owner: payload.owner,
-    });
+    rememberDefaults<{ owner?: "Benim" | "Esim"; type?: "Sabit" | "Ek" }>(
+      "income",
+      { owner: payload.owner, type: payload.type }
+    );
     onClose();
   };
 
@@ -95,6 +103,16 @@ export function IncomeDialog({ open, onClose, entity }: IncomeDialogProps) {
           options={[
             { value: "Benim", label: person1Name },
             { value: "Esim", label: person2Name },
+          ]}
+        />
+      </Field>
+      <Field label="Tip">
+        <RadioRow
+          value={type}
+          onChange={setType}
+          options={[
+            { value: "Sabit", label: "Sabit (her ay tekrar eder)" },
+            { value: "Ek", label: "Ek (sadece bu ay)" },
           ]}
         />
       </Field>

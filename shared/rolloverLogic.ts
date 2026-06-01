@@ -47,8 +47,14 @@ export interface RolloverExpense {
   [key: string]: unknown;
 }
 
+export interface RolloverIncome {
+  id: string;
+  type?: string;
+  [key: string]: unknown;
+}
+
 export interface BudgetState {
-  incomes: unknown[];
+  incomes: RolloverIncome[];
   expenses: RolloverExpense[];
   debts: unknown[];
   savingsGoals: unknown[];
@@ -61,7 +67,7 @@ export interface BudgetState {
  * Build the next month's budget state from the current one.
  *
  * Rules:
- *   - incomes → []
+ *   - incomes: keep only type='Sabit' (undefined defaults to Sabit), assign new id
  *   - expenses: keep only type='Sabit', assign new id, set status='Bekliyor'
  *   - debts / savingsGoals / annualPayments / budgetLimits / installments: preserved as-is
  *
@@ -72,12 +78,16 @@ export function computeRollover(
   state: BudgetState,
   newIdFn: () => string = defaultId
 ): BudgetState {
+  const sabitIncomes = state.incomes
+    .filter(i => (i.type ?? "Sabit") === "Sabit")
+    .map(i => ({ ...i, id: newIdFn() }));
+
   const sabitExpenses = state.expenses
     .filter(e => e.type === "Sabit")
     .map(e => ({ ...e, id: newIdFn(), status: "Bekliyor" }));
 
   return {
-    incomes: [],
+    incomes: sabitIncomes,
     expenses: sabitExpenses,
     debts: state.debts,
     savingsGoals: state.savingsGoals,

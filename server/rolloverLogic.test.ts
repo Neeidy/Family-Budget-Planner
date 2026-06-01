@@ -81,14 +81,6 @@ let idCounter = 0;
 const deterministicId = () => `test-id-${++idCounter}`;
 
 describe("computeRollover", () => {
-  it("clears incomes regardless of content", () => {
-    const state = makeState({
-      incomes: [{ id: "1", name: "Maaş", amount: 5000 }],
-    });
-    const result = computeRollover(state, deterministicId);
-    expect(result.incomes).toEqual([]);
-  });
-
   it("carries forward only type=Sabit expenses", () => {
     const state = makeState({
       expenses: [
@@ -239,14 +231,12 @@ describe("computeRollover", () => {
 
   it("handles all-Degisken expenses: result expenses is empty", () => {
     const state = makeState({
-      incomes: [{ id: "1", amount: 3000 }],
       expenses: [
         { id: "e1", type: "Degisken", status: "Odendi", amount: 200 },
         { id: "e2", type: "Borc", status: "Odendi", amount: 500 },
       ],
     });
     const result = computeRollover(state, deterministicId);
-    expect(result.incomes).toEqual([]);
     expect(result.expenses).toEqual([]);
   });
 
@@ -259,5 +249,62 @@ describe("computeRollover", () => {
     // Original expense unchanged
     expect(expenses[0].status).toBe("Odendi");
     expect(expenses[0].id).toBe("e1");
+  });
+});
+
+describe("income rollover", () => {
+  it("preserves Sabit incomes with new IDs", () => {
+    const state = makeState({
+      incomes: [
+        {
+          id: "i1",
+          name: "Maaş",
+          amount: 3000,
+          type: "Sabit",
+          owner: "Benim",
+          date: "2026-05-01",
+          notes: "",
+        },
+      ],
+    });
+    const next = computeRollover(state, deterministicId);
+    expect(next.incomes).toHaveLength(1);
+    expect(next.incomes[0].name).toBe("Maaş");
+    expect(next.incomes[0].id).not.toBe("i1");
+  });
+
+  it("drops Ek incomes", () => {
+    const state = makeState({
+      incomes: [
+        {
+          id: "i1",
+          name: "Bonus",
+          amount: 500,
+          type: "Ek",
+          owner: "Benim",
+          date: "2026-05-15",
+          notes: "",
+        },
+      ],
+    });
+    const next = computeRollover(state, deterministicId);
+    expect(next.incomes).toHaveLength(0);
+  });
+
+  it("preserves legacy income (no type) as Sabit", () => {
+    const state = makeState({
+      incomes: [
+        {
+          id: "i1",
+          name: "Maaş",
+          amount: 3000,
+          owner: "Benim",
+          date: "2026-05-01",
+          notes: "",
+        },
+      ],
+    });
+    const next = computeRollover(state, deterministicId);
+    expect(next.incomes).toHaveLength(1);
   });
 });
