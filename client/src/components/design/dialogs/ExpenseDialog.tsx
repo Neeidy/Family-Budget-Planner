@@ -1,5 +1,6 @@
 import { parseMoney } from "@/lib/format";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useBudget } from "@/contexts/BudgetContext";
 import { usePerson } from "@/contexts/PersonContext";
 import type { Expense } from "@/hooks/useBudgetData";
@@ -31,6 +32,7 @@ interface ExpenseDialogProps {
 }
 
 export function ExpenseDialog({ open, onClose, entity }: ExpenseDialogProps) {
+  const { t } = useTranslation();
   const { addExpense, updateExpense } = useBudget();
   const { currentPerson, person1Name, person2Name } = usePerson();
   const isEdit = !!entity;
@@ -144,29 +146,31 @@ export function ExpenseDialog({ open, onClose, entity }: ExpenseDialogProps) {
     <DialogShell
       open={open}
       onClose={onClose}
-      title={isEdit ? "Gideri Düzenle" : "Yeni Gider Ekle"}
+      title={
+        isEdit ? t("dialog.expense.title_edit") : t("dialog.expense.title_add")
+      }
       width={540}
       footer={
         <>
           <CancelButton onClick={onClose} />
           <PrimaryButton onClick={handleSave} disabled={!valid}>
-            Kaydet
+            {t("common.save")}
           </PrimaryButton>
         </>
       }
     >
-      <Field label="Kişi">
+      <Field label={t("dialog.expense.field.person")}>
         <RadioRow
           value={owner}
           onChange={setOwner}
           options={[
             { value: "Benim", label: person1Name },
             { value: "Esim", label: person2Name },
-            { value: "Ev", label: "Ev" },
+            { value: "Ev", label: t("dialog.common.home") },
           ]}
         />
       </Field>
-      <Field label="Kategori">
+      <Field label={t("dialog.expense.field.category")}>
         <select
           value={category}
           onChange={e => {
@@ -199,7 +203,7 @@ export function ExpenseDialog({ open, onClose, entity }: ExpenseDialogProps) {
           gap: 14,
         }}
       >
-        <Field label="Alt Kategori">
+        <Field label={t("dialog.expense.field.subcategory")}>
           <select
             value={subcategoryKey}
             onChange={e => setSubcategoryKey(e.target.value)}
@@ -222,28 +226,28 @@ export function ExpenseDialog({ open, onClose, entity }: ExpenseDialogProps) {
           </select>
         </Field>
         {subcategoryKey === "Diger" && (
-          <Field label="Özel isim">
+          <Field label={t("dialog.expense.field.custom_subcategory")}>
             <TextInput
               value={customSubcategory}
               onChange={setCustomSubcategory}
-              placeholder="Örn. Bisiklet bakımı"
+              placeholder={t("dialog.common.custom_placeholder")}
               autoFocus
             />
           </Field>
         )}
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-        <Field label="Tip">
+        <Field label={t("dialog.expense.field.type")}>
           <RadioRow
             value={type}
             onChange={setType}
             options={[
-              { value: "Sabit", label: "Sabit" },
-              { value: "Degisken", label: "Değişken" },
+              { value: "Sabit", label: t("type.fixed") },
+              { value: "Degisken", label: t("type.variable") },
             ]}
           />
         </Field>
-        <Field label="Miktar">
+        <Field label={t("dialog.expense.field.amount")}>
           <TextInput
             value={amount}
             onChange={setAmount}
@@ -256,29 +260,31 @@ export function ExpenseDialog({ open, onClose, entity }: ExpenseDialogProps) {
           <MoneyHint raw={amount} />
         </Field>
       </div>
-      <Field label="Durum">
+      <Field label={t("dialog.expense.field.status")}>
         <RadioRow
           value={status}
           onChange={setStatus}
           options={[
-            { value: "Odendi", label: "Ödendi" },
-            { value: "Bekliyor", label: "Bekliyor" },
-            { value: "Gecikti", label: "Gecikti" },
+            { value: "Odendi", label: t("status.paid") },
+            { value: "Bekliyor", label: t("status.pending") },
+            { value: "Gecikti", label: t("status.overdue") },
           ]}
         />
       </Field>
-      <Field label="Ödeme Günü (opsiyonel)">
+      <Field
+        label={`${t("dialog.expense.field.payment_day")} ${t("common.optional")}`}
+      >
         <TextInput
           value={paymentDay}
           onChange={setPaymentDay}
-          placeholder="Örn. 15"
+          placeholder={t("dialog.expense.payment_day_placeholder")}
         />
       </Field>
-      <Field label="Notlar (opsiyonel)">
+      <Field label={t("dialog.common.notes_optional")}>
         <TextAreaInput
           value={notes}
           onChange={setNotes}
-          placeholder="Ek bilgi…"
+          placeholder={t("dialog.common.notes_placeholder")}
         />
       </Field>
     </DialogShell>

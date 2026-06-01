@@ -229,26 +229,42 @@
     "person_subtitle": "Anmelden als {{name}}"
   },
   "dialog": {
+    "common": {
+      "close_aria": "Schließen",
+      "save": "Speichern",
+      "cancel": "Abbrechen",
+      "person": "Person",
+      "home": "Haushalt",
+      "other": "Sonstiges",
+      "notes_optional": "Notizen (optional)",
+      "notes_placeholder": "Zusätzliche Info…",
+      "custom_name": "Eigener Name",
+      "custom_placeholder": "z. B. Fahrradwartung"
+    },
+    "delete_confirm": {
+      "title": "Wirklich löschen?",
+      "message_suffix": "wird dauerhaft gelöscht.",
+      "undo_note": "Diese Aktion kann nicht rückgängig gemacht werden, die letzte Löschung jedoch mit Strg+Z."
+    },
     "expense": {
-      "title_add": "Neue Ausgabe",
+      "title_add": "Neue Ausgabe hinzufügen",
       "title_edit": "Ausgabe bearbeiten",
       "field": {
         "person": "Person",
         "category": "Kategorie",
         "subcategory": "Unterkategorie",
-        "custom_subcategory": "Eigene Unterkategorie",
+        "custom_subcategory": "Eigener Name",
         "amount": "Betrag",
         "type": "Typ",
         "status": "Status",
         "payment_day": "Zahlungstag",
         "notes": "Notizen"
       },
-      "custom_placeholder": "z. B. Fitnessstudio",
-      "payment_day_hint": "(optional)",
+      "payment_day_placeholder": "z. B. 15",
       "notes_placeholder": "Zusätzliche Info…"
     },
     "income": {
-      "title_add": "Neue Einnahme",
+      "title_add": "Neue Einnahme hinzufügen",
       "title_edit": "Einnahme bearbeiten",
       "field": {
         "name": "Einnahmename",
@@ -266,21 +282,21 @@
       }
     },
     "debt": {
-      "title_add": "Neue Schuld",
+      "title_add": "Neue Schuld hinzufügen",
       "title_edit": "Schuld bearbeiten",
       "field": {
         "name": "Schuldname",
-        "total_debt": "Gesamtschuld",
-        "monthly_payment": "Monatsrate",
-        "due_date": "Fälligkeitsdatum",
+        "total_debt": "Gesamtbetrag",
+        "monthly_payment": "Monatliche Zahlung",
+        "due_date": "Fälligkeit",
         "status": "Status",
         "notes": "Notizen"
       },
       "name_placeholder": "z. B. Kreditkarte",
-      "monthly_optional_hint": "(optional)"
+      "monthly_hint": "Kann leer gelassen oder auf 0 gesetzt werden (für Schulden wie Kreditkarten ohne feste Monatsrate)"
     },
     "installment": {
-      "title_add": "Neue Rate",
+      "title_add": "Neue Rate hinzufügen",
       "title_edit": "Rate bearbeiten",
       "field": {
         "name": "Ratenname",
@@ -288,12 +304,13 @@
         "count": "Anzahl Raten",
         "monthly_amount": "Monatsbetrag",
         "start_month": "Startmonat",
-        "start_year": "Startjahr",
+        "start_year": "Jahr",
         "payment_day": "Zahlungstag",
         "notes": "Notizen"
       },
-      "name_placeholder": "z. B. Handy-Rate",
-      "count_placeholder": "12"
+      "name_placeholder": "z. B. Neues Handy",
+      "count_placeholder": "12",
+      "payment_day_placeholder": "z. B. 15 (1–31)"
     },
     "annual": {
       "title_add": "Neue jährliche Zahlung",
@@ -301,38 +318,40 @@
       "field": {
         "name": "Zahlungsname",
         "amount": "Betrag",
-        "payment_month": "Zahlungsmonat",
-        "payment_day": "Zahlungstag",
-        "last_payment": "Letzte Zahlung",
+        "payment_month": "Zahlungsmonat (jährlich)",
+        "payment_day": "Zahlungstag (jährlich)",
+        "last_payment": "Letztes tatsächliches Zahlungsdatum",
         "person": "Person",
         "category": "Kategorie",
         "subcategory": "Unterkategorie",
         "notes": "Notizen"
       },
-      "name_placeholder": "z. B. Versicherung",
-      "payment_day_hint": "(optional)",
-      "last_payment_hint": "(optional)"
+      "name_placeholder": "z. B. Steuer, Versicherungsverlängerung",
+      "payment_month_hint": "Dieser Posten wird jedes Jahr in diesem Monat bezahlt (z. B. Kfz-Versicherung im März).",
+      "payment_day_hint": "Gib einen festen Tag im Monat an, falls vorhanden; sonst wird der 15. angenommen.",
+      "payment_day_placeholder": "z. B. 15 (1–31)",
+      "last_payment_hint": "Wann hast du zuletzt bezahlt? Kann leer bleiben."
     },
     "goal": {
-      "title_add": "Neues Ziel",
+      "title_add": "Neues Ziel hinzufügen",
       "title_edit": "Ziel bearbeiten",
       "field": {
         "name": "Zielname",
         "target_amount": "Zielbetrag",
         "current_amount": "Aktueller Betrag",
-        "monthly_allocation": "Monatliche Zuweisung",
+        "monthly_allocation": "Monatliche Einlage",
         "target_date": "Zieldatum",
         "notes": "Notizen"
       },
-      "name_placeholder": "z. B. Urlaub, Notfallfonds"
+      "name_placeholder": "z. B. Urlaub, Neues Auto"
     },
     "budget_limit": {
-      "title_add": "Neues Limit",
-      "title_edit": "Limit bearbeiten",
+      "title_add": "Neues Budgetlimit",
+      "title_edit": "Budgetlimit bearbeiten",
       "field": {
         "person": "Person",
         "category": "Kategorie",
-        "limit": "Limit",
+        "limit": "Monatliches Limit",
         "notes": "Notizen"
       }
     }

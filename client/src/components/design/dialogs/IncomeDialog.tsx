@@ -1,5 +1,6 @@
 import { parseMoney } from "@/lib/format";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useBudget } from "@/contexts/BudgetContext";
 import { usePerson } from "@/contexts/PersonContext";
 import type { Income } from "@/hooks/useBudgetData";
@@ -23,6 +24,7 @@ interface IncomeDialogProps {
 const todayISO = () => new Date().toISOString().split("T")[0];
 
 export function IncomeDialog({ open, onClose, entity }: IncomeDialogProps) {
+  const { t } = useTranslation();
   const { addIncome, updateIncome } = useBudget();
   const { currentPerson, person1Name, person2Name } = usePerson();
   const isEdit = !!entity;
@@ -86,17 +88,19 @@ export function IncomeDialog({ open, onClose, entity }: IncomeDialogProps) {
     <DialogShell
       open={open}
       onClose={onClose}
-      title={isEdit ? "Geliri Düzenle" : "Yeni Gelir Ekle"}
+      title={
+        isEdit ? t("dialog.income.title_edit") : t("dialog.income.title_add")
+      }
       footer={
         <>
           <CancelButton onClick={onClose} />
           <PrimaryButton onClick={handleSave} disabled={!valid}>
-            Kaydet
+            {t("common.save")}
           </PrimaryButton>
         </>
       }
     >
-      <Field label="Kişi">
+      <Field label={t("dialog.common.person")}>
         <RadioRow
           value={owner}
           onChange={setOwner}
@@ -106,25 +110,25 @@ export function IncomeDialog({ open, onClose, entity }: IncomeDialogProps) {
           ]}
         />
       </Field>
-      <Field label="Tip">
+      <Field label={t("dialog.income.field.type")}>
         <RadioRow
           value={type}
           onChange={setType}
           options={[
-            { value: "Sabit", label: "Sabit (her ay tekrar eder)" },
-            { value: "Ek", label: "Ek (sadece bu ay)" },
+            { value: "Sabit", label: t("dialog.income.type.fixed_label") },
+            { value: "Ek", label: t("dialog.income.type.extra_label") },
           ]}
         />
       </Field>
-      <Field label="Gelir Adı">
+      <Field label={t("dialog.income.field.name")}>
         <TextInput
           value={name}
           onChange={setName}
-          placeholder="Örn. Maaş, Yan Gelir"
+          placeholder={t("dialog.income.name_placeholder")}
           autoFocus
         />
       </Field>
-      <Field label="Miktar">
+      <Field label={t("dialog.income.field.amount")}>
         <TextInput
           value={amount}
           onChange={setAmount}
@@ -136,7 +140,7 @@ export function IncomeDialog({ open, onClose, entity }: IncomeDialogProps) {
         />
         <MoneyHint raw={amount} />
       </Field>
-      <Field label="Tarih">
+      <Field label={t("dialog.income.field.date")}>
         <TextInput value={date} onChange={setDate} type="date" />
       </Field>
     </DialogShell>

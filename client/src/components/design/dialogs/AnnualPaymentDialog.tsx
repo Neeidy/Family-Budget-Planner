@@ -1,5 +1,6 @@
 import { parseMoney } from "@/lib/format";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useBudget } from "@/contexts/BudgetContext";
 import { usePerson } from "@/contexts/PersonContext";
 import type { AnnualPayment } from "@/hooks/useBudgetData";
@@ -16,19 +17,19 @@ import { MoneyHint } from "@/components/design/MoneyHint";
 import { CATEGORIES, getSubcategories } from "@shared/categories";
 import { getDefaults, rememberDefaults } from "@/lib/formDefaults";
 
-const MONTHS_TR = [
-  "Ocak",
-  "Şubat",
-  "Mart",
-  "Nisan",
-  "Mayıs",
-  "Haziran",
-  "Temmuz",
-  "Ağustos",
-  "Eylül",
-  "Ekim",
-  "Kasım",
-  "Aralık",
+const MONTH_SHORT_KEYS = [
+  "jan",
+  "feb",
+  "mar",
+  "apr",
+  "may",
+  "jun",
+  "jul",
+  "aug",
+  "sep",
+  "oct",
+  "nov",
+  "dec",
 ];
 
 interface AnnualPaymentDialogProps {
@@ -44,6 +45,7 @@ export function AnnualPaymentDialog({
   onClose,
   entity,
 }: AnnualPaymentDialogProps) {
+  const { t } = useTranslation();
   const { addAnnualPayment, updateAnnualPayment } = useBudget();
   const { person1Name, person2Name } = usePerson();
   const isEdit = !!entity;
@@ -149,26 +151,28 @@ export function AnnualPaymentDialog({
     <DialogShell
       open={open}
       onClose={onClose}
-      title={isEdit ? "Yıllık Ödemeyi Düzenle" : "Yeni Yıllık Ödeme"}
+      title={
+        isEdit ? t("dialog.annual.title_edit") : t("dialog.annual.title_add")
+      }
       width={520}
       footer={
         <>
           <CancelButton onClick={onClose} />
           <PrimaryButton onClick={handleSave} disabled={!valid}>
-            Kaydet
+            {t("common.save")}
           </PrimaryButton>
         </>
       }
     >
-      <Field label="Ödeme Adı">
+      <Field label={t("dialog.annual.field.name")}>
         <TextInput
           value={name}
           onChange={setName}
-          placeholder="Örn. Vergi, Sigorta yenileme"
+          placeholder={t("dialog.annual.name_placeholder")}
           autoFocus
         />
       </Field>
-      <Field label="Tutar">
+      <Field label={t("dialog.annual.field.amount")}>
         <TextInput
           value={amount}
           onChange={setAmount}
@@ -180,18 +184,18 @@ export function AnnualPaymentDialog({
         />
         <MoneyHint raw={amount} />
       </Field>
-      <Field label="Kişi">
+      <Field label={t("dialog.common.person")}>
         <RadioRow
           value={owner}
           onChange={setOwner}
           options={[
             { value: "Benim", label: person1Name },
             { value: "Esim", label: person2Name },
-            { value: "Ev", label: "Ev" },
+            { value: "Ev", label: t("dialog.common.home") },
           ]}
         />
       </Field>
-      <Field label="Kategori">
+      <Field label={t("dialog.annual.field.category")}>
         <select
           value={category}
           onChange={e => {
@@ -215,14 +219,14 @@ export function AnnualPaymentDialog({
           gap: 14,
         }}
       >
-        <Field label="Alt Kategori">
+        <Field label={t("dialog.annual.field.subcategory")}>
           <select
             value={subcategoryKey}
             onChange={e => setSubcategoryKey(e.target.value)}
             style={selectStyle}
           >
             {subcategories.length === 0 ? (
-              <option value="Diger">Diğer</option>
+              <option value="Diger">{t("dialog.common.other")}</option>
             ) : (
               subcategories.map(s => (
                 <option key={s.key} value={s.key}>
@@ -233,44 +237,44 @@ export function AnnualPaymentDialog({
           </select>
         </Field>
         {subcategoryKey === "Diger" && (
-          <Field label="Özel isim">
+          <Field label={t("dialog.common.custom_name")}>
             <TextInput
               value={customSubcategory}
               onChange={setCustomSubcategory}
-              placeholder="Örn. Bisiklet bakımı"
+              placeholder={t("dialog.common.custom_placeholder")}
             />
           </Field>
         )}
       </div>
       <Field
-        label="Her Yıl Ödeme Ayı"
-        hint="Bu kalem her yıl bu ayda ödenmeye devam eder (örn. araba sigortası Mart)."
+        label={t("dialog.annual.field.payment_month")}
+        hint={t("dialog.annual.payment_month_hint")}
       >
         <RadioRow
           value={paymentMonth}
           onChange={v => setPaymentMonth(v)}
-          options={MONTHS_TR.map((label, i) => ({
+          options={MONTH_SHORT_KEYS.map((key, i) => ({
             value: i + 1,
-            label: label.slice(0, 3),
+            label: t(`month.short.${key}`),
           }))}
         />
       </Field>
       <Field
-        label="Her Yıl Ödeme Günü (opsiyonel)"
-        hint="Ay içinde sabit bir gün varsa yaz; yoksa ayın 15'i kabul edilir."
+        label={`${t("dialog.annual.field.payment_day")} ${t("common.optional")}`}
+        hint={t("dialog.annual.payment_day_hint")}
       >
         <TextInput
           value={paymentDay}
           onChange={setPaymentDay}
-          placeholder="Örn: 15 (1–31)"
+          placeholder={t("dialog.annual.payment_day_placeholder")}
           type="number"
           min={1}
           max={31}
         />
       </Field>
       <Field
-        label="Son Fiili Ödeme Tarihi"
-        hint="En son ne zaman ödedin? Boş bırakılabilir."
+        label={t("dialog.annual.field.last_payment")}
+        hint={t("dialog.annual.last_payment_hint")}
       >
         <TextInput
           value={lastPaymentDate}
@@ -278,11 +282,11 @@ export function AnnualPaymentDialog({
           type="date"
         />
       </Field>
-      <Field label="Notlar (opsiyonel)">
+      <Field label={t("dialog.common.notes_optional")}>
         <TextAreaInput
           value={notes}
           onChange={setNotes}
-          placeholder="Ek bilgi…"
+          placeholder={t("dialog.common.notes_placeholder")}
         />
       </Field>
     </DialogShell>

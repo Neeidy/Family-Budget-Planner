@@ -229,6 +229,23 @@
     "person_subtitle": "Sign in as {{name}}"
   },
   "dialog": {
+    "common": {
+      "close_aria": "Close",
+      "save": "Save",
+      "cancel": "Cancel",
+      "person": "Person",
+      "home": "Home",
+      "other": "Other",
+      "notes_optional": "Notes (optional)",
+      "notes_placeholder": "Additional info…",
+      "custom_name": "Custom name",
+      "custom_placeholder": "e.g. Bike maintenance"
+    },
+    "delete_confirm": {
+      "title": "Are you sure you want to delete?",
+      "message_suffix": "will be permanently deleted.",
+      "undo_note": "This action cannot be undone, but the last deletion can be reverted with Ctrl+Z."
+    },
     "expense": {
       "title_add": "Add New Expense",
       "title_edit": "Edit Expense",
@@ -236,15 +253,14 @@
         "person": "Person",
         "category": "Category",
         "subcategory": "Subcategory",
-        "custom_subcategory": "Custom Subcategory",
+        "custom_subcategory": "Custom name",
         "amount": "Amount",
         "type": "Type",
         "status": "Status",
         "payment_day": "Payment Day",
         "notes": "Notes"
       },
-      "custom_placeholder": "e.g. Gym",
-      "payment_day_hint": "(optional)",
+      "payment_day_placeholder": "e.g. 15",
       "notes_placeholder": "Additional info…"
     },
     "income": {
@@ -270,14 +286,14 @@
       "title_edit": "Edit Debt",
       "field": {
         "name": "Debt Name",
-        "total_debt": "Total Debt",
+        "total_debt": "Total Amount",
         "monthly_payment": "Monthly Payment",
         "due_date": "Due Date",
         "status": "Status",
         "notes": "Notes"
       },
       "name_placeholder": "e.g. Credit Card",
-      "monthly_optional_hint": "(optional)"
+      "monthly_hint": "May be left empty or set to 0 (for debts like credit cards without a fixed monthly payment)"
     },
     "installment": {
       "title_add": "Add New Installment",
@@ -288,12 +304,13 @@
         "count": "Installment Count",
         "monthly_amount": "Monthly Amount",
         "start_month": "Start Month",
-        "start_year": "Start Year",
+        "start_year": "Year",
         "payment_day": "Payment Day",
         "notes": "Notes"
       },
-      "name_placeholder": "e.g. Phone Installment",
-      "count_placeholder": "12"
+      "name_placeholder": "e.g. New Phone",
+      "count_placeholder": "12",
+      "payment_day_placeholder": "e.g. 15 (1–31)"
     },
     "annual": {
       "title_add": "Add New Annual Payment",
@@ -301,17 +318,19 @@
       "field": {
         "name": "Payment Name",
         "amount": "Amount",
-        "payment_month": "Payment Month",
-        "payment_day": "Payment Day",
-        "last_payment": "Last Payment",
+        "payment_month": "Payment Month (Yearly)",
+        "payment_day": "Payment Day (Yearly)",
+        "last_payment": "Last Actual Payment Date",
         "person": "Person",
         "category": "Category",
         "subcategory": "Subcategory",
         "notes": "Notes"
       },
-      "name_placeholder": "e.g. Insurance",
-      "payment_day_hint": "(optional)",
-      "last_payment_hint": "(optional)"
+      "name_placeholder": "e.g. Tax, Insurance renewal",
+      "payment_month_hint": "This item is paid every year in this month (e.g. car insurance in March).",
+      "payment_day_hint": "Enter a fixed day of the month if there is one; otherwise the 15th is assumed.",
+      "payment_day_placeholder": "e.g. 15 (1–31)",
+      "last_payment_hint": "When did you last pay? May be left empty."
     },
     "goal": {
       "title_add": "Add New Goal",
@@ -320,19 +339,19 @@
         "name": "Goal Name",
         "target_amount": "Target Amount",
         "current_amount": "Current Amount",
-        "monthly_allocation": "Monthly Allocation",
+        "monthly_allocation": "Monthly Contribution",
         "target_date": "Target Date",
         "notes": "Notes"
       },
-      "name_placeholder": "e.g. Vacation, Emergency Fund"
+      "name_placeholder": "e.g. Vacation, New Car"
     },
     "budget_limit": {
-      "title_add": "Add New Limit",
-      "title_edit": "Edit Limit",
+      "title_add": "New Budget Limit",
+      "title_edit": "Edit Budget Limit",
       "field": {
         "person": "Person",
         "category": "Category",
-        "limit": "Limit",
+        "limit": "Monthly Limit",
         "notes": "Notes"
       }
     }

@@ -1,5 +1,6 @@
 import { parseMoney } from "@/lib/format";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useBudget } from "@/contexts/BudgetContext";
 import { usePerson } from "@/contexts/PersonContext";
 import type { Debt } from "@/hooks/useBudgetData";
@@ -28,6 +29,7 @@ const todayPlusYearISO = () => {
 };
 
 export function DebtDialog({ open, onClose, entity }: DebtDialogProps) {
+  const { t } = useTranslation();
   const { addDebt, updateDebt } = useBudget();
   const { person1Name, person2Name, currentPerson } = usePerson();
   const isEdit = !!entity;
@@ -103,37 +105,37 @@ export function DebtDialog({ open, onClose, entity }: DebtDialogProps) {
     <DialogShell
       open={open}
       onClose={onClose}
-      title={isEdit ? "Borcu Düzenle" : "Yeni Borç Ekle"}
+      title={isEdit ? t("dialog.debt.title_edit") : t("dialog.debt.title_add")}
       footer={
         <>
           <CancelButton onClick={onClose} />
           <PrimaryButton onClick={handleSave} disabled={!valid}>
-            Kaydet
+            {t("common.save")}
           </PrimaryButton>
         </>
       }
     >
-      <Field label="Borç Adı">
+      <Field label={t("dialog.debt.field.name")}>
         <TextInput
           value={name}
           onChange={setName}
-          placeholder="Örn. Kredi Kartı"
+          placeholder={t("dialog.debt.name_placeholder")}
           autoFocus
         />
       </Field>
-      <Field label="Kişi">
+      <Field label={t("dialog.common.person")}>
         <RadioRow
           value={owner}
           onChange={setOwner}
           options={[
             { value: "Benim", label: person1Name },
             { value: "Esim", label: person2Name },
-            { value: "Ev", label: "Ev" },
+            { value: "Ev", label: t("dialog.common.home") },
           ]}
         />
       </Field>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-        <Field label="Toplam Tutar">
+        <Field label={t("dialog.debt.field.total_debt")}>
           <TextInput
             value={totalDebt}
             onChange={setTotalDebt}
@@ -145,7 +147,9 @@ export function DebtDialog({ open, onClose, entity }: DebtDialogProps) {
           />
           <MoneyHint raw={totalDebt} />
         </Field>
-        <Field label="Aylık Ödeme (opsiyonel)">
+        <Field
+          label={`${t("dialog.debt.field.monthly_payment")} ${t("common.optional")}`}
+        >
           <TextInput
             value={monthlyPayment}
             onChange={setMonthlyPayment}
@@ -163,30 +167,29 @@ export function DebtDialog({ open, onClose, entity }: DebtDialogProps) {
               marginTop: 4,
             }}
           >
-            Boş bırakılabilir veya 0 (kredi kartı gibi sabit aylık ödemesi
-            olmayan borçlar için)
+            {t("dialog.debt.monthly_hint")}
           </div>
         </Field>
       </div>
-      <Field label="Vade">
+      <Field label={t("dialog.debt.field.due_date")}>
         <TextInput value={dueDate} onChange={setDueDate} type="date" />
       </Field>
-      <Field label="Durum">
+      <Field label={t("dialog.debt.field.status")}>
         <RadioRow
           value={status}
           onChange={setStatus}
           options={[
-            { value: "Odendi", label: "Ödendi" },
-            { value: "Bekliyor", label: "Bekliyor" },
-            { value: "Gecikti", label: "Gecikti" },
+            { value: "Odendi", label: t("status.paid") },
+            { value: "Bekliyor", label: t("status.pending") },
+            { value: "Gecikti", label: t("status.overdue") },
           ]}
         />
       </Field>
-      <Field label="Notlar (opsiyonel)">
+      <Field label={t("dialog.common.notes_optional")}>
         <TextAreaInput
           value={notes}
           onChange={setNotes}
-          placeholder="Ek bilgi…"
+          placeholder={t("dialog.common.notes_placeholder")}
         />
       </Field>
     </DialogShell>
