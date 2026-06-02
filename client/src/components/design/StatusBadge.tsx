@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export type BadgeStatus = "Odendi" | "Bekliyor" | "Gecikti";
 
@@ -9,10 +10,16 @@ interface StatusBadgeProps {
   disabled?: boolean;
 }
 
-const STATUS_MAP: Record<BadgeStatus, { dot: string; label: string }> = {
-  Odendi: { dot: "✓", label: "Ödendi" },
-  Bekliyor: { dot: "⏳", label: "Bekliyor" },
-  Gecikti: { dot: "⚠", label: "Gecikti" },
+const STATUS_DOT: Record<BadgeStatus, string> = {
+  Odendi: "✓",
+  Bekliyor: "⏳",
+  Gecikti: "⚠",
+};
+
+const STATUS_KEY: Record<BadgeStatus, string> = {
+  Odendi: "status.paid",
+  Bekliyor: "status.pending",
+  Gecikti: "status.overdue",
 };
 
 const STATUS_COLOR: Record<BadgeStatus, string> = {
@@ -24,8 +31,10 @@ const STATUS_COLOR: Record<BadgeStatus, string> = {
 const ALL_STATUSES: BadgeStatus[] = ["Odendi", "Bekliyor", "Gecikti"];
 
 export function StatusBadge({ status, onChange, disabled }: StatusBadgeProps) {
+  const { t } = useTranslation();
   const color = STATUS_COLOR[status];
-  const { dot, label } = STATUS_MAP[status];
+  const dot = STATUS_DOT[status];
+  const label = t(STATUS_KEY[status]);
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLSpanElement>(null);
   const interactive = !!onChange && !disabled;
@@ -99,7 +108,6 @@ export function StatusBadge({ status, onChange, disabled }: StatusBadgeProps) {
         >
           {ALL_STATUSES.map(s => {
             const c = STATUS_COLOR[s];
-            const m = STATUS_MAP[s];
             const active = s === status;
             return (
               <button
@@ -128,8 +136,8 @@ export function StatusBadge({ status, onChange, disabled }: StatusBadgeProps) {
                   fontFamily: "inherit",
                 }}
               >
-                <span style={{ color: c }}>{m.dot}</span>
-                {m.label}
+                <span style={{ color: c }}>{STATUS_DOT[s]}</span>
+                {t(STATUS_KEY[s])}
               </button>
             );
           })}

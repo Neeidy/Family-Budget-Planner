@@ -157,10 +157,15 @@ function OwnerBadge({
   person1Name: string;
   person2Name: string;
 }) {
+  const { t } = useTranslation();
   const who: AvatarWho =
     owner === "Benim" ? "yigit" : owner === "Esim" ? "arzu" : "ev";
   const name =
-    owner === "Benim" ? person1Name : owner === "Esim" ? person2Name : "Ev";
+    owner === "Benim"
+      ? person1Name
+      : owner === "Esim"
+        ? person2Name
+        : t("filter.home");
   return (
     <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
       <Avatar who={who} size={20} />
@@ -180,7 +185,7 @@ function IncomesTab({
   onDelete: (income: Income) => void;
 }) {
   const { t } = useTranslation();
-  const { fm } = useFormatters();
+  const { fm, fMonthYear } = useFormatters();
   const { budgetData, updateIncome } = useBudget();
   const { person1Name, person2Name } = usePerson();
 
@@ -215,17 +220,17 @@ function IncomesTab({
         }}
       >
         <MiniSummaryCard
-          label={`${person1Name}'in Geliri`}
+          label={t("gelir_gider.person_income", { name: person1Name })}
           amount={yigitTotal}
           accent="var(--owner-yigit)"
         />
         <MiniSummaryCard
-          label={`${person2Name}'in Geliri`}
+          label={t("gelir_gider.person_income", { name: person2Name })}
           amount={arzuTotal}
           accent="var(--owner-arzu)"
         />
         <MiniSummaryCard
-          label="Toplam Gelir"
+          label={t("dashboard.summary.total_income")}
           amount={grandTotal}
           accent="var(--accent-green)"
         />
@@ -262,16 +267,36 @@ function IncomesTab({
                   color: "var(--text-primary)",
                 }}
               >
-                {group.label} — {group.items.length} kayıt · {fm(group.total)} ↑
+                {group.key === "0000-00"
+                  ? t("gelir_gider.dateless_group")
+                  : fMonthYear(group.yy, group.mm - 1)}{" "}
+                —{" "}
+                {t("gelir_gider.month_records_total", {
+                  count: group.items.length,
+                  total: fm(group.total),
+                })}{" "}
+                ↑
               </h3>
             </div>
             <DataTable
               columns={[
-                { header: "Kişi", width: "auto" },
-                { header: "Gelir Adı", width: "auto" },
-                { header: "Miktar", width: 120, align: "right" },
-                { header: "Tarih", width: 110, hideOnMobile: true },
-                { header: "İşlem", width: 90, align: "center" },
+                { header: t("gelir_gider.table.person"), width: "auto" },
+                { header: t("gelir_gider.table.income_name"), width: "auto" },
+                {
+                  header: t("gelir_gider.table.amount"),
+                  width: 120,
+                  align: "right",
+                },
+                {
+                  header: t("gelir_gider.table.date"),
+                  width: 110,
+                  hideOnMobile: true,
+                },
+                {
+                  header: t("gelir_gider.table.action"),
+                  width: 90,
+                  align: "center",
+                },
               ]}
               rows={group.items.map(income => ({
                 key: income.id,
@@ -313,7 +338,9 @@ function IncomesTab({
             color: "var(--text-tertiary)",
           }}
         >
-          <span>{sortedIncomes.length} kayıt</span>
+          <span>
+            {t("gelir_gider.total_count", { count: sortedIncomes.length })}
+          </span>
           <span
             className="tnum"
             style={{ fontWeight: 700, color: "var(--text-secondary)" }}
@@ -340,7 +367,7 @@ function ExpensesTab({
   onDelete: (expense: Expense) => void;
 }) {
   const { t } = useTranslation();
-  const { fm } = useFormatters();
+  const { fm, fMonthYear } = useFormatters();
   const { budgetData, updateExpense } = useBudget();
   const { person1Name, person2Name } = usePerson();
   const [statusFilter, setStatusFilter] = useState<ExpenseStatus>("tumu");
@@ -360,20 +387,20 @@ function ExpensesTab({
       {/* Status filter */}
       <SubFilterChips<ExpenseStatus>
         options={[
-          { key: "tumu", label: "Tümü" },
+          { key: "tumu", label: t("filter.all") },
           {
             key: "Bekliyor",
-            label: "⏳ Bekliyor",
+            label: `⏳ ${t("status.pending")}`,
             colorVar: "var(--status-warning)",
           },
           {
             key: "Odendi",
-            label: "✓ Ödendi",
+            label: `✓ ${t("status.paid")}`,
             colorVar: "var(--status-success)",
           },
           {
             key: "Gecikti",
-            label: "⚠ Gecikti",
+            label: `⚠ ${t("status.overdue")}`,
             colorVar: "var(--status-danger)",
           },
         ]}
@@ -411,7 +438,9 @@ function ExpensesTab({
                   color: "var(--text-primary)",
                 }}
               >
-                {group.label}
+                {group.key === "0000-00"
+                  ? t("gelir_gider.dateless_group")
+                  : fMonthYear(group.yy, group.mm - 1)}
               </h3>
               <span
                 className="tnum"
@@ -421,18 +450,37 @@ function ExpensesTab({
                   fontWeight: 600,
                 }}
               >
-                {group.items.length} kalem · {fm(group.total)}
+                {t("gelir_gider.month_items_total", {
+                  count: group.items.length,
+                  total: fm(group.total),
+                })}
               </span>
             </div>
             <DataTable
               columns={[
-                { header: "Kişi", width: "auto" },
-                { header: "Kategori", width: "auto" },
-                { header: "Gider Adı", width: "auto" },
-                { header: "Tipi", width: 100, hideOnMobile: true },
-                { header: "Miktar", width: 120, align: "right" },
-                { header: "Durum", width: 110, hideOnMobile: true },
-                { header: "İşlem", width: 130, align: "center" },
+                { header: t("gelir_gider.table.person"), width: "auto" },
+                { header: t("gelir_gider.table.category"), width: "auto" },
+                { header: t("gelir_gider.table.expense_name"), width: "auto" },
+                {
+                  header: t("gelir_gider.table.type"),
+                  width: 100,
+                  hideOnMobile: true,
+                },
+                {
+                  header: t("gelir_gider.table.amount"),
+                  width: 120,
+                  align: "right",
+                },
+                {
+                  header: t("gelir_gider.table.status"),
+                  width: 110,
+                  hideOnMobile: true,
+                },
+                {
+                  header: t("gelir_gider.table.action"),
+                  width: 130,
+                  align: "center",
+                },
               ]}
               rows={group.items.map(expense => ({
                 key: expense.id,
@@ -497,7 +545,9 @@ function ExpensesTab({
             color: "var(--text-tertiary)",
           }}
         >
-          <span>{filtered.length} kalem</span>
+          <span>
+            {t("gelir_gider.total_count", { count: filtered.length })}
+          </span>
           <span
             className="tnum"
             style={{ fontWeight: 700, color: "var(--text-secondary)" }}
@@ -512,25 +562,10 @@ function ExpensesTab({
 }
 
 // ── Month grouping helper ─────────────────────────────────────
-const TR_MONTHS = [
-  "Ocak",
-  "Şubat",
-  "Mart",
-  "Nisan",
-  "Mayıs",
-  "Haziran",
-  "Temmuz",
-  "Ağustos",
-  "Eylül",
-  "Ekim",
-  "Kasım",
-  "Aralık",
-];
-
 function groupByMonth<T extends { amount: number }>(
   items: T[],
   getDate: (i: T) => string
-): Array<{ key: string; label: string; total: number; items: T[] }> {
+): Array<{ key: string; yy: number; mm: number; total: number; items: T[] }> {
   const buckets = new Map<string, T[]>();
   for (const it of items) {
     const day = getDate(it) || "";
@@ -552,11 +587,10 @@ function groupByMonth<T extends { amount: number }>(
     .sort(([a], [b]) => b.localeCompare(a))
     .map(([key, items]) => {
       const [yy, mm] = key.split("-").map(Number);
-      const label =
-        key === "0000-00" ? "Tarihsiz" : `${TR_MONTHS[mm - 1]} ${yy}`;
       return {
         key,
-        label,
+        yy,
+        mm,
         total: items.reduce((s, i) => s + i.amount, 0),
         items,
       };
@@ -679,6 +713,7 @@ function BudgetGaugeCard({
   onEdit: () => void;
   onDelete: () => void;
 }) {
+  const { t } = useTranslation();
   const meta = getCategoryMeta(limit.category);
   return (
     <div
@@ -704,7 +739,7 @@ function BudgetGaugeCard({
         <button
           type="button"
           onClick={onEdit}
-          title="Düzenle"
+          title={t("common.edit")}
           style={{
             padding: 6,
             borderRadius: 999,
@@ -720,7 +755,7 @@ function BudgetGaugeCard({
         <button
           type="button"
           onClick={onDelete}
-          title="Sil"
+          title={t("common.delete")}
           style={{
             padding: 6,
             borderRadius: 999,
@@ -769,7 +804,16 @@ function MiniSummaryCard({
   );
 }
 
+const TYPE_LABEL_KEY: Record<string, string> = {
+  Sabit: "type.fixed",
+  Degisken: "type.variable",
+  Borc: "type.debt",
+  Birikim: "type.savings",
+  Ek: "type.extra",
+};
+
 function TypeBadge({ type }: { type: string }) {
+  const { t } = useTranslation();
   const labels: Record<string, { color: string; bg: string }> = {
     Sabit: {
       color: "var(--owner-ev)",
@@ -800,7 +844,7 @@ function TypeBadge({ type }: { type: string }) {
         padding: "3px 9px",
       }}
     >
-      {type === "Degisken" ? "Değişken" : type}
+      {t(TYPE_LABEL_KEY[type] ?? "type.variable")}
     </span>
   );
 }
@@ -812,6 +856,7 @@ function RowActions({
   onEdit?: () => void;
   onDelete: () => void;
 }) {
+  const { t } = useTranslation();
   const demo = isDemoMode();
   const dp = demoDisabledProps();
   return (
@@ -821,7 +866,7 @@ function RowActions({
           type="button"
           onClick={onEdit}
           disabled={demo}
-          title={demo ? dp.title : "Düzenle (yakında)"}
+          title={demo ? t("common.demo_disabled") : t("common.edit")}
           style={{
             padding: 6,
             borderRadius: 6,
@@ -840,7 +885,7 @@ function RowActions({
         type="button"
         onClick={onDelete}
         disabled={demo}
-        title={demo ? dp.title : "Sil"}
+        title={demo ? t("common.demo_disabled") : t("common.delete")}
         style={{
           padding: 6,
           borderRadius: 6,
@@ -868,6 +913,7 @@ function ExpenseRowActions({
   onEdit: () => void;
   onDelete: () => void;
 }) {
+  const { t } = useTranslation();
   const demo = isDemoMode();
   const dp = demoDisabledProps();
   return (
@@ -877,7 +923,9 @@ function ExpenseRowActions({
           type="button"
           onClick={onMakeOnce}
           disabled={demo}
-          title={demo ? dp.title : "Tek seferlik yap (Sabit → Değişken)"}
+          title={
+            demo ? t("common.demo_disabled") : t("gelir_gider.make_one_time")
+          }
           style={{
             padding: 6,
             borderRadius: 6,
@@ -895,7 +943,7 @@ function ExpenseRowActions({
         type="button"
         onClick={onEdit}
         disabled={demo}
-        title={demo ? dp.title : "Düzenle"}
+        title={demo ? t("common.demo_disabled") : t("common.edit")}
         style={{
           padding: 6,
           borderRadius: 6,
@@ -913,7 +961,7 @@ function ExpenseRowActions({
         type="button"
         onClick={onDelete}
         disabled={demo}
-        title={demo ? dp.title : "Sil"}
+        title={demo ? t("common.demo_disabled") : t("common.delete")}
         style={{
           padding: 6,
           borderRadius: 6,

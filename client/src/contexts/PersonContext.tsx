@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
 
@@ -30,6 +31,7 @@ const DEFAULT_PERSON2 = isDemoHost ? "Anna" : "Arzu";
 const PersonContext = createContext<PersonContextType | null>(null);
 
 export function PersonProvider({ children }: { children: ReactNode }) {
+  const { t } = useTranslation();
   const [, setLocation] = useLocation();
   const utils = trpc.useUtils();
 
@@ -93,7 +95,7 @@ export function PersonProvider({ children }: { children: ReactNode }) {
   const getDisplayName = (owner: "Benim" | "Esim" | "Ev"): string => {
     if (owner === "Benim") return person1Name;
     if (owner === "Esim") return person2Name;
-    return "Ev (Ortak)";
+    return t("filter.home");
   };
 
   const myOwnerKey: "Benim" | "Esim" | null = currentPerson;

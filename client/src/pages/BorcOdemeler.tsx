@@ -29,21 +29,6 @@ import type { Debt, Installment, AnnualPayment } from "@/hooks/useBudgetData";
 const TABS = ["Borçlar", "Taksitler", "Yıllık Ödemeler"] as const;
 type Tab = (typeof TABS)[number];
 
-const MONTHS = [
-  "Oca",
-  "Şub",
-  "Mar",
-  "Nis",
-  "May",
-  "Haz",
-  "Tem",
-  "Ağu",
-  "Eyl",
-  "Eki",
-  "Kas",
-  "Ara",
-];
-
 function ownerToWho(o: string): AvatarWho {
   if (o === "Benim") return "yigit";
   if (o === "Esim") return "arzu";
@@ -310,6 +295,7 @@ function DebtCard({
   onMarkPaid?: () => void;
   onChangeStatus?: (next: "Odendi" | "Bekliyor" | "Gecikti") => void;
 }) {
+  const { t } = useTranslation();
   const { fm } = useFormatters();
   const { updateDebt } = useBudget();
   const { person1Name, person2Name } = usePerson();
@@ -326,7 +312,7 @@ function DebtCard({
       ? person1Name
       : debt.owner === "Esim"
         ? person2Name
-        : "Ev";
+        : t("filter.home");
 
   return (
     <div className="card lift" style={{ position: "relative", padding: 24 }}>
@@ -441,13 +427,13 @@ function DebtCard({
             }}
           >
             <span className="tnum" style={{ color: "var(--accent-green)" }}>
-              Ödenen: {fm(paid)} (%{pctPaid})
+              {t("borc.paid_label")}: {fm(paid)} (%{pctPaid})
             </span>
             <span
               className="tnum"
               style={{ color: "var(--status-danger)", fontWeight: 600 }}
             >
-              Kalan: {fm(remaining)}
+              {t("borc.remaining")}: {fm(remaining)}
             </span>
           </div>
         </>
@@ -474,7 +460,7 @@ function DebtCard({
                 letterSpacing: "0.06em",
               }}
             >
-              Aylık
+              {t("borc.monthly_short")}
             </div>
             <div
               className="tnum"
@@ -505,7 +491,7 @@ function DebtCard({
                 letterSpacing: "0.06em",
               }}
             >
-              Bitiş
+              {t("borc.end_label")}
             </div>
             <div
               style={{
@@ -515,7 +501,9 @@ function DebtCard({
                 color: "var(--text-primary)",
               }}
             >
-              {monthsLeft > 0 ? `${monthsLeft} ay kaldı` : "—"}
+              {monthsLeft > 0
+                ? t("borc.months_remaining", { count: monthsLeft })
+                : "—"}
             </div>
           </div>
         </div>
@@ -531,8 +519,8 @@ function DebtCard({
               disabled={isDemoMode()}
               title={
                 isDemoMode()
-                  ? "Demo modunda düzenleme yapılamaz"
-                  : "Bu ay ödendi olarak işaretle"
+                  ? t("common.demo_disabled")
+                  : t("borc.mark_paid_title")
               }
               onClick={onMarkPaid}
               style={{
@@ -547,9 +535,7 @@ function DebtCard({
           <button
             type="button"
             disabled={isDemoMode()}
-            title={
-              isDemoMode() ? "Demo modunda düzenleme yapılamaz" : "Düzenle"
-            }
+            title={isDemoMode() ? t("common.demo_disabled") : t("common.edit")}
             onClick={onEdit}
             style={iconBtn("var(--text-tertiary)")}
           >
@@ -558,7 +544,9 @@ function DebtCard({
           <button
             type="button"
             disabled={isDemoMode()}
-            title={isDemoMode() ? "Demo modunda düzenleme yapılamaz" : "Sil"}
+            title={
+              isDemoMode() ? t("common.demo_disabled") : t("common.delete")
+            }
             onClick={onDelete}
             style={iconBtn("var(--status-danger)")}
           >
@@ -593,6 +581,7 @@ function InstallmentsTab({
   onEdit: (inst: Installment) => void;
   onDelete: (inst: Installment) => void;
 }) {
+  const { t } = useTranslation();
   const { budgetData } = useBudget();
 
   const filtered = useMemo(
@@ -610,7 +599,7 @@ function InstallmentsTab({
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <HeroCard
-        label="AKTİF TAKSİT SAYISI"
+        label={t("borc.active_installments_count")}
         value={`${totalActive}`}
         accent="var(--owner-yigit)"
       />
@@ -623,17 +612,17 @@ function InstallmentsTab({
         }}
       >
         <MiniStatCard
-          label="Bu Ay Toplam"
+          label={t("borc.this_month_total")}
           amount={totalMonthly}
           color="var(--status-warning)"
         />
         <MiniStatCard
-          label="Kalan Toplam"
+          label={t("borc.remaining_total")}
           amount={totalRemaining}
           color="var(--status-danger)"
         />
         <MiniStatCard
-          label="Aktif Taksit"
+          label={t("borc.active_installments")}
           amount={totalActive}
           color="var(--accent-green)"
         />
@@ -642,8 +631,8 @@ function InstallmentsTab({
       {filtered.length === 0 ? (
         <EmptyState
           emoji="🛍"
-          title="Taksit listesi boş"
-          description="Telefon, beyaz eşya veya başka taksitli alışverişlerinizi takip edin."
+          title={t("borc.no_installments")}
+          description={t("empty.add_first")}
         />
       ) : (
         <div
@@ -684,6 +673,7 @@ function InstallmentCard({
   onEdit: () => void;
   onDelete: () => void;
 }) {
+  const { t } = useTranslation();
   const { fm } = useFormatters();
   const { updateInstallment } = useBudget();
   const { person1Name, person2Name } = usePerson();
@@ -726,7 +716,7 @@ function InstallmentCard({
               ? person1Name
               : inst.owner === "Esim"
                 ? person2Name
-                : "Ev"}
+                : t("filter.home")}
           </div>
         </div>
         <span
@@ -765,7 +755,9 @@ function InstallmentCard({
             disabled={isDemoMode()}
           />
         </div>
-        <div style={{ fontSize: 11, color: "var(--text-tertiary)" }}>aylık</div>
+        <div style={{ fontSize: 11, color: "var(--text-tertiary)" }}>
+          {t("borc.monthly_label")}
+        </div>
       </div>
 
       <div>
@@ -798,7 +790,7 @@ function InstallmentCard({
           }}
         >
           <span className="hero-num">{Math.round(progress * 100)}%</span>
-          <span>{remainingCount} taksit kaldı</span>
+          <span>{t("borc.installments_left", { count: remainingCount })}</span>
         </div>
       </div>
 
@@ -812,15 +804,14 @@ function InstallmentCard({
         }}
       >
         <div style={{ fontSize: 11, color: "var(--text-tertiary)" }}>
-          Toplam: <span className="hero-num">{fm(inst.totalAmount)}</span>
+          {t("borc.total_label")}:{" "}
+          <span className="hero-num">{fm(inst.totalAmount)}</span>
         </div>
         <div style={{ display: "flex", gap: 4 }}>
           <button
             type="button"
             disabled={isDemoMode()}
-            title={
-              isDemoMode() ? "Demo modunda düzenleme yapılamaz" : "Düzenle"
-            }
+            title={isDemoMode() ? t("common.demo_disabled") : t("common.edit")}
             onClick={onEdit}
             style={iconBtn("var(--text-tertiary)")}
           >
@@ -829,7 +820,9 @@ function InstallmentCard({
           <button
             type="button"
             disabled={isDemoMode()}
-            title={isDemoMode() ? "Demo modunda düzenleme yapılamaz" : "Sil"}
+            title={
+              isDemoMode() ? t("common.demo_disabled") : t("common.delete")
+            }
             onClick={onDelete}
             style={iconBtn("var(--status-danger)")}
           >
@@ -849,7 +842,8 @@ function AnnualPaymentsTab({
   onEdit: (p: AnnualPayment) => void;
   onDelete: (p: AnnualPayment) => void;
 }) {
-  const { fm } = useFormatters();
+  const { t } = useTranslation();
+  const { fm, fMonthShort } = useFormatters();
   const { budgetData, updateAnnualPayment } = useBudget();
   const { person1Name, person2Name } = usePerson();
   const list = budgetData.annualPayments ?? [];
@@ -874,12 +868,12 @@ function AnnualPaymentsTab({
         }}
       >
         <MiniStatCard
-          label="Toplam Yıllık"
+          label={t("borc.annual_total")}
           amount={totalAnnual}
           color="var(--owner-ev)"
         />
         <MiniStatCard
-          label="Aylık Ortalama"
+          label={t("borc.monthly_average")}
           amount={monthlyAvg}
           color="var(--owner-yigit)"
         />
@@ -888,7 +882,7 @@ function AnnualPaymentsTab({
       {/* 12-month calendar */}
       <div className="card" style={{ padding: 20 }}>
         <div className="section-label" style={{ marginBottom: 14 }}>
-          YIL TAKVİMİ
+          {t("borc.year_calendar_title").toUpperCase()}
         </div>
         <div
           style={{
@@ -897,14 +891,15 @@ function AnnualPaymentsTab({
             gap: 8,
           }}
         >
-          {MONTHS.map((m, idx) => {
+          {Array.from({ length: 12 }, (_, idx) => {
             const monthIdx = idx + 1;
+            const m = fMonthShort(idx);
             const items = byMonth[monthIdx] ?? [];
             const monthTotal = items.reduce((s, p) => s + p.amount, 0);
             const hasItems = items.length > 0;
             return (
               <div
-                key={m}
+                key={idx}
                 style={{
                   padding: "10px 8px",
                   borderRadius: 12,
@@ -972,8 +967,8 @@ function AnnualPaymentsTab({
       {list.length === 0 ? (
         <EmptyState
           emoji="📅"
-          title="Yıllık ödeme yok"
-          description="Vergi, sigorta veya yıllık abonelik gibi düzenli yıllık ödemelerinizi ekleyin."
+          title={t("borc.no_annual")}
+          description={t("empty.add_first")}
         />
       ) : (
         <div
@@ -1023,7 +1018,7 @@ function AnnualPaymentsTab({
                     padding: "3px 9px",
                   }}
                 >
-                  {MONTHS[p.paymentMonth - 1]}
+                  {fMonthShort(p.paymentMonth - 1)}
                 </span>
               </div>
               <div
@@ -1060,14 +1055,14 @@ function AnnualPaymentsTab({
                       ? person1Name
                       : p.owner === "Esim"
                         ? person2Name
-                        : "Ev"}
+                        : t("filter.home")}
                   </span>
                 </div>
                 {p.category && <CategoryPill cat={p.category} size="sm" />}
               </div>
               {p.lastPaymentDate && (
                 <div style={{ fontSize: 11, color: "var(--text-tertiary)" }}>
-                  Son ödeme: {p.lastPaymentDate}
+                  {t("borc.last_payment_label")}: {p.lastPaymentDate}
                 </div>
               )}
               <div
@@ -1083,9 +1078,7 @@ function AnnualPaymentsTab({
                   type="button"
                   disabled={isDemoMode()}
                   title={
-                    isDemoMode()
-                      ? "Demo modunda düzenleme yapılamaz"
-                      : "Düzenle"
+                    isDemoMode() ? t("common.demo_disabled") : t("common.edit")
                   }
                   onClick={() => onEdit(p)}
                   style={iconBtn("var(--text-tertiary)")}
@@ -1096,7 +1089,9 @@ function AnnualPaymentsTab({
                   type="button"
                   disabled={isDemoMode()}
                   title={
-                    isDemoMode() ? "Demo modunda düzenleme yapılamaz" : "Sil"
+                    isDemoMode()
+                      ? t("common.demo_disabled")
+                      : t("common.delete")
                   }
                   onClick={() => onDelete(p)}
                   style={iconBtn("var(--status-danger)")}

@@ -18,21 +18,6 @@ type Tab = (typeof TABS)[number];
 const RANGES = ["Bu Ay", "Geçen Ay", "3 Ay", "6 Ay", "1 Yıl", "Tümü"] as const;
 type Range = (typeof RANGES)[number];
 
-const MONTHS_TR = [
-  "Oca",
-  "Şub",
-  "Mar",
-  "Nis",
-  "May",
-  "Haz",
-  "Tem",
-  "Ağu",
-  "Eyl",
-  "Eki",
-  "Kas",
-  "Ara",
-];
-
 // ── PageHeader ────────────────────────────────────────────────
 function PageHeader({
   range,
@@ -171,7 +156,8 @@ function HeroCard({
 
 // ── AYLIK KARŞILAŞTIRMA TAB ────────────────────────────────────
 function AylikTab({ range }: { range: Range }) {
-  const { fm } = useFormatters();
+  const { t } = useTranslation();
+  const { fm, fMonthShort } = useFormatters();
   const { budgetData } = useBudget();
 
   // Build a 12-month synthetic series from current budget data (real historical data isn't tracked yet)
@@ -192,7 +178,7 @@ function AylikTab({ range }: { range: Range }) {
   const xLabels = Array.from({ length: monthsCount }, (_, i) => {
     const m = new Date();
     m.setMonth(m.getMonth() - (monthsCount - 1 - i));
-    return MONTHS_TR[m.getMonth()];
+    return fMonthShort(m.getMonth());
   });
 
   const incomeSeries = xLabels.map((_, i) => ({
@@ -229,10 +215,13 @@ function AylikTab({ range }: { range: Range }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <HeroCard
-        label="ORTALAMA AYLIK HARCAMA"
+        label={t("raporlar.avg_monthly_spend_label")}
         value={fm(avgExpense)}
         delta={{
-          value: `${deltaPct >= 0 ? "↑" : "↓"} %${Math.abs(deltaPct).toFixed(1)} geçen aya göre`,
+          value: t("raporlar.delta_vs_last_month", {
+            dir: deltaPct >= 0 ? "↑" : "↓",
+            pct: Math.abs(deltaPct).toFixed(1),
+          }),
           positive: deltaPct < 0,
         }}
       />
@@ -256,7 +245,9 @@ function AylikTab({ range }: { range: Range }) {
             gap: 8,
           }}
         >
-          <div className="section-label">GELİR vs GİDER TRENDİ</div>
+          <div className="section-label">
+            {t("raporlar.income_vs_expense_trend")}
+          </div>
           <div
             style={{
               display: "flex",
@@ -301,12 +292,12 @@ function AylikTab({ range }: { range: Range }) {
               {
                 color: "var(--accent-green)",
                 data: incomeSeries,
-                label: "Gelir",
+                label: t("dashboard.summary.income"),
               },
               {
                 color: "var(--status-danger)",
                 data: expenseSeries,
-                label: "Gider",
+                label: t("dashboard.summary.expense"),
               },
             ]}
             xLabels={xLabels}
@@ -323,14 +314,14 @@ function AylikTab({ range }: { range: Range }) {
         }}
       >
         <DeltaCard
-          label="EN ÇOK ARTAN KATEGORİ"
+          label={t("raporlar.top_increasing_category")}
           cat={topCat?.[0]}
           amount={topCat?.[1] ?? 0}
           delta="↑ %12"
           positive={false}
         />
         <DeltaCard
-          label="EN AZ HARCAMA"
+          label={t("raporlar.least_spent_category")}
           cat={lowCat?.[0]}
           amount={lowCat?.[1] ?? 0}
           delta="↓ %8"
@@ -348,7 +339,7 @@ function AylikTab({ range }: { range: Range }) {
         }}
       >
         <div className="section-label" style={{ marginBottom: 16 }}>
-          TOP 5 KATEGORİ
+          {t("raporlar.top_5_categories")}
         </div>
         <BarChart
           height={280}
@@ -453,7 +444,7 @@ function DeltaCard({
 // ── ANALİTİK TAB ───────────────────────────────────────────────
 function AnalitikTab({ range }: { range: Range }) {
   const { t } = useTranslation();
-  const { fm } = useFormatters();
+  const { fm, fMonthShort } = useFormatters();
   const { budgetData } = useBudget();
   void range;
 
@@ -479,7 +470,7 @@ function AnalitikTab({ range }: { range: Range }) {
   const xLabels = Array.from({ length: months }, (_, i) => {
     const m = new Date();
     m.setMonth(m.getMonth() - (months - 1 - i));
-    return MONTHS_TR[m.getMonth()];
+    return fMonthShort(m.getMonth());
   });
   const totalSavings = (budgetData.savingsGoals || []).reduce(
     (s, g) => s + g.currentAmount,
@@ -515,7 +506,7 @@ function AnalitikTab({ range }: { range: Range }) {
           className="section-label"
           style={{ gridColumn: "1 / -1", marginBottom: 4 }}
         >
-          KATEGORİ DAĞILIMI
+          {t("raporlar.category_distribution")}
         </div>
         <DonutChart
           slices={
@@ -627,7 +618,7 @@ function AnalitikTab({ range }: { range: Range }) {
         }}
       >
         <div className="section-label" style={{ marginBottom: 16 }}>
-          NET TASARRUF TRENDİ
+          {t("raporlar.net_savings_trend")}
         </div>
         <div style={{ overflowX: "auto" }}>
           <LineAreaChart
@@ -637,7 +628,7 @@ function AnalitikTab({ range }: { range: Range }) {
               {
                 color: "var(--owner-yigit)",
                 data: savingsSeries,
-                label: "Birikim",
+                label: t("dashboard.summary.savings"),
               },
             ]}
             xLabels={xLabels}
@@ -655,7 +646,7 @@ function AnalitikTab({ range }: { range: Range }) {
         }}
       >
         <div className="section-label" style={{ marginBottom: 16 }}>
-          AYLIK KATEGORİ DAĞILIMI
+          {t("raporlar.monthly_category_distribution")}
         </div>
         <BarChart
           height={260}

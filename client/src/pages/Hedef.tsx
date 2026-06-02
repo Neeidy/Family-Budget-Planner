@@ -26,11 +26,12 @@ function ownerToWho(o: string): AvatarWho {
 function ownerLabel(
   o: string,
   person1Name: string,
-  person2Name: string
+  person2Name: string,
+  homeLabel: string
 ): string {
   if (o === "Benim") return person1Name;
   if (o === "Esim") return person2Name;
-  return "Ev";
+  return homeLabel;
 }
 
 function pickEmoji(name: string): string {
@@ -370,13 +371,13 @@ function GoalCard({
   } | null = null;
   if (remainingAmount <= 0) {
     projectionStatus = {
-      label: "✓ Hedef tamamlandı",
+      label: t("hedef.projection.completed"),
       color: "var(--status-success)",
       bg: "color-mix(in oklch, var(--status-success) 14%, transparent)",
     };
   } else if (goal.monthlyAllocation <= 0) {
     projectionStatus = {
-      label: "⚠ Aylık katkı belirtilmemiş",
+      label: t("hedef.projection.no_monthly"),
       color: "var(--status-warning)",
       bg: "color-mix(in oklch, var(--status-warning) 14%, transparent)",
     };
@@ -384,13 +385,13 @@ function GoalCard({
     const monthsNeeded = Math.ceil(remainingAmount / goal.monthlyAllocation);
     if (monthsUntilTarget <= 0) {
       projectionStatus = {
-        label: "⚠ Hedef tarihi geçti, güncelle",
+        label: t("hedef.projection.date_passed"),
         color: "var(--status-danger)",
         bg: "color-mix(in oklch, var(--status-danger) 14%, transparent)",
       };
     } else if (monthsNeeded <= monthsUntilTarget) {
       projectionStatus = {
-        label: "✓ Hedef tarihine yetişiyor",
+        label: t("hedef.projection.on_track"),
         color: "var(--status-success)",
         bg: "color-mix(in oklch, var(--status-success) 14%, transparent)",
       };
@@ -398,7 +399,10 @@ function GoalCard({
       const delayMonths = monthsNeeded - monthsUntilTarget;
       const neededMonthly = Math.ceil(remainingAmount / monthsUntilTarget);
       projectionStatus = {
-        label: `⚠ ${delayMonths} ay gecikme — aylık €${neededMonthly} gerekli`,
+        label: t("hedef.projection.delayed", {
+          months: delayMonths,
+          amount: fmShort(neededMonthly),
+        }),
         color: "var(--status-warning)",
         bg: "color-mix(in oklch, var(--status-warning) 14%, transparent)",
       };
@@ -473,7 +477,12 @@ function GoalCard({
             >
               <Avatar who={ownerToWho(goal.owner)} size={18} />
               <span style={{ fontSize: 12, color: "var(--text-tertiary)" }}>
-                {ownerLabel(goal.owner, person1Name, person2Name)}
+                {ownerLabel(
+                  goal.owner,
+                  person1Name,
+                  person2Name,
+                  t("filter.home")
+                )}
               </span>
             </div>
           </div>
@@ -586,10 +595,12 @@ function GoalCard({
               <span style={{ color: "var(--text-secondary)", fontWeight: 600 }}>
                 {days}
               </span>{" "}
-              gün kaldı
+              {t("hedef.days_left_suffix")}
             </span>
           )}
-          {(days === null || days === 0) && <span>♾️ Sürekli</span>}
+          {(days === null || days === 0) && (
+            <span>♾️ {t("hedef.continuous")}</span>
+          )}
           {goal.monthlyAllocation > 0 && (
             <span>
               💰{" "}
@@ -599,7 +610,7 @@ function GoalCard({
               >
                 {fmShort(goal.monthlyAllocation)}
               </span>
-              /ay
+              {t("hedef.per_month_suffix")}
             </span>
           )}
           {/* Quick contribution chips */}
@@ -611,8 +622,8 @@ function GoalCard({
               onClick={() => onContribute(v)}
               title={
                 isDemoMode()
-                  ? "Demo modunda düzenleme yapılamaz"
-                  : `+€${v} ekle`
+                  ? t("common.demo_disabled")
+                  : t("hedef.contribute_tooltip", { amount: fmShort(v) })
               }
               style={{
                 padding: "3px 8px",
@@ -634,9 +645,7 @@ function GoalCard({
           <button
             type="button"
             disabled={isDemoMode()}
-            title={
-              isDemoMode() ? "Demo modunda düzenleme yapılamaz" : "Düzenle"
-            }
+            title={isDemoMode() ? t("common.demo_disabled") : t("common.edit")}
             onClick={onEdit}
             style={{
               padding: 6,
@@ -653,7 +662,9 @@ function GoalCard({
           <button
             type="button"
             disabled={isDemoMode()}
-            title={isDemoMode() ? "Demo modunda düzenleme yapılamaz" : "Sil"}
+            title={
+              isDemoMode() ? t("common.demo_disabled") : t("common.delete")
+            }
             onClick={onDelete}
             style={{
               padding: 6,

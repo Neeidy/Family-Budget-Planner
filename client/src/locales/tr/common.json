@@ -13,7 +13,8 @@
     "search": "Ara",
     "filter": "Filtrele",
     "all": "Tümü",
-    "none": "Hiçbiri"
+    "none": "Hiçbiri",
+    "demo_disabled": "Demo modunda düzenleme yapılamaz"
   },
   "nav": {
     "home": "Ana Sayfa",
@@ -114,7 +115,8 @@
       "upcoming_days": "önümüzdeki birkaç gün",
       "no_upcoming": "Bu profilde yaklaşan ödeme yok ✓",
       "x_days_later": "{{count}} gün sonra"
-    }
+    },
+    "see_all": "Hepsini gör"
   },
   "gelir_gider": {
     "title": "Gelir & Gider",
@@ -136,8 +138,19 @@
       "name": "Ad",
       "amount": "Miktar",
       "date": "Tarih",
-      "action": "İşlem"
-    }
+      "action": "İşlem",
+      "category": "Kategori",
+      "expense_name": "Gider Adı",
+      "income_name": "Gelir Adı",
+      "type": "Tipi",
+      "status": "Durum"
+    },
+    "dateless_group": "Tarihsiz",
+    "month_items_total": "{{count}} kalem · {{total}}",
+    "month_records_total": "{{count}} kayıt · {{total}}",
+    "total_count": "{{count}} kalem",
+    "make_one_time": "Tek seferlik yap (Sabit → Değişken)",
+    "person_income": "{{name}}'in Geliri"
   },
   "borc": {
     "title": "Borç & Ödemeler",
@@ -161,7 +174,19 @@
     "no_installments": "Henüz taksit yok",
     "no_annual": "Henüz yıllık yok",
     "annual_total": "Yıllık Toplam",
-    "monthly_average": "Aylık Ortalama"
+    "monthly_average": "Aylık Ortalama",
+    "installments_left": "{{count}} taksit kaldı",
+    "monthly_label": "aylık",
+    "active_installments_count": "AKTİF TAKSİT SAYISI",
+    "this_month_total": "Bu Ay Toplam",
+    "remaining_total": "Kalan Toplam",
+    "active_installments": "Aktif Taksit",
+    "last_payment_label": "Son ödeme",
+    "mark_paid_title": "Bu ay ödendi olarak işaretle",
+    "paid_label": "Ödenen",
+    "monthly_short": "Aylık",
+    "end_label": "Bitiş",
+    "total_label": "Toplam"
   },
   "hedef": {
     "title": "Birikim & Hedef",
@@ -195,7 +220,18 @@
       "no_allocation": "Aylık ödeme yok",
       "target_passed": "Hedef tarihi geçti"
     },
-    "saved_suffix": "{{amount}} biriktirildi"
+    "saved_suffix": "{{amount}} biriktirildi",
+    "continuous": "Sürekli",
+    "projection": {
+      "completed": "✓ Hedef tamamlandı",
+      "no_monthly": "⚠ Aylık katkı belirtilmemiş",
+      "date_passed": "⚠ Hedef tarihi geçti, güncelle",
+      "on_track": "✓ Hedef tarihine yetişiyor",
+      "delayed": "⚠ {{months}} ay gecikme — aylık {{amount}} gerekli"
+    },
+    "days_left_suffix": "gün kaldı",
+    "per_month_suffix": "/ay",
+    "contribute_tooltip": "+{{amount}} ekle"
   },
   "raporlar": {
     "title": "Raporlar",
@@ -215,9 +251,16 @@
     "income_vs_expense_chart": "Gelir vs Gider",
     "avg_monthly_spend": "Aylık Ortalama Harcama",
     "compared_to_last_month": "Geçen aya göre",
-    "top_increasing_category": "En Çok Artan Kategori",
+    "top_increasing_category": "EN ÇOK ARTAN KATEGORİ",
     "least_spent_category": "En Az Harcanan Kategori",
-    "no_data": "Veri yok"
+    "no_data": "Veri yok",
+    "top_5_categories": "TOP 5 KATEGORİ",
+    "category_distribution": "KATEGORİ DAĞILIMI",
+    "monthly_category_distribution": "AYLIK KATEGORİ DAĞILIMI",
+    "income_vs_expense_trend": "GELİR vs GİDER TRENDİ",
+    "net_savings_trend": "NET TASARRUF TRENDİ",
+    "avg_monthly_spend_label": "ORTALAMA AYLIK HARCAMA",
+    "delta_vs_last_month": "{{dir}} %{{pct}} geçen aya göre"
   },
   "settings": {
     "title": "Ayarlar",
@@ -632,5 +675,9 @@
     "diger": {
       "diger": "Diğer (serbest)"
     }
+  },
+  "demo_banner": {
+    "title": "Demo gösterimi",
+    "subtitle": "Veriler örnektir, kaydedilmez"
   }
 }
