@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Avatar, AvatarWho } from "./Avatar";
 import { formatMoneyShort } from "@/lib/format";
 
@@ -32,12 +33,13 @@ export function TodaySummaryStripCompact({
   person1Name = "Yigit",
   person2Name = "Arzu",
 }: TodaySummaryStripCompactProps) {
+  const { t } = useTranslation();
   const totalDue = upcoming.reduce((s, u) => s + u.amount, 0);
   const ownerName: string = {
     yigit: person1Name,
     arzu: person2Name,
-    ev: "Ev",
-    tumu: "Hepsi",
+    ev: t("filter.home"),
+    tumu: t("filter.all"),
   }[filter];
 
   return (
@@ -73,7 +75,7 @@ export function TodaySummaryStripCompact({
           style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}
         >
           <span className="section-label" style={{ margin: 0 }}>
-            YARIN ÖDENECEK
+            {t("dashboard.today_summary.title")}
           </span>
           <span
             style={{
@@ -105,7 +107,7 @@ export function TodaySummaryStripCompact({
       <div
         style={{ fontSize: 11, color: "var(--text-tertiary)", marginTop: 4 }}
       >
-        {ownerName} • önümüzdeki birkaç gün
+        {ownerName} • {t("dashboard.today_summary.upcoming_days")}
       </div>
       <div
         style={{
@@ -126,7 +128,7 @@ export function TodaySummaryStripCompact({
               textAlign: "center",
             }}
           >
-            Bu profilde yaklaşan ödeme yok ✓
+            {t("dashboard.today_summary.no_upcoming")}
           </div>
         )}
         {upcoming.slice(0, 4).map((u, i) => (
@@ -155,7 +157,7 @@ export function TodaySummaryStripCompact({
                 {u.name}
               </div>
               <div style={{ fontSize: 10, color: "var(--text-tertiary)" }}>
-                {u.days} gün sonra
+                {t("dashboard.today_summary.x_days_later", { count: u.days })}
               </div>
             </div>
             <Avatar who={u.who} size={20} />

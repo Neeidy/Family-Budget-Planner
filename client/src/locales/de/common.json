@@ -27,7 +27,9 @@
     "light_mode": "Heller Modus",
     "dark_mode": "Dunkler Modus",
     "logout": "Abmelden",
-    "active_user": "Aktiver Nutzer"
+    "active_user": "Aktiver Nutzer",
+    "toggle_sidebar": "Navigation umschalten",
+    "switch_person": "Person wechseln"
   },
   "sidebar": {
     "brand_title": {
@@ -35,8 +37,8 @@
       "demo": "Demo-Familienbudget"
     },
     "brand_tagline": {
-      "butce": "Wien",
-      "demo": "Showcase"
+      "butce": "Familienbudget-Panel",
+      "demo": "Demo-Familienprofil"
     }
   },
   "filter": {
@@ -47,7 +49,7 @@
   },
   "dashboard": {
     "greeting": "Hallo, {{name}}!",
-    "view_as": "Angezeigt als: {{name}}",
+    "view_as": "Angezeigt als {{name}}",
     "this_month_net": "Diesen Monat netto",
     "total_income": "Gesamteinnahmen",
     "total_expense": "Gesamtausgaben",
@@ -59,19 +61,59 @@
     "owner_card": {
       "own": "Eigen",
       "home_share": "Haushaltsanteil",
-      "each_one": "Pro Person"
+      "each_one": "Pro Person",
+      "title": {
+        "person1": "AUSGABEN VON {{name}}",
+        "person2": "AUSGABEN VON {{name}}",
+        "home": "GEMEINSAME AUSGABEN"
+      },
+      "own_label": "Eigen",
+      "home_share_label": "Hausanteil",
+      "each_label": "Pro Person"
     },
     "summary": {
       "income": "Einnahmen",
       "expense": "Ausgaben",
       "remaining": "Verbleibend",
-      "savings": "Ersparnisse"
+      "savings": "Ersparnisse",
+      "total_income": "Gesamteinnahmen",
+      "total_expense": "Gesamtausgaben"
     },
-    "budget_vs_actual": "Budget vs. Ist",
+    "budget_vs_actual": {
+      "title": "BUDGET VS. IST",
+      "subtitle": "Kategorienvergleich für {{month}}",
+      "plan": "Plan",
+      "actual": "Ist",
+      "no_limit_hint": "Noch keine Budgetgrenze. Füge eine über den Reiter \"Budgetgrenzen\" auf der Seite Einnahmen & Ausgaben hinzu."
+    },
     "no_budget_limit_hint": "Noch keine Budgetgrenze",
     "health_pulse": {
       "gain_gt_loss": "Einnahmen übersteigen Ausgaben diesen Monat 🎯",
       "loss_gt_gain": "Ausgaben übersteigen Einnahmen diesen Monat ⚠"
+    },
+    "month_pulse": {
+      "net_movement": "NETTO VERÄNDERUNG DIESEN MONAT",
+      "savings_rate": "SPARQUOTE",
+      "active_category": "TOP KATEGORIE",
+      "gain_gt_loss": "Einnahmen > Ausgaben",
+      "loss_gt_gain": "Ausgaben > Einnahmen",
+      "bu_ay_tasarruf": "Diesen Monat gespart",
+      "no_data": "Noch keine Daten"
+    },
+    "quick_stats": {
+      "today": "HEUTE",
+      "today_subtitle": "Live-Summe",
+      "month_remaining": "VERBLEIBEND",
+      "no_budget_limit": "Keine Budgetgrenze",
+      "month_used": "{{pct}}% genutzt",
+      "tomorrow": "MORGEN",
+      "tomorrow_subtitle": "Zahlungen anstehend"
+    },
+    "today_summary": {
+      "title": "MORGEN FÄLLIG",
+      "upcoming_days": "nächste Tage",
+      "no_upcoming": "Keine anstehenden Zahlungen für dieses Profil ✓",
+      "x_days_later": "in {{count}} Tagen"
     }
   },
   "gelir_gider": {
@@ -427,5 +469,35 @@
   "empty": {
     "no_data": "Noch keine Daten",
     "add_first": "Ersten Eintrag hinzufügen"
+  },
+  "components": {
+    "notifications": {
+      "panel_title": "Benachrichtigungen",
+      "mark_all_read": "Alle gelesen",
+      "no_notifications_title": "Noch keine Benachrichtigungen",
+      "no_notifications_subtitle": "Alles unter Kontrolle!"
+    },
+    "global_search": {
+      "placeholder": "Seiten oder Daten suchen... (Strg+K)",
+      "no_results": "Keine Ergebnisse gefunden.",
+      "pages_heading": "Seiten",
+      "data_heading": "Daten",
+      "months_count": "{{count}} Monate",
+      "result_prefix": {
+        "income": "Einnahme",
+        "expense": "Ausgabe",
+        "debt": "Schuld",
+        "installment": "Rate",
+        "annual": "Jährliche Zahlung",
+        "goal": "Sparziel"
+      }
+    },
+    "mobile_fab": {
+      "quick_add_title": "Schnell hinzufügen"
+    },
+    "health": {
+      "aria": "Details zum Budget-Gesundheitswert",
+      "score_label": "WERT"
+    }
   }
 }

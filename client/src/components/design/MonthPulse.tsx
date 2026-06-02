@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { formatMoneyShort } from "@/lib/format";
 
 interface TopCategory {
@@ -28,6 +29,7 @@ export function MonthPulse({
   topCategory,
   mobile,
 }: MonthPulseProps) {
+  const { t } = useTranslation();
   const savingsPct = Math.max(0, Math.min(100, savingsRate * 100));
   const savingsHue =
     savingsRate >= 0.2
@@ -38,28 +40,31 @@ export function MonthPulse({
 
   const items: StatItem[] = [
     {
-      lbl: "NET HAREKET BU AY",
+      lbl: t("dashboard.month_pulse.net_movement"),
       val:
         (netMovement >= 0 ? "+" : "−") +
         formatMoneyShort(Math.abs(netMovement)),
       hue: netMovement >= 0 ? "var(--accent-green)" : "var(--status-danger)",
-      sub: netMovement >= 0 ? "Gelir > Gider" : "Gider > Gelir",
+      sub:
+        netMovement >= 0
+          ? t("dashboard.month_pulse.gain_gt_loss")
+          : t("dashboard.month_pulse.loss_gt_gain"),
       icon: netMovement >= 0 ? "↑" : "↓",
     },
     {
-      lbl: "TASARRUF ORANI",
+      lbl: t("dashboard.month_pulse.savings_rate"),
       val: `%${Math.round(savingsRate * 100)}`,
       hue: savingsHue,
-      sub: "Bu ay tasarruf",
+      sub: t("dashboard.month_pulse.bu_ay_tasarruf"),
       progress: savingsPct,
     },
     {
-      lbl: "AKTİF KATEGORİ",
+      lbl: t("dashboard.month_pulse.active_category"),
       val: topCategory ? topCategory.name : "—",
       hue: "var(--text-primary)",
       sub: topCategory
         ? formatMoneyShort(topCategory.amount)
-        : "Henüz veri yok",
+        : t("dashboard.month_pulse.no_data"),
       icon: topCategory?.emoji ?? "",
     },
   ];

@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { useLocation } from "wouter";
+import { useTranslation } from "react-i18next";
 import { useBudget } from "@/contexts/BudgetContext";
 import { usePerson } from "@/contexts/PersonContext";
 import { usePersonFilter } from "@/contexts/PersonFilterContext";
@@ -109,6 +110,7 @@ const DESIGN_FILTER: Record<string, DesignFilter> = {
 
 // ── Dashboard ─────────────────────────────────────────────────
 export function Dashboard() {
+  const { t } = useTranslation();
   const { budgetData, calculateTotals } = useBudget();
   const { person1Name, person2Name, currentPerson } = usePerson();
   const { filter } = usePersonFilter();
@@ -389,10 +391,10 @@ export function Dashboard() {
                   }}
                 >
                   {e.status === "Odendi"
-                    ? "Ödendi"
+                    ? t("status.paid")
                     : e.status === "Gecikti"
-                      ? "Gecikti"
-                      : "Bekliyor"}
+                      ? t("status.overdue")
+                      : t("status.pending")}
                 </div>
               </div>
               <span
@@ -445,7 +447,7 @@ export function Dashboard() {
             letterSpacing: "-0.02em",
           }}
         >
-          Merhaba, {activeName}!{" "}
+          {t("dashboard.greeting", { name: activeName })}{" "}
           <span
             style={{
               display: "inline-block",
@@ -462,7 +464,7 @@ export function Dashboard() {
           {budgetData.month} {budgetData.year} •{" "}
           <Avatar who={activeWho} size={16} />
           <span style={{ verticalAlign: "middle", marginLeft: 4 }}>
-            {activeName} olarak görüntüleniyor
+            {t("dashboard.view_as", { name: activeName })}
           </span>
         </div>
       </div>
@@ -679,11 +681,13 @@ export function Dashboard() {
       >
         <OwnerCard
           who="yigit"
-          title={`${person1Name.toLocaleUpperCase("tr-TR")}'İN GİDERLERİ`}
+          title={t("dashboard.owner_card.title.person1", {
+            name: person1Name.toLocaleUpperCase("tr-TR"),
+          })}
           amount={formatMoney(
             fullTotals.myExpensesOwn + fullTotals.myHomeShare
           )}
-          subtitle={`Kendi: ${formatMoney(fullTotals.myExpensesOwn)} · Ev payı: ${formatMoney(fullTotals.myHomeShare)}`}
+          subtitle={`${t("dashboard.owner_card.own_label")}: ${formatMoney(fullTotals.myExpensesOwn)} · ${t("dashboard.owner_card.home_share_label")}: ${formatMoney(fullTotals.myHomeShare)}`}
           cats={yigitCats}
           expandable
           isExpanded={expandedOwner === "Benim"}
@@ -694,11 +698,13 @@ export function Dashboard() {
         />
         <OwnerCard
           who="arzu"
-          title={`${person2Name.toLocaleUpperCase("tr-TR")}'IN GİDERLERİ`}
+          title={t("dashboard.owner_card.title.person2", {
+            name: person2Name.toLocaleUpperCase("tr-TR"),
+          })}
           amount={formatMoney(
             fullTotals.spouseExpensesOwn + fullTotals.spouseHomeShare
           )}
-          subtitle={`Kendi: ${formatMoney(fullTotals.spouseExpensesOwn)} · Ev payı: ${formatMoney(fullTotals.spouseHomeShare)}`}
+          subtitle={`${t("dashboard.owner_card.own_label")}: ${formatMoney(fullTotals.spouseExpensesOwn)} · ${t("dashboard.owner_card.home_share_label")}: ${formatMoney(fullTotals.spouseHomeShare)}`}
           cats={arzuCats}
           expandable
           isExpanded={expandedOwner === "Esim"}
@@ -709,9 +715,9 @@ export function Dashboard() {
         />
         <OwnerCard
           who="ev"
-          title="ORTAK GİDERLER"
+          title={t("dashboard.owner_card.title.home")}
           amount={formatMoney(fullTotals.homeExpenses)}
-          subtitle={`Her biri: ${formatMoney(fullTotals.homeExpenses / 2)}`}
+          subtitle={`${t("dashboard.owner_card.each_label")}: ${formatMoney(fullTotals.homeExpenses / 2)}`}
           cats={evCats}
           expandable
           isExpanded={expandedOwner === "Ev"}
@@ -731,19 +737,19 @@ export function Dashboard() {
         }}
       >
         <SummaryCard
-          label="Toplam Gelir"
+          label={t("dashboard.summary.total_income")}
           amount={formatMoney(filteredTotals.totalIncome)}
           color="green"
           icon={<TrendingUp style={{ width: 14, height: 14 }} />}
         />
         <SummaryCard
-          label="Toplam Gider"
+          label={t("dashboard.summary.total_expense")}
           amount={formatMoney(filteredTotals.totalExpense)}
           color="red"
           icon={<TrendingDown style={{ width: 14, height: 14 }} />}
         />
         <SummaryCard
-          label="Kalan Para"
+          label={t("dashboard.summary.remaining")}
           amount={formatMoney(filteredTotals.remaining)}
           color={filteredTotals.remaining >= 0 ? "green" : "red"}
           delta={{
@@ -752,7 +758,7 @@ export function Dashboard() {
           }}
         />
         <SummaryCard
-          label="Tasarruf"
+          label={t("dashboard.summary.savings")}
           amount={formatMoney(filteredTotals.savingsAmount)}
           color="blue"
           delta={{ value: "↗", positive: true }}
@@ -770,7 +776,9 @@ export function Dashboard() {
           }}
         >
           <div>
-            <div className="section-label">BÜTÇE VS GERÇEKLEŞEN</div>
+            <div className="section-label">
+              {t("dashboard.budget_vs_actual.title")}
+            </div>
             <div
               style={{
                 fontSize: 13,
@@ -778,7 +786,9 @@ export function Dashboard() {
                 marginTop: 4,
               }}
             >
-              {budgetData.month} ayı kategori karşılaştırması
+              {t("dashboard.budget_vs_actual.subtitle", {
+                month: budgetData.month,
+              })}
             </div>
           </div>
           <div
@@ -798,7 +808,7 @@ export function Dashboard() {
                   background: "var(--bg-tint)",
                 }}
               />
-              Plan
+              {t("dashboard.budget_vs_actual.plan")}
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <span
@@ -809,7 +819,7 @@ export function Dashboard() {
                   background: "var(--accent-green)",
                 }}
               />
-              Gerçek
+              {t("dashboard.budget_vs_actual.actual")}
             </div>
           </div>
         </div>
@@ -824,8 +834,7 @@ export function Dashboard() {
                 lineHeight: 1.5,
               }}
             >
-              Henüz bütçe limiti yok. Gelir &amp; Gider sayfasında "Bütçe
-              Limitleri" sekmesinden ekleyebilirsiniz.
+              {t("dashboard.budget_vs_actual.no_limit_hint")}
             </div>
           )}
           {bvaSamples.map(b => {

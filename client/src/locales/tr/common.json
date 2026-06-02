@@ -27,7 +27,9 @@
     "light_mode": "Aydınlık Mod",
     "dark_mode": "Karanlık Mod",
     "logout": "Çıkış",
-    "active_user": "Aktif Kullanıcı"
+    "active_user": "Aktif Kullanıcı",
+    "toggle_sidebar": "Navigasyonu aç/kapat",
+    "switch_person": "Kişi değiştir"
   },
   "sidebar": {
     "brand_title": {
@@ -35,8 +37,8 @@
       "demo": "Demo Aile Bütçe"
     },
     "brand_tagline": {
-      "butce": "Viyana",
-      "demo": "Showcase"
+      "butce": "Aile bütçe paneli",
+      "demo": "Demo aile profili"
     }
   },
   "filter": {
@@ -47,7 +49,7 @@
   },
   "dashboard": {
     "greeting": "Merhaba, {{name}}!",
-    "view_as": "Görüntülenen: {{name}}",
+    "view_as": "{{name}} olarak görüntüleniyor",
     "this_month_net": "Bu Ay Net",
     "total_income": "Toplam Gelir",
     "total_expense": "Toplam Gider",
@@ -59,19 +61,59 @@
     "owner_card": {
       "own": "Kendi",
       "home_share": "Ev Payı",
-      "each_one": "Kişi başı"
+      "each_one": "Kişi başı",
+      "title": {
+        "person1": "{{name}}'İN GİDERLERİ",
+        "person2": "{{name}}'IN GİDERLERİ",
+        "home": "ORTAK GİDERLER"
+      },
+      "own_label": "Kendi",
+      "home_share_label": "Ev payı",
+      "each_label": "Her biri"
     },
     "summary": {
       "income": "Gelir",
       "expense": "Gider",
-      "remaining": "Kalan",
-      "savings": "Birikim"
+      "remaining": "Kalan Para",
+      "savings": "Tasarruf",
+      "total_income": "Toplam Gelir",
+      "total_expense": "Toplam Gider"
     },
-    "budget_vs_actual": "Bütçe vs Gerçek",
+    "budget_vs_actual": {
+      "title": "BÜTÇE VS GERÇEKLEŞEN",
+      "subtitle": "{{month}} ayı kategori karşılaştırması",
+      "plan": "Plan",
+      "actual": "Gerçek",
+      "no_limit_hint": "Henüz bütçe limiti yok. Gelir & Gider sayfasında \"Bütçe Limitleri\" sekmesinden ekleyebilirsiniz."
+    },
     "no_budget_limit_hint": "Henüz bütçe limiti yok",
     "health_pulse": {
       "gain_gt_loss": "Bu ay kazancın gideri aşıyor 🎯",
       "loss_gt_gain": "Bu ay gider kazancı aştı ⚠"
+    },
+    "month_pulse": {
+      "net_movement": "NET HAREKET BU AY",
+      "savings_rate": "TASARRUF ORANI",
+      "active_category": "AKTİF KATEGORİ",
+      "gain_gt_loss": "Gelir > Gider",
+      "loss_gt_gain": "Gider > Gelir",
+      "bu_ay_tasarruf": "Bu ay tasarruf",
+      "no_data": "Henüz veri yok"
+    },
+    "quick_stats": {
+      "today": "BUGÜN",
+      "today_subtitle": "canlı toplam",
+      "month_remaining": "BU AY KALAN",
+      "no_budget_limit": "Bütçe limiti yok",
+      "month_used": "%{{pct}} kullanıldı",
+      "tomorrow": "YARIN",
+      "tomorrow_subtitle": "ödemeler yaklaşıyor"
+    },
+    "today_summary": {
+      "title": "YARIN ÖDENECEK",
+      "upcoming_days": "önümüzdeki birkaç gün",
+      "no_upcoming": "Bu profilde yaklaşan ödeme yok ✓",
+      "x_days_later": "{{count}} gün sonra"
     }
   },
   "gelir_gider": {
@@ -427,5 +469,35 @@
   "empty": {
     "no_data": "Henüz veri yok",
     "add_first": "İlk kaydını ekle"
+  },
+  "components": {
+    "notifications": {
+      "panel_title": "Bildirimler",
+      "mark_all_read": "Tümünü Okundu",
+      "no_notifications_title": "Yeni bildirim yok",
+      "no_notifications_subtitle": "Her şey kontrol altında!"
+    },
+    "global_search": {
+      "placeholder": "Sayfa veya veri ara... (Ctrl+K)",
+      "no_results": "Sonuç bulunamadı.",
+      "pages_heading": "Sayfalar",
+      "data_heading": "Veriler",
+      "months_count": "{{count}} ay",
+      "result_prefix": {
+        "income": "Gelir",
+        "expense": "Gider",
+        "debt": "Borç",
+        "installment": "Taksit",
+        "annual": "Yıllık Ödeme",
+        "goal": "Birikim Hedefi"
+      }
+    },
+    "mobile_fab": {
+      "quick_add_title": "Hızlı Ekle"
+    },
+    "health": {
+      "aria": "Bütçe Sağlık Skoru detayları",
+      "score_label": "SKOR"
+    }
   }
 }
