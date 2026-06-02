@@ -1,7 +1,14 @@
 export { Avatar } from "./Avatar";
 export type { AvatarWho } from "./Avatar";
 
-export { CategoryPill, getCategoryMeta } from "./CategoryPill";
+export {
+  CategoryPill,
+  getCategoryMeta,
+  getLocalizedCategoryName,
+  getLocalizedSubcategoryName,
+  MAIN_CATEGORY_KEYS,
+  normalizeKey,
+} from "./CategoryPill";
 
 export { StatusBadge } from "./StatusBadge";
 export type { BadgeStatus } from "./StatusBadge";
