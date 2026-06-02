@@ -232,7 +232,11 @@
     },
     "days_left_suffix": "Tage übrig",
     "per_month_suffix": "/Monat",
-    "contribute_tooltip": "+{{amount}} hinzufügen"
+    "contribute_tooltip": "+{{amount}} hinzufügen",
+    "add_goal_card": {
+      "title": "Neues Ziel hinzufügen",
+      "subtitle": "Urlaub, Wohnen, Bildung — gemeinsam planen"
+    }
   },
   "raporlar": {
     "title": "Berichte",
@@ -711,5 +715,84 @@
   "demo_banner": {
     "title": "Demo-Vorschau",
     "subtitle": "Beispieldaten, nicht gespeichert"
+  },
+  "porsuk": {
+    "page": {
+      "dashboard": [
+        "Wie läuft das Familienbudget?",
+        "Was hast du heute ausgegeben?",
+        "Prrr... ich zähle Münzen 🐾"
+      ],
+      "income": [
+        "Geld kommt rein! Miau! 💰",
+        "Zahltag, miau?",
+        "Prrrr... wir werden reich!"
+      ],
+      "expense": [
+        "Ganz schön viel ausgegeben, miau...",
+        "Brauchst du das wirklich?",
+        "Spar ein bisschen!"
+      ],
+      "debt": [
+        "Schulden, miau... traurig 😿",
+        "Zahl sie ab, sei frei!",
+        "Miau... Geldsorgen"
+      ],
+      "savings": [
+        "Wir sparen! 🐾",
+        "Prrrr... das Ziel ist nah!",
+        "Sparen = Glück, miau"
+      ],
+      "analytics": [
+        "Ich studiere die Diagramme...",
+        "Zahlen sind spannend, miau!",
+        "Analyse-Modus 🔍"
+      ],
+      "installments": [
+        "Rate für Rate, miau...",
+        "Wie viele noch?",
+        "Ein Zahlungsplan ist wichtig!"
+      ],
+      "settings": [
+        "Einstellungen? Miau!",
+        "Wir bringen alles in Ordnung",
+        "Porsuk stimmt zu ✓"
+      ],
+      "archive": [
+        "Vergangene Monate, miau...",
+        "Geschichte wiederholt sich!",
+        "Ich durchstöbere das Archiv 📚"
+      ],
+      "annual": [
+        "Jährliche Zahlungen, miau!",
+        "Große Ausgaben kommen!",
+        "Sei vorbereitet!"
+      ]
+    },
+    "mood": {
+      "happy": [
+        "Miau! 😸",
+        "Schnurr 💕",
+        "Perfekt! 🐾",
+        "Glücklicher Porsuk! ✨"
+      ],
+      "neutral": ["Miau...", "Schnurr...", "Mrrrow!", "Hmm, miau"],
+      "worried": ["Miau? 😟", "Ich bin besorgt...", "Pass auf!", "Miau... 😿"],
+      "angry": ["MIAU!! 😾", "Viel zu viel!", "Moment mal!", "Miau miau!"],
+      "sleepy": [
+        "Zzz... miau",
+        "Ich bin müde...",
+        "Nur ein Nickerchen",
+        "Zzzz... 😴"
+      ]
+    },
+    "angry_click": "MIAU!! Genug! 😾",
+    "mood_label": {
+      "happy": "Glücklich",
+      "neutral": "Ruhig",
+      "worried": "Besorgt",
+      "angry": "Wütend",
+      "sleepy": "Müde"
+    }
   }
 }

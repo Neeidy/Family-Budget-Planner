@@ -30,7 +30,7 @@ export function MonthPulse({
   mobile,
 }: MonthPulseProps) {
   const { t } = useTranslation();
-  const { fmShort } = useFormatters();
+  const { fmShort, fp } = useFormatters();
   const savingsPct = Math.max(0, Math.min(100, savingsRate * 100));
   const savingsHue =
     savingsRate >= 0.2
@@ -52,7 +52,7 @@ export function MonthPulse({
     },
     {
       lbl: t("dashboard.month_pulse.savings_rate"),
-      val: `%${Math.round(savingsRate * 100)}`,
+      val: fp(Math.round(savingsRate * 100)),
       hue: savingsHue,
       sub: t("dashboard.month_pulse.bu_ay_tasarruf"),
       progress: savingsPct,

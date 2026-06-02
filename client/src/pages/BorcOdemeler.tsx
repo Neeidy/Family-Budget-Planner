@@ -296,7 +296,7 @@ function DebtCard({
   onChangeStatus?: (next: "Odendi" | "Bekliyor" | "Gecikti") => void;
 }) {
   const { t } = useTranslation();
-  const { fm } = useFormatters();
+  const { fm, fp } = useFormatters();
   const { updateDebt } = useBudget();
   const { person1Name, person2Name } = usePerson();
   // monthlyPayment is "this month's payment" — rough progress placeholder
@@ -427,7 +427,7 @@ function DebtCard({
             }}
           >
             <span className="tnum" style={{ color: "var(--accent-green)" }}>
-              {t("borc.paid_label")}: {fm(paid)} (%{pctPaid})
+              {t("borc.paid_label")}: {fm(paid)} ({fp(pctPaid)})
             </span>
             <span
               className="tnum"
@@ -674,7 +674,7 @@ function InstallmentCard({
   onDelete: () => void;
 }) {
   const { t } = useTranslation();
-  const { fm } = useFormatters();
+  const { fm, fp } = useFormatters();
   const { updateInstallment } = useBudget();
   const { person1Name, person2Name } = usePerson();
   const paid = paidCount(inst);
@@ -789,7 +789,7 @@ function InstallmentCard({
             color: "var(--text-tertiary)",
           }}
         >
-          <span className="hero-num">{Math.round(progress * 100)}%</span>
+          <span className="hero-num">{fp(Math.round(progress * 100))}</span>
           <span>{t("borc.installments_left", { count: remainingCount })}</span>
         </div>
       </div>

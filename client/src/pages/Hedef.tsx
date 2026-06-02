@@ -202,7 +202,7 @@ function HeroCard({
   mobile: boolean;
 }) {
   const { t } = useTranslation();
-  const { fmShort, fmParts } = useFormatters();
+  const { fmShort, fmParts, fp } = useFormatters();
   const totalParts = fmParts(totalSaved);
   const totalMain = totalParts.main;
   const totalDecimals = totalParts.fraction;
@@ -254,7 +254,7 @@ function HeroCard({
           >
             {t("hedef.hero.active_count", { count: activeCount })} •{" "}
             <span style={{ color: "var(--accent-green)", fontWeight: 600 }}>
-              %{avgPct}
+              {fp(avgPct)}
             </span>{" "}
             {t("hedef.hero.savings_progress_avg")}
           </div>
@@ -338,7 +338,7 @@ function GoalCard({
   onContribute: (amount: number) => void;
 }) {
   const { t } = useTranslation();
-  const { fmShort } = useFormatters();
+  const { fmShort, fp } = useFormatters();
   const { person1Name, person2Name } = usePerson();
   const pct =
     goal.targetAmount > 0
@@ -539,13 +539,13 @@ function GoalCard({
               fontWeight: 600,
             }}
           >
-            İLERLEME
+            {t("hedef.progress_label").toUpperCase()}
           </span>
           <span
             className="tnum"
             style={{ fontSize: 13, fontWeight: 700, color }}
           >
-            %{pct}
+            {fp(pct)}
           </span>
         </div>
         <div
@@ -692,6 +692,7 @@ function NewGoalCard({
   onClick: () => void;
   mobile: boolean;
 }) {
+  const { t } = useTranslation();
   return (
     <button
       type="button"
@@ -738,7 +739,9 @@ function NewGoalCard({
       >
         <Plus style={{ width: 22, height: 22 }} />
       </div>
-      <div style={{ fontSize: 14, fontWeight: 600 }}>Yeni Hedef Ekle</div>
+      <div style={{ fontSize: 14, fontWeight: 600 }}>
+        {t("hedef.add_goal_card.title")}
+      </div>
       <div
         style={{
           fontSize: 12,
@@ -747,7 +750,7 @@ function NewGoalCard({
           maxWidth: 220,
         }}
       >
-        Tatil, ev, eğitim — birlikte planlayın
+        {t("hedef.add_goal_card.subtitle")}
       </div>
     </button>
   );

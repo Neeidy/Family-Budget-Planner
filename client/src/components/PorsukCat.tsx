@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useLocation } from "wouter";
+import { useTranslation } from "react-i18next";
 import { useBudget } from "@/contexts/BudgetContext";
 
 type CatState =
@@ -13,68 +14,28 @@ type CatState =
   | "running";
 type Mood = "happy" | "neutral" | "worried" | "angry" | "sleepy";
 
-// Sayfa bazlı tepkiler
-const PAGE_REACTIONS: Record<string, string[]> = {
-  "/": [
-    "Ev bütçesi nasıl gidiyor?",
-    "Bugün ne harcadın?",
-    "Prrr... para sayıyorum 🐾",
-  ],
-  "/gelirler": [
-    "Para geliyor! Miyav! 💰",
-    "Maaş günü miyav?",
-    "Prrrr... zengin oluyoruz!",
-  ],
-  "/giderler": [
-    "Çok harcama var miyav...",
-    "Bu kadar mı lazım?",
-    "Tasarruf et biraz!",
-  ],
-  "/borclar": [
-    "Borç miyav... üzücü 😿",
-    "Borçları öde, özgür ol!",
-    "Miyav... para sıkıntısı",
-  ],
-  "/birikim": [
-    "Birikim yapıyoruz! 🐾",
-    "Prrrr... hedef yakın!",
-    "Tasarruf = mutluluk miyav",
-  ],
-  "/analitik": [
-    "Grafiklere bakıyorum...",
-    "Sayılar ilginç miyav!",
-    "Analiz modundayım 🔍",
-  ],
-  "/taksitler": [
-    "Taksit taksit miyav...",
-    "Kaç taksit kaldı?",
-    "Ödeme planı önemli!",
-  ],
-  "/ayarlar": [
-    "Ayarlar mı? Miyav!",
-    "Her şeyi düzeltiyoruz",
-    "Porsuk onaylıyor ✓",
-  ],
-  "/ay-arsivi": [
-    "Geçmiş aylar miyav...",
-    "Tarih tekrar eder!",
-    "Arşiv inceliyorum 📚",
-  ],
-  "/yillik-odemeler": [
-    "Yıllık ödemeler miyav!",
-    "Büyük giderler geliyor!",
-    "Hazırlıklı ol!",
-  ],
+// Sayfa bazlı tepkiler — i18n key array'leri (string'ler locale dosyalarında)
+const PAGE_NS: Record<string, string> = {
+  "/": "dashboard",
+  "/gelirler": "income",
+  "/giderler": "expense",
+  "/borclar": "debt",
+  "/birikim": "savings",
+  "/analitik": "analytics",
+  "/taksitler": "installments",
+  "/ayarlar": "settings",
+  "/ay-arsivi": "archive",
+  "/yillik-odemeler": "annual",
 };
 
-// Ruh hali mesajları
-const MOOD_MESSAGES: Record<Mood, string[]> = {
-  happy: ["Miyav! 😸", "Prrrr 💕", "Harika! 🐾", "Mutlu Porsuk! ✨"],
-  neutral: ["Miyav...", "Prrrr...", "Mrrrow!", "Hmm miyav"],
-  worried: ["Miyav? 😟", "Endişeliyim...", "Dikkat et!", "Miyav... 😿"],
-  angry: ["MIYAV!! 😾", "Çok fazla!", "Dur bir dakika!", "Miyav miyav!"],
-  sleepy: ["Zzz... miyav", "Uykuluyum...", "Biraz uyuyayım", "Zzzz... 😴"],
+const pageReactionKeys = (location: string): string[] => {
+  const ns = PAGE_NS[location];
+  if (!ns) return [];
+  return [0, 1, 2].map(i => `porsuk.page.${ns}.${i}`);
 };
+
+const moodMessageKeys = (mood: Mood): string[] =>
+  [0, 1, 2, 3].map(i => `porsuk.mood.${mood}.${i}`);
 
 function getMoodFromBudget(
   totalIncome: number,
@@ -106,6 +67,7 @@ const MOOD_EMOJIS: Record<Mood, string> = {
 };
 
 export function PorsukCat() {
+  const { t } = useTranslation();
   const [posX, setPosX] = useState(-120);
   const [facingRight, setFacingRight] = useState(true);
   const [catState, setCatState] = useState<CatState>("walking");
@@ -271,8 +233,7 @@ export function PorsukCat() {
       stateRef.current = "running";
       setCatState("running");
       playMeow(true);
-      const text = "MIYAV!! Yeter! 😾";
-      setMeowText(text);
+      setMeowText(t("porsuk.angry_click"));
       if (meowTimerRef.current) clearTimeout(meowTimerRef.current);
       meowTimerRef.current = setTimeout(() => {
         setMeowText(null);
@@ -282,13 +243,11 @@ export function PorsukCat() {
       return;
     }
 
-    // Sayfa bazlı tepki veya ruh hali mesajı
-    const pageReactions = PAGE_REACTIONS[location] || [];
-    const moodMessages = MOOD_MESSAGES[mood];
-    const allMessages = [...pageReactions, ...moodMessages];
-    const text = allMessages[Math.floor(Math.random() * allMessages.length)];
+    // Sayfa bazlı tepki veya ruh hali mesajı (i18n key'leri seçilir, t() ile çevrilir)
+    const allKeys = [...pageReactionKeys(location), ...moodMessageKeys(mood)];
+    const key = allKeys[Math.floor(Math.random() * allKeys.length)];
 
-    setMeowText(text);
+    setMeowText(t(key));
     stateRef.current = "jumping";
     setCatState("jumping");
     playMeow(false);
@@ -352,7 +311,7 @@ export function PorsukCat() {
       onClick={handleClick}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      title={`Porsuk - ${mood === "happy" ? "Mutlu" : mood === "worried" ? "Endişeli" : mood === "angry" ? "Sinirli" : mood === "sleepy" ? "Uykulu" : "Sakin"}`}
+      title={`Porsuk - ${t(`porsuk.mood_label.${mood}`)}`}
     >
       {/* Ruh hali badge */}
       {showMoodBadge && (
@@ -372,16 +331,7 @@ export function PorsukCat() {
             animation: "porsukMoodIn 0.3s ease-out",
           }}
         >
-          {moodEmoji}{" "}
-          {mood === "happy"
-            ? "Mutlu"
-            : mood === "worried"
-              ? "Endişeli"
-              : mood === "angry"
-                ? "Sinirli"
-                : mood === "sleepy"
-                  ? "Uykulu"
-                  : "Sakin"}
+          {moodEmoji} {t(`porsuk.mood_label.${mood}`)}
         </div>
       )}
 
