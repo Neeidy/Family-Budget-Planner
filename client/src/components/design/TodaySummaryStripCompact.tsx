@@ -158,7 +158,11 @@ export function TodaySummaryStripCompact({
                 {u.name}
               </div>
               <div style={{ fontSize: 10, color: "var(--text-tertiary)" }}>
-                {t("dashboard.today_summary.x_days_later", { count: u.days })}
+                {u.days === 0
+                  ? t("dashboard.today_summary.due_today")
+                  : t("dashboard.today_summary.x_days_later", {
+                      count: u.days,
+                    })}
               </div>
             </div>
             <Avatar who={u.who} size={20} />

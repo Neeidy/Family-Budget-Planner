@@ -675,7 +675,7 @@ function BudgetLimitsTab({
         {/* Add card */}
         <button
           type="button"
-          title="Yeni limit"
+          title={t("gelir_gider.add_limit")}
           onClick={onAdd}
           style={{
             background: "var(--bg-elevated)",
@@ -695,7 +695,7 @@ function BudgetLimitsTab({
           }}
         >
           <Plus style={{ width: 28, height: 28 }} />
-          Limit Ekle
+          {t("gelir_gider.add_limit")}
         </button>
       </div>
     </div>
