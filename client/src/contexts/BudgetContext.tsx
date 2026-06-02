@@ -1,4 +1,11 @@
-import { createContext, useContext, ReactNode, useCallback } from "react";
+import {
+  createContext,
+  useContext,
+  ReactNode,
+  useCallback,
+  useMemo,
+} from "react";
+import { useTranslation } from "react-i18next";
 import {
   useBudgetData,
   BudgetData,
@@ -16,7 +23,29 @@ import {
   useUndoStack,
   ArchivedMonth,
 } from "@/hooks/useMonthlyArchive";
+import { isDemoMode } from "@/lib/demoMode";
+import type { Locale } from "@/lib/locale";
+import { DEMO_TRANSLATIONS } from "@shared/demoTranslations";
 import { toast } from "sonner";
+
+/**
+ * Demo-only locale overlay. Replaces an item's display label (`name`, or
+ * `subcategory` for expenses) and `notes` with the translation registered
+ * for its `id`. Untranslated fields and untranslated ids fall through
+ * unchanged. READ path only — never used on writes (demo writes are
+ * FORBIDDEN server-side).
+ */
+function applyOverlay<
+  T extends { id: string; name?: string; notes?: string; subcategory?: string },
+>(item: T, locale: Locale): T {
+  const tr = DEMO_TRANSLATIONS[item.id];
+  if (!tr) return item;
+  const next: T = { ...item };
+  if (tr.name) next.name = tr.name[locale];
+  if (tr.notes) next.notes = tr.notes[locale];
+  if (tr.subcategory) next.subcategory = tr.subcategory[locale];
+  return next;
+}
 
 // BudgetContext tipi
 interface BudgetContextType {
@@ -78,6 +107,28 @@ export function BudgetProvider({ children }: { children: ReactNode }) {
     setBudgetData: budgetHook.setBudgetData,
     isLoaded: budgetHook.isLoaded,
   });
+
+  // ─── Demo locale overlay (READ path only) ─────────────────────────────────
+  // On demo.aileplan.uk, translate item display names/notes to the active UI
+  // locale. butce (production) is never in demo mode → raw data passes through
+  // untouched. Write paths keep using budgetHook.* (raw), so persistence and
+  // undo snapshots never see overlaid labels.
+  const { i18n } = useTranslation();
+  const localizedBudgetData = useMemo<BudgetData>(() => {
+    const raw = budgetHook.budgetData;
+    if (!isDemoMode()) return raw;
+    const locale = (i18n.language.split("-")[0] as Locale) || "tr";
+    return {
+      ...raw,
+      incomes: raw.incomes.map(i => applyOverlay(i, locale)),
+      expenses: raw.expenses.map(e => applyOverlay(e, locale)),
+      debts: raw.debts.map(d => applyOverlay(d, locale)),
+      installments: raw.installments.map(t => applyOverlay(t, locale)),
+      annualPayments: raw.annualPayments.map(a => applyOverlay(a, locale)),
+      savingsGoals: raw.savingsGoals.map(s => applyOverlay(s, locale)),
+      // budgetLimits: category-only (no free-text label) → untouched
+    };
+  }, [budgetHook.budgetData, i18n.language]);
 
   // ─── Undo-aware wrappers ──────────────────────────────────────────────────
 
@@ -151,6 +202,7 @@ export function BudgetProvider({ children }: { children: ReactNode }) {
 
   const value: BudgetContextType = {
     ...budgetHook,
+    budgetData: localizedBudgetData,
     isSaving,
     // Undo-wrapped delete operations (most common accidental actions)
     deleteIncome: withUndo("Gelir silindi", budgetHook.deleteIncome),
