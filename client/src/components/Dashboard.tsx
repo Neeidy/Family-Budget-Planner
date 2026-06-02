@@ -299,7 +299,10 @@ export function Dashboard() {
       }
     }
 
-    return items.sort((a, b) => a.days - b.days).slice(0, 10);
+    return items
+      .filter(item => item.days >= 0)
+      .sort((a, b) => a.days - b.days)
+      .slice(0, 10);
   }, [
     filteredExpenses,
     budgetData.installments,
@@ -594,7 +597,7 @@ export function Dashboard() {
                   whiteSpace: "nowrap",
                 }}
               >
-                Toplam Gelir
+                {t("dashboard.summary.total_income")}
               </div>
               <div
                 className="tnum"
@@ -624,7 +627,7 @@ export function Dashboard() {
                   whiteSpace: "nowrap",
                 }}
               >
-                Toplam Gider
+                {t("dashboard.summary.total_expense")}
               </div>
               <div
                 className="tnum"

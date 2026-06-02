@@ -114,7 +114,8 @@
       "title": "MORGEN FÄLLIG",
       "upcoming_days": "nächste Tage",
       "no_upcoming": "Keine anstehenden Zahlungen für dieses Profil ✓",
-      "x_days_later": "in {{count}} Tagen"
+      "x_days_later": "in {{count}} Tagen",
+      "due_today": "Heute"
     },
     "see_all": "Alle anzeigen"
   },
@@ -289,19 +290,50 @@
     "data": {
       "export": "Exportieren",
       "import": "Importieren",
-      "confirm_import": "Aktuelle Daten werden gelöscht. Fortfahren?"
+      "confirm_import": "Aktuelle Daten werden gelöscht. Fortfahren?",
+      "import_warning": "Das Importieren einer Sicherung überschreibt aktuelle Daten. Die Aktion kann rückgängig gemacht werden (Strg+Z)."
     },
     "backup": {
       "empty": "Keine Sicherungen",
       "restore": "Wiederherstellen",
-      "savedby": "Gespeichert von"
+      "savedby": "Gespeichert von",
+      "history_hint": "Die letzten 30 Sicherungen werden automatisch behalten",
+      "snapshot_title": "Sicherungsdetails",
+      "not_found": "Daten nicht gefunden",
+      "unreadable": "Daten nicht lesbar",
+      "income_records": "Einnahmeneinträge",
+      "expense_records": "Ausgabeneinträge",
+      "restore_success": "Sicherung erfolgreich wiederhergestellt!",
+      "conflict": "Daten auf einem anderen Gerät geändert, wird neu geladen...",
+      "confirm_restore": "Diese Sicherung wiederherstellen? Aktuelle Daten werden automatisch gesichert.",
+      "empty_history": "Noch keine Sicherungen. Eine wird automatisch erstellt, wenn du Daten speicherst.",
+      "auto_saved": "Automatisch",
+      "view": "Ansehen"
     },
     "password": {
       "change_label": "Passwort ändern",
       "current": "Aktuelles Passwort",
       "new": "Neues Passwort",
-      "confirm": "Neues Passwort (Wiederholen)"
-    }
+      "confirm": "Neues Passwort (Wiederholen)",
+      "current_placeholder": "Aktuelles Passwort",
+      "new_placeholder": "Mindestens 4 Zeichen",
+      "confirm_placeholder": "Erneut eingeben",
+      "change_button": "Passwort ändern",
+      "change_success": "Passwort erfolgreich geändert!",
+      "fill_all": "Alle Felder ausfüllen",
+      "mismatch": "Neue Passwörter stimmen nicht überein",
+      "too_short": "Neues Passwort muss mindestens 4 Zeichen haben",
+      "changed": "Geändert",
+      "changing": "Wird geändert..."
+    },
+    "logout_confirm": "Möchtest du dich wirklich abmelden?",
+    "archive": {
+      "title": "Monatsarchiv",
+      "count": "{{count}} Monate archiviert",
+      "empty": "Noch kein Archiv",
+      "save_button": "Diesen Monat archivieren"
+    },
+    "logout_button": "Abmelden"
   },
   "login": {
     "welcome": "Willkommen, bitte anmelden",

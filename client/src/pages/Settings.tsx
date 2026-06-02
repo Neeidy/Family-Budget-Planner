@@ -21,6 +21,7 @@ import { useBudget } from "@/contexts/BudgetContext";
 import { trpc } from "@/lib/trpc";
 import { Avatar } from "@/components/design";
 import { useFormatters } from "@/lib/useFormatters";
+import { LOCALE_INTL, type Locale } from "@/lib/locale";
 import { isDemoMode } from "@/lib/demoMode";
 import { useTranslation } from "react-i18next";
 import { LanguageToggle } from "@/components/design/LanguageToggle";
@@ -223,13 +224,13 @@ export default function Settings() {
 
   const restoreMutation = trpc.familyBudget.history.restore.useMutation({
     onSuccess: () => {
-      toast.success("Yedek başarıyla geri yüklendi!");
+      toast.success(t("settings.backup.restore_success"));
       utils.familyBudget.get.invalidate();
       utils.familyBudget.history.list.invalidate();
     },
     onError: err => {
       if (err.data?.code === "CONFLICT") {
-        toast.error("Veri başka cihazdan değişti, sayfa yenileniyor...");
+        toast.error(t("settings.backup.conflict"));
         utils.familyBudget.get.invalidate();
       } else {
         toast.error(err.message);
@@ -238,12 +239,7 @@ export default function Settings() {
   });
 
   const handleRestore = (id: number) => {
-    if (
-      !confirm(
-        "Bu yedek geri yüklensin mi? Mevcut veriler otomatik yedeklenir."
-      )
-    )
-      return;
+    if (!confirm(t("settings.backup.confirm_restore"))) return;
     const expectedUpdatedAt = currentBudgetQuery.data?.updatedAt
       ? new Date(currentBudgetQuery.data.updatedAt).toISOString()
       : null;
@@ -281,22 +277,22 @@ export default function Settings() {
       setNewPw("");
       setConfirmPw("");
       setTimeout(() => setPwSaved(false), 3000);
-      toast.success("Şifre başarıyla değiştirildi!");
+      toast.success(t("settings.password.change_success"));
     },
     onError: err => toast.error(err.message),
   });
 
   const handleChangePassword = () => {
     if (!currentPw || !newPw || !confirmPw) {
-      toast.error("Tüm alanları doldurun");
+      toast.error(t("settings.password.fill_all"));
       return;
     }
     if (newPw !== confirmPw) {
-      toast.error("Yeni şifreler eşleşmiyor");
+      toast.error(t("settings.password.mismatch"));
       return;
     }
     if (newPw.length < 4) {
-      toast.error("Yeni şifre en az 4 karakter olmalı");
+      toast.error(t("settings.password.too_short"));
       return;
     }
     changePasswordMutation.mutate({
@@ -326,7 +322,7 @@ export default function Settings() {
   };
 
   const handleLogout = () => {
-    if (!confirm("Çıkış yapmak istediğinize emin misiniz?")) return;
+    if (!confirm(t("settings.logout_confirm"))) return;
     setCurrentPerson(null);
   };
 
@@ -382,9 +378,7 @@ export default function Settings() {
             type="button"
             onClick={handleSaveNames}
             disabled={!name1.trim() || !name2.trim() || isDemoMode()}
-            title={
-              isDemoMode() ? "Demo modunda düzenleme yapılamaz" : undefined
-            }
+            title={isDemoMode() ? t("common.demo_disabled") : undefined}
             style={{
               display: "inline-flex",
               alignItems: "center",
@@ -482,9 +476,7 @@ export default function Settings() {
             onClick={exportData}
             accent
             disabled={isDemoMode()}
-            title={
-              isDemoMode() ? "Demo modunda düzenleme yapılamaz" : undefined
-            }
+            title={isDemoMode() ? t("common.demo_disabled") : undefined}
           >
             <Download style={{ width: 14, height: 14 }} />{" "}
             {t("settings.data.export")} (JSON)
@@ -492,9 +484,7 @@ export default function Settings() {
           <GhostButton
             onClick={() => fileInputRef.current?.click()}
             disabled={isDemoMode()}
-            title={
-              isDemoMode() ? "Demo modunda düzenleme yapılamaz" : undefined
-            }
+            title={isDemoMode() ? t("common.demo_disabled") : undefined}
           >
             <Upload style={{ width: 14, height: 14 }} />{" "}
             {t("settings.data.import")}
@@ -520,8 +510,7 @@ export default function Settings() {
             color: "var(--status-warning)",
           }}
         >
-          ⚠ Yedekten yükleme mevcut verilerin üzerine yazar. İşlem geri
-          alınabilir (Ctrl+Z).
+          ⚠ {t("settings.data.import_warning")}
         </div>
 
         {/* Ay arşivi */}
@@ -549,7 +538,7 @@ export default function Settings() {
                   color: "var(--text-primary)",
                 }}
               >
-                Ay Arşivi
+                {t("settings.archive.title")}
               </div>
               <div
                 style={{
@@ -559,12 +548,13 @@ export default function Settings() {
                 }}
               >
                 {archive.length > 0
-                  ? `${archive.length} ay arşivlendi`
-                  : "Henüz arşiv yok"}
+                  ? t("settings.archive.count", { count: archive.length })
+                  : t("settings.archive.empty")}
               </div>
             </div>
             <GhostButton onClick={saveCurrentMonthToArchive}>
-              <Archive style={{ width: 14, height: 14 }} /> Bu Ayı Arşive Kaydet
+              <Archive style={{ width: 14, height: 14 }} />{" "}
+              {t("settings.archive.save_button")}
             </GhostButton>
           </div>
         </div>
@@ -601,7 +591,7 @@ export default function Settings() {
               onChange={setCurrentPw}
               show={showCurrentPw}
               onToggle={() => setShowCurrentPw(v => !v)}
-              placeholder="Mevcut şifre"
+              placeholder={t("settings.password.current_placeholder")}
             />
           </div>
           <div>
@@ -622,7 +612,7 @@ export default function Settings() {
               onChange={setNewPw}
               show={showNewPw}
               onToggle={() => setShowNewPw(v => !v)}
-              placeholder="En az 4 karakter"
+              placeholder={t("settings.password.new_placeholder")}
             />
           </div>
           <div>
@@ -643,7 +633,7 @@ export default function Settings() {
               onChange={setConfirmPw}
               show={showConfirmPw}
               onToggle={() => setShowConfirmPw(v => !v)}
-              placeholder="Tekrar girin"
+              placeholder={t("settings.password.confirm_placeholder")}
             />
           </div>
           <button
@@ -672,13 +662,15 @@ export default function Settings() {
           >
             {pwSaved ? (
               <>
-                <Check style={{ width: 14, height: 14 }} /> Değiştirildi
+                <Check style={{ width: 14, height: 14 }} />{" "}
+                {t("settings.password.changed")}
               </>
             ) : changePasswordMutation.isPending ? (
-              "Değiştiriliyor..."
+              t("settings.password.changing")
             ) : (
               <>
-                <KeyRound style={{ width: 14, height: 14 }} /> Şifreyi Değiştir
+                <KeyRound style={{ width: 14, height: 14 }} />{" "}
+                {t("settings.password.change_button")}
               </>
             )}
           </button>
@@ -687,8 +679,8 @@ export default function Settings() {
 
       {/* YEDEK GEÇMİŞİ */}
       <Section
-        title="Yedek Geçmişi"
-        description="Son 30 yedek otomatik tutulur"
+        title={t("settings.section.backup_history")}
+        description={t("settings.backup.history_hint")}
       >
         {historyQuery.isLoading ? (
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -724,15 +716,16 @@ export default function Settings() {
               fontSize: 13,
             }}
           >
-            Henüz yedek yok. Veri kaydettiğinizde otomatik yedek oluşur.
+            {t("settings.backup.empty_history")}
           </div>
         )}
       </Section>
 
       {/* ÇIKIŞ */}
-      <Section title="Çıkış">
+      <Section title={t("nav.logout")}>
         <GhostButton onClick={handleLogout} danger>
-          <LogOut style={{ width: 14, height: 14 }} /> Çıkış Yap
+          <LogOut style={{ width: 14, height: 14 }} />{" "}
+          {t("settings.logout_button")}
         </GhostButton>
       </Section>
 
@@ -771,7 +764,7 @@ export default function Settings() {
                 color: "var(--text-primary)",
               }}
             >
-              Yedek Detayı
+              {t("settings.backup.snapshot_title")}
             </h3>
             <div
               style={{
@@ -781,13 +774,14 @@ export default function Settings() {
               }}
             >
               {snapshotQuery.isLoading
-                ? "Yükleniyor..."
+                ? t("common.loading")
                 : (() => {
-                    if (!snapshotQuery.data) return "Veri bulunamadı";
+                    if (!snapshotQuery.data)
+                      return t("settings.backup.not_found");
                     const sum = parseSnapshotSummary(
                       snapshotQuery.data.snapshot
                     );
-                    if (!sum) return "Veri okunamadı";
+                    if (!sum) return t("settings.backup.unreadable");
                     return (
                       <div
                         style={{
@@ -797,13 +791,15 @@ export default function Settings() {
                         }}
                       >
                         <div>
-                          Gelir kaydı: <strong>{sum.incomes}</strong>
+                          {t("settings.backup.income_records")}:{" "}
+                          <strong>{sum.incomes}</strong>
                         </div>
                         <div>
-                          Gider kaydı: <strong>{sum.expenses}</strong>
+                          {t("settings.backup.expense_records")}:{" "}
+                          <strong>{sum.expenses}</strong>
                         </div>
                         <div>
-                          Toplam Gelir:{" "}
+                          {t("dashboard.summary.total_income")}:{" "}
                           <strong
                             className="hero-num"
                             style={{ color: "var(--accent-green)" }}
@@ -812,7 +808,7 @@ export default function Settings() {
                           </strong>
                         </div>
                         <div>
-                          Toplam Gider:{" "}
+                          {t("dashboard.summary.total_expense")}:{" "}
                           <strong
                             className="hero-num"
                             style={{ color: "var(--status-danger)" }}
@@ -832,7 +828,7 @@ export default function Settings() {
               }}
             >
               <GhostButton onClick={() => setShowSnapshotModal(false)}>
-                Kapat
+                {t("common.close")}
               </GhostButton>
             </div>
           </div>
@@ -853,6 +849,7 @@ function ProfileCard({
   value: string;
   onChange: (v: string) => void;
 }) {
+  const { t } = useTranslation();
   const ownerColor = `var(--owner-${who})`;
   return (
     <div
@@ -893,7 +890,7 @@ function ProfileCard({
               marginTop: 2,
             }}
           >
-            ● Aktif kullanıcı
+            ● {t("nav.active_user")}
           </div>
         )}
       </div>
@@ -953,9 +950,11 @@ function BackupRow({
   onRestore: () => void;
   disabled: boolean;
 }) {
+  const { t, i18n } = useTranslation();
   const { person1Name, person2Name } = usePerson();
   const dt = new Date(item.createdAt);
-  const formattedDate = dt.toLocaleString("tr-TR", {
+  const intl = LOCALE_INTL[(i18n.language as Locale) || "tr"] ?? "tr-TR";
+  const formattedDate = dt.toLocaleString(intl, {
     day: "2-digit",
     month: "long",
     year: "numeric",
@@ -974,8 +973,8 @@ function BackupRow({
       : item.savedBy === "Esim"
         ? person2Name
         : item.savedBy === "Ev"
-          ? "Ev"
-          : "Otomatik";
+          ? t("filter.home")
+          : t("settings.backup.auto_saved");
 
   return (
     <div
@@ -1025,7 +1024,7 @@ function BackupRow({
         <button
           type="button"
           onClick={onView}
-          title="Görüntüle"
+          title={t("settings.backup.view")}
           style={{
             padding: 6,
             borderRadius: 6,
@@ -1041,7 +1040,7 @@ function BackupRow({
           type="button"
           onClick={onRestore}
           disabled={disabled}
-          title="Geri Yükle"
+          title={t("settings.backup.restore")}
           style={{
             padding: 6,
             borderRadius: 6,

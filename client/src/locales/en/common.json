@@ -114,7 +114,8 @@
       "title": "DUE TOMORROW",
       "upcoming_days": "next few days",
       "no_upcoming": "No upcoming payments for this profile ✓",
-      "x_days_later": "in {{count}} days"
+      "x_days_later": "in {{count}} days",
+      "due_today": "Today"
     },
     "see_all": "See all"
   },
@@ -289,19 +290,50 @@
     "data": {
       "export": "Export",
       "import": "Import",
-      "confirm_import": "Current data will be deleted. Continue?"
+      "confirm_import": "Current data will be deleted. Continue?",
+      "import_warning": "Importing a backup overwrites current data. The action can be undone (Ctrl+Z)."
     },
     "backup": {
       "empty": "No backups",
       "restore": "Restore",
-      "savedby": "Saved by"
+      "savedby": "Saved by",
+      "history_hint": "Last 30 backups kept automatically",
+      "snapshot_title": "Backup Detail",
+      "not_found": "Data not found",
+      "unreadable": "Data unreadable",
+      "income_records": "Income records",
+      "expense_records": "Expense records",
+      "restore_success": "Backup restored successfully!",
+      "conflict": "Data changed on another device, reloading...",
+      "confirm_restore": "Restore this backup? Current data is backed up automatically.",
+      "empty_history": "No backups yet. One is created automatically when you save data.",
+      "auto_saved": "Automatic",
+      "view": "View"
     },
     "password": {
       "change_label": "Change Password",
       "current": "Current Password",
       "new": "New Password",
-      "confirm": "New Password (Repeat)"
-    }
+      "confirm": "New Password (Repeat)",
+      "current_placeholder": "Current password",
+      "new_placeholder": "At least 4 characters",
+      "confirm_placeholder": "Re-enter",
+      "change_button": "Change Password",
+      "change_success": "Password changed successfully!",
+      "fill_all": "Fill in all fields",
+      "mismatch": "New passwords do not match",
+      "too_short": "New password must be at least 4 characters",
+      "changed": "Changed",
+      "changing": "Changing..."
+    },
+    "logout_confirm": "Are you sure you want to log out?",
+    "archive": {
+      "title": "Month Archive",
+      "count": "{{count}} months archived",
+      "empty": "No archive yet",
+      "save_button": "Archive This Month"
+    },
+    "logout_button": "Log Out"
   },
   "login": {
     "welcome": "Welcome, please sign in",

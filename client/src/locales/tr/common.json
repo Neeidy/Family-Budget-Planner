@@ -114,7 +114,8 @@
       "title": "YARIN ÖDENECEK",
       "upcoming_days": "önümüzdeki birkaç gün",
       "no_upcoming": "Bu profilde yaklaşan ödeme yok ✓",
-      "x_days_later": "{{count}} gün sonra"
+      "x_days_later": "{{count}} gün sonra",
+      "due_today": "Bugün"
     },
     "see_all": "Hepsini gör"
   },
@@ -289,19 +290,50 @@
     "data": {
       "export": "Dışa Aktar",
       "import": "İçe Aktar",
-      "confirm_import": "Mevcut veri silinecek. Devam edilsin mi?"
+      "confirm_import": "Mevcut veri silinecek. Devam edilsin mi?",
+      "import_warning": "Yedekten yükleme mevcut verilerin üzerine yazar. İşlem geri alınabilir (Ctrl+Z)."
     },
     "backup": {
       "empty": "Yedek yok",
       "restore": "Geri Yükle",
-      "savedby": "Kaydeden"
+      "savedby": "Kaydeden",
+      "history_hint": "Son 30 yedek otomatik tutulur",
+      "snapshot_title": "Yedek Detayı",
+      "not_found": "Veri bulunamadı",
+      "unreadable": "Veri okunamadı",
+      "income_records": "Gelir kaydı",
+      "expense_records": "Gider kaydı",
+      "restore_success": "Yedek başarıyla geri yüklendi!",
+      "conflict": "Veri başka cihazdan değişti, sayfa yenileniyor...",
+      "confirm_restore": "Bu yedek geri yüklensin mi? Mevcut veriler otomatik yedeklenir.",
+      "empty_history": "Henüz yedek yok. Veri kaydettiğinizde otomatik yedek oluşur.",
+      "auto_saved": "Otomatik",
+      "view": "Görüntüle"
     },
     "password": {
       "change_label": "Şifre Değiştir",
       "current": "Mevcut Şifre",
       "new": "Yeni Şifre",
-      "confirm": "Yeni Şifre (Tekrar)"
-    }
+      "confirm": "Yeni Şifre (Tekrar)",
+      "current_placeholder": "Mevcut şifre",
+      "new_placeholder": "En az 4 karakter",
+      "confirm_placeholder": "Tekrar girin",
+      "change_button": "Şifreyi Değiştir",
+      "change_success": "Şifre başarıyla değiştirildi!",
+      "fill_all": "Tüm alanları doldurun",
+      "mismatch": "Yeni şifreler eşleşmiyor",
+      "too_short": "Yeni şifre en az 4 karakter olmalı",
+      "changed": "Değiştirildi",
+      "changing": "Değiştiriliyor..."
+    },
+    "logout_confirm": "Çıkış yapmak istediğinize emin misiniz?",
+    "archive": {
+      "title": "Ay Arşivi",
+      "count": "{{count}} ay arşivlendi",
+      "empty": "Henüz arşiv yok",
+      "save_button": "Bu Ayı Arşive Kaydet"
+    },
+    "logout_button": "Çıkış Yap"
   },
   "login": {
     "welcome": "Hoş geldiniz, lütfen giriş yapın",
