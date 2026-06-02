@@ -597,7 +597,6 @@ function DashboardLayoutContent({
               </div>
             </div>
             <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-              <LanguageToggle />
               <button
                 onClick={toggleTheme}
                 style={{
@@ -620,6 +619,7 @@ function DashboardLayoutContent({
                   <Moon className="h-4 w-4 text-indigo-500" />
                 )}
               </button>
+              <LanguageToggle />
               <button
                 onClick={() => setNotificationsOpen(true)}
                 style={{
