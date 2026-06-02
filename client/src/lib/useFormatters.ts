@@ -15,7 +15,7 @@ export function useFormatters() {
     fm: (n: number) => fmt.formatMoney(n, intl),
     fmShort: (n: number) => fmt.formatMoneyShort(n, intl),
     fmParts: (n: number) => fmt.formatMoneyParts(n, intl),
-    fp: (n: number) => fmt.formatPct(n, intl),
+    fp: (n: number, digits = 0) => fmt.formatPct(n, intl, digits),
     fd: (iso: string) => fmt.formatDate(iso, intl),
     fMonthYear: (year: number, month0: number) =>
       fmt.formatMonthYear(year, month0, intl),

@@ -232,7 +232,11 @@
     },
     "days_left_suffix": "days left",
     "per_month_suffix": "/mo",
-    "contribute_tooltip": "Add +{{amount}}"
+    "contribute_tooltip": "Add +{{amount}}",
+    "add_goal_card": {
+      "title": "Add New Goal",
+      "subtitle": "Vacation, home, education — plan together"
+    }
   },
   "raporlar": {
     "title": "Reports",
@@ -711,5 +715,79 @@
   "demo_banner": {
     "title": "Demo preview",
     "subtitle": "Sample data, not persisted"
+  },
+  "porsuk": {
+    "page": {
+      "dashboard": [
+        "How's the home budget?",
+        "What did you spend today?",
+        "Prrr... counting coins 🐾"
+      ],
+      "income": [
+        "Money's coming! Meow! 💰",
+        "Payday, meow?",
+        "Prrrr... we're getting rich!"
+      ],
+      "expense": [
+        "That's a lot of spending, meow...",
+        "Do you really need that?",
+        "Save a little!"
+      ],
+      "debt": [
+        "Debt, meow... so sad 😿",
+        "Pay it off, be free!",
+        "Meow... money troubles"
+      ],
+      "savings": [
+        "We're saving up! 🐾",
+        "Prrrr... goal's close!",
+        "Saving = happiness, meow"
+      ],
+      "analytics": [
+        "Studying the charts...",
+        "Numbers are interesting, meow!",
+        "Analysis mode 🔍"
+      ],
+      "installments": [
+        "Installment by installment, meow...",
+        "How many left?",
+        "A payment plan matters!"
+      ],
+      "settings": [
+        "Settings? Meow!",
+        "Tidying everything up",
+        "Porsuk approves ✓"
+      ],
+      "archive": [
+        "Past months, meow...",
+        "History repeats!",
+        "Browsing the archive 📚"
+      ],
+      "annual": [
+        "Annual payments, meow!",
+        "Big expenses incoming!",
+        "Be prepared!"
+      ]
+    },
+    "mood": {
+      "happy": ["Meow! 😸", "Prrrr 💕", "Purrfect! 🐾", "Happy Porsuk! ✨"],
+      "neutral": ["Meow...", "Prrrr...", "Mrrrow!", "Hmm, meow"],
+      "worried": ["Meow? 😟", "I'm worried...", "Watch out!", "Meow... 😿"],
+      "angry": ["MEOW!! 😾", "Way too much!", "Hold on a sec!", "Meow meow!"],
+      "sleepy": [
+        "Zzz... meow",
+        "I'm sleepy...",
+        "Just a little nap",
+        "Zzzz... 😴"
+      ]
+    },
+    "angry_click": "MEOW!! Enough! 😾",
+    "mood_label": {
+      "happy": "Happy",
+      "neutral": "Calm",
+      "worried": "Worried",
+      "angry": "Angry",
+      "sleepy": "Sleepy"
+    }
   }
 }

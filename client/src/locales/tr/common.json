@@ -232,7 +232,11 @@
     },
     "days_left_suffix": "gün kaldı",
     "per_month_suffix": "/ay",
-    "contribute_tooltip": "+{{amount}} ekle"
+    "contribute_tooltip": "+{{amount}} ekle",
+    "add_goal_card": {
+      "title": "Yeni Hedef Ekle",
+      "subtitle": "Tatil, ev, eğitim — birlikte planlayın"
+    }
   },
   "raporlar": {
     "title": "Raporlar",
@@ -711,5 +715,74 @@
   "demo_banner": {
     "title": "Demo gösterimi",
     "subtitle": "Veriler örnektir, kaydedilmez"
+  },
+  "porsuk": {
+    "page": {
+      "dashboard": [
+        "Ev bütçesi nasıl gidiyor?",
+        "Bugün ne harcadın?",
+        "Prrr... para sayıyorum 🐾"
+      ],
+      "income": [
+        "Para geliyor! Miyav! 💰",
+        "Maaş günü miyav?",
+        "Prrrr... zengin oluyoruz!"
+      ],
+      "expense": [
+        "Çok harcama var miyav...",
+        "Bu kadar mı lazım?",
+        "Tasarruf et biraz!"
+      ],
+      "debt": [
+        "Borç miyav... üzücü 😿",
+        "Borçları öde, özgür ol!",
+        "Miyav... para sıkıntısı"
+      ],
+      "savings": [
+        "Birikim yapıyoruz! 🐾",
+        "Prrrr... hedef yakın!",
+        "Tasarruf = mutluluk miyav"
+      ],
+      "analytics": [
+        "Grafiklere bakıyorum...",
+        "Sayılar ilginç miyav!",
+        "Analiz modundayım 🔍"
+      ],
+      "installments": [
+        "Taksit taksit miyav...",
+        "Kaç taksit kaldı?",
+        "Ödeme planı önemli!"
+      ],
+      "settings": [
+        "Ayarlar mı? Miyav!",
+        "Her şeyi düzeltiyoruz",
+        "Porsuk onaylıyor ✓"
+      ],
+      "archive": [
+        "Geçmiş aylar miyav...",
+        "Tarih tekrar eder!",
+        "Arşiv inceliyorum 📚"
+      ],
+      "annual": [
+        "Yıllık ödemeler miyav!",
+        "Büyük giderler geliyor!",
+        "Hazırlıklı ol!"
+      ]
+    },
+    "mood": {
+      "happy": ["Miyav! 😸", "Prrrr 💕", "Harika! 🐾", "Mutlu Porsuk! ✨"],
+      "neutral": ["Miyav...", "Prrrr...", "Mrrrow!", "Hmm miyav"],
+      "worried": ["Miyav? 😟", "Endişeliyim...", "Dikkat et!", "Miyav... 😿"],
+      "angry": ["MIYAV!! 😾", "Çok fazla!", "Dur bir dakika!", "Miyav miyav!"],
+      "sleepy": ["Zzz... miyav", "Uykuluyum...", "Biraz uyuyayım", "Zzzz... 😴"]
+    },
+    "angry_click": "MIYAV!! Yeter! 😾",
+    "mood_label": {
+      "happy": "Mutlu",
+      "neutral": "Sakin",
+      "worried": "Endişeli",
+      "angry": "Sinirli",
+      "sleepy": "Uykulu"
+    }
   }
 }

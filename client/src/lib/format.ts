@@ -101,13 +101,16 @@ export function parseMoney(input: string): number {
   return Number.isFinite(num) ? num : NaN;
 }
 
-/** Percentage formatter — 1 decimal, locale-aware */
-export function formatPct(value: number, intl?: string): string {
+/**
+ * Percentage formatter — locale-aware. `value` is a WHOLE-number percent
+ * (e.g. 69 → "%69" tr / "69%" en / "69 %" de). `digits` controls decimals.
+ */
+export function formatPct(value: number, intl?: string, digits = 0): string {
   return new Intl.NumberFormat(intl ?? currentIntl(), {
     style: "percent",
-    minimumFractionDigits: 1,
-    maximumFractionDigits: 1,
-  }).format(value);
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
+  }).format(value / 100);
 }
 
 /** Locale-aware short date (e.g. 5 May 2026 / May 5, 2026 / 5. Mai 2026) */
