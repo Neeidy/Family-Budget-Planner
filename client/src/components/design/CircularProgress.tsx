@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { formatMoney } from "@/lib/format";
+import { useTranslation } from "react-i18next";
+import { useFormatters } from "@/lib/useFormatters";
 
 interface CircularProgressProps {
   /** Spent value */
@@ -30,6 +31,8 @@ export function CircularProgress({
   label,
   centerText,
 }: CircularProgressProps) {
+  const { t } = useTranslation();
+  const { fm } = useFormatters();
   const r = (size - strokeWidth * 2) / 2;
   const circ = 2 * Math.PI * r;
   const progress = max > 0 ? value / max : 0;
@@ -125,7 +128,7 @@ export function CircularProgress({
           className="hero-num"
           style={{ fontSize: 12, color: "var(--text-tertiary)", marginTop: 2 }}
         >
-          {formatMoney(value)} / {formatMoney(max)}
+          {fm(value)} / {fm(max)}
         </div>
         <div
           className="hero-num"
@@ -141,8 +144,12 @@ export function CircularProgress({
           }}
         >
           {isOver
-            ? `${formatMoney(value - max)} aştı`
-            : `${formatMoney(remaining)} kaldı`}
+            ? t("components.circular_progress.over", {
+                amount: fm(value - max),
+              })
+            : t("components.circular_progress.remaining", {
+                amount: fm(remaining),
+              })}
         </div>
       </div>
     </div>

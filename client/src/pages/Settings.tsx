@@ -20,7 +20,7 @@ import { usePerson } from "@/contexts/PersonContext";
 import { useBudget } from "@/contexts/BudgetContext";
 import { trpc } from "@/lib/trpc";
 import { Avatar } from "@/components/design";
-import { formatMoney } from "@/lib/format";
+import { useFormatters } from "@/lib/useFormatters";
 import { isDemoMode } from "@/lib/demoMode";
 import { useTranslation } from "react-i18next";
 import { LanguageToggle } from "@/components/design/LanguageToggle";
@@ -179,6 +179,7 @@ function PasswordInput({
 // ── Settings ──────────────────────────────────────────────────
 export default function Settings() {
   const { t } = useTranslation();
+  const { fm } = useFormatters();
   const { theme, toggleTheme } = useTheme();
   const {
     person1Name,
@@ -807,7 +808,7 @@ export default function Settings() {
                             className="hero-num"
                             style={{ color: "var(--accent-green)" }}
                           >
-                            {formatMoney(sum.totalIncome)}
+                            {fm(sum.totalIncome)}
                           </strong>
                         </div>
                         <div>
@@ -816,7 +817,7 @@ export default function Settings() {
                             className="hero-num"
                             style={{ color: "var(--status-danger)" }}
                           >
-                            {formatMoney(sum.totalExpense)}
+                            {fm(sum.totalExpense)}
                           </strong>
                         </div>
                       </div>

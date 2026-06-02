@@ -18,7 +18,7 @@ import type { AvatarWho } from "@/components/design";
 import type { UpcomingItem } from "@/components/design/TodaySummaryStripCompact";
 import { getCategoryMeta } from "@/components/design/CategoryPill";
 import { TrendingUp, TrendingDown, ArrowRight } from "lucide-react";
-import { formatMoney, formatMoneyShort } from "@/lib/format";
+import { useFormatters } from "@/lib/useFormatters";
 import { applyPersonFilter } from "@/lib/personFilter";
 
 // ── Upcoming-bill helpers ─────────────────────────────────────
@@ -111,6 +111,7 @@ const DESIGN_FILTER: Record<string, DesignFilter> = {
 // ── Dashboard ─────────────────────────────────────────────────
 export function Dashboard() {
   const { t } = useTranslation();
+  const { fm, fmShort, fmParts } = useFormatters();
   const { budgetData, calculateTotals } = useBudget();
   const { person1Name, person2Name, currentPerson } = usePerson();
   const { filter } = usePersonFilter();
@@ -401,7 +402,7 @@ export function Dashboard() {
                 className="tnum"
                 style={{ fontSize: 13, fontWeight: 700, flexShrink: 0 }}
               >
-                {formatMoneyShort(e.amount)}
+                {fmShort(e.amount)}
               </span>
             </div>
           );
@@ -550,7 +551,7 @@ export function Dashboard() {
             overflow: mobile ? "visible" : "hidden",
           }}
         >
-          <div className="section-label">BU AY NET</div>
+          <div className="section-label">{t("dashboard.this_month_net")}</div>
           <div
             className="tnum"
             style={{
@@ -565,10 +566,9 @@ export function Dashboard() {
                   : "var(--status-danger)",
             }}
           >
-            {formatMoney(filteredTotals.remaining).replace(/,\d{2}/, "")}
+            {fmParts(filteredTotals.remaining).main}
             <span style={{ color: "var(--text-tertiary)", fontSize: "0.5em" }}>
-              {formatMoney(filteredTotals.remaining).match(/,\d{2}/)?.[0] ??
-                ",00"}
+              {fmParts(filteredTotals.remaining).fraction}
             </span>
           </div>
           <div
@@ -606,7 +606,7 @@ export function Dashboard() {
                   whiteSpace: "nowrap",
                 }}
               >
-                {formatMoney(filteredTotals.totalIncome)} ↑
+                {fm(filteredTotals.totalIncome)} ↑
               </div>
             </div>
             <div
@@ -636,7 +636,7 @@ export function Dashboard() {
                   whiteSpace: "nowrap",
                 }}
               >
-                {formatMoney(filteredTotals.totalExpense)} ↓
+                {fm(filteredTotals.totalExpense)} ↓
               </div>
             </div>
           </div>
@@ -684,10 +684,8 @@ export function Dashboard() {
           title={t("dashboard.owner_card.title.person1", {
             name: person1Name.toLocaleUpperCase("tr-TR"),
           })}
-          amount={formatMoney(
-            fullTotals.myExpensesOwn + fullTotals.myHomeShare
-          )}
-          subtitle={`${t("dashboard.owner_card.own_label")}: ${formatMoney(fullTotals.myExpensesOwn)} · ${t("dashboard.owner_card.home_share_label")}: ${formatMoney(fullTotals.myHomeShare)}`}
+          amount={fm(fullTotals.myExpensesOwn + fullTotals.myHomeShare)}
+          subtitle={`${t("dashboard.owner_card.own_label")}: ${fm(fullTotals.myExpensesOwn)} · ${t("dashboard.owner_card.home_share_label")}: ${fm(fullTotals.myHomeShare)}`}
           cats={yigitCats}
           expandable
           isExpanded={expandedOwner === "Benim"}
@@ -701,10 +699,8 @@ export function Dashboard() {
           title={t("dashboard.owner_card.title.person2", {
             name: person2Name.toLocaleUpperCase("tr-TR"),
           })}
-          amount={formatMoney(
-            fullTotals.spouseExpensesOwn + fullTotals.spouseHomeShare
-          )}
-          subtitle={`${t("dashboard.owner_card.own_label")}: ${formatMoney(fullTotals.spouseExpensesOwn)} · ${t("dashboard.owner_card.home_share_label")}: ${formatMoney(fullTotals.spouseHomeShare)}`}
+          amount={fm(fullTotals.spouseExpensesOwn + fullTotals.spouseHomeShare)}
+          subtitle={`${t("dashboard.owner_card.own_label")}: ${fm(fullTotals.spouseExpensesOwn)} · ${t("dashboard.owner_card.home_share_label")}: ${fm(fullTotals.spouseHomeShare)}`}
           cats={arzuCats}
           expandable
           isExpanded={expandedOwner === "Esim"}
@@ -716,8 +712,8 @@ export function Dashboard() {
         <OwnerCard
           who="ev"
           title={t("dashboard.owner_card.title.home")}
-          amount={formatMoney(fullTotals.homeExpenses)}
-          subtitle={`${t("dashboard.owner_card.each_label")}: ${formatMoney(fullTotals.homeExpenses / 2)}`}
+          amount={fm(fullTotals.homeExpenses)}
+          subtitle={`${t("dashboard.owner_card.each_label")}: ${fm(fullTotals.homeExpenses / 2)}`}
           cats={evCats}
           expandable
           isExpanded={expandedOwner === "Ev"}
@@ -738,19 +734,19 @@ export function Dashboard() {
       >
         <SummaryCard
           label={t("dashboard.summary.total_income")}
-          amount={formatMoney(filteredTotals.totalIncome)}
+          amount={fm(filteredTotals.totalIncome)}
           color="green"
           icon={<TrendingUp style={{ width: 14, height: 14 }} />}
         />
         <SummaryCard
           label={t("dashboard.summary.total_expense")}
-          amount={formatMoney(filteredTotals.totalExpense)}
+          amount={fm(filteredTotals.totalExpense)}
           color="red"
           icon={<TrendingDown style={{ width: 14, height: 14 }} />}
         />
         <SummaryCard
           label={t("dashboard.summary.remaining")}
-          amount={formatMoney(filteredTotals.remaining)}
+          amount={fm(filteredTotals.remaining)}
           color={filteredTotals.remaining >= 0 ? "green" : "red"}
           delta={{
             value: filteredTotals.remaining >= 0 ? "↗" : "↘",
@@ -759,7 +755,7 @@ export function Dashboard() {
         />
         <SummaryCard
           label={t("dashboard.summary.savings")}
-          amount={formatMoney(filteredTotals.savingsAmount)}
+          amount={fm(filteredTotals.savingsAmount)}
           color="blue"
           delta={{ value: "↗", positive: true }}
         />
@@ -903,9 +899,9 @@ export function Dashboard() {
                     textAlign: "right",
                   }}
                 >
-                  {formatMoneyShort(b.real)}
+                  {fmShort(b.real)}
                   <span style={{ color: "var(--text-muted)" }}>
-                    /{formatMoneyShort(b.plan)}
+                    /{fmShort(b.plan)}
                   </span>
                 </div>
               </div>

@@ -187,6 +187,28 @@ export function formatPercentage(value: number): string {
   }).format(value);
 }
 
+/**
+ * i18n key for a main category. Maps the canonical category key
+ * (e.g. "Konut", "KisiselBakim") to its lowercased i18n leaf
+ * under the "category" namespace.
+ */
+export function getCategoryI18nKey(category: string): string {
+  return `category.${category.toLowerCase()}`;
+}
+
+/**
+ * i18n key for a subcategory, scoped under its parent category.
+ * e.g. ("Araba", "TamirServis") → "subcategory.araba.tamirservis".
+ * Render with a fallback to the stored free-text label for legacy
+ * records that have no subcategoryKey.
+ */
+export function getSubcategoryI18nKey(
+  category: string,
+  subcategoryKey: string
+): string {
+  return `subcategory.${category.toLowerCase()}.${subcategoryKey.toLowerCase()}`;
+}
+
 export function getFinancialStatus(
   expenseRatio: number,
   remainingActual: number

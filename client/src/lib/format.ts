@@ -18,14 +18,54 @@ export function formatMoney(amount: number, intl?: string): string {
   }).format(amount);
 }
 
-/** Compact short form: €1.2k / €350 */
+/**
+ * Split a formatted EUR amount into a "main" part (currency symbol +
+ * integer + grouping) and a "fraction" part (decimal separator + decimals),
+ * locale-aware via Intl.formatToParts. Used by hero cards that render the
+ * decimals smaller. Avoids regex assumptions about which separator is decimal.
+ */
+export function formatMoneyParts(
+  amount: number,
+  intl?: string
+): { main: string; fraction: string } {
+  const locale = intl ?? currentIntl();
+  const parts = new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: "EUR",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).formatToParts(amount);
+
+  let main = "";
+  let fraction = "";
+  let inFraction = false;
+  for (const p of parts) {
+    if (p.type === "decimal" || p.type === "fraction") {
+      inFraction = true;
+      fraction += p.value;
+    } else if (!inFraction) {
+      main += p.value;
+    } else {
+      // trailing literal (e.g. currency suffix after decimals) → keep with main
+      main += p.value;
+    }
+  }
+  return { main, fraction };
+}
+
+/** Compact short form — locale-aware compact currency notation. */
 export function formatMoneyShort(amount: number, intl?: string): string {
+  const locale = intl ?? currentIntl();
   const abs = Math.abs(amount);
   if (abs >= 1000) {
-    const sign = amount < 0 ? "-" : "";
-    return `${sign}€${(abs / 1000).toFixed(1)}k`;
+    return new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency: "EUR",
+      notation: "compact",
+      maximumFractionDigits: 1,
+    }).format(amount);
   }
-  return formatMoney(amount, intl);
+  return formatMoney(amount, locale);
 }
 
 /**

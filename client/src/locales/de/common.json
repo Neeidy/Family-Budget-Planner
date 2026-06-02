@@ -34,7 +34,7 @@
   "sidebar": {
     "brand_title": {
       "butce": "UK Familienbudget",
-      "demo": "Demo-Familienbudget"
+      "demo": "Lukas & Annas Budget"
     },
     "brand_tagline": {
       "butce": "Familienbudget-Panel",
@@ -194,7 +194,8 @@
       "behind": "{{months}} Monate hinten",
       "no_allocation": "Keine monatliche Zuweisung",
       "target_passed": "Zieltermin überschritten"
-    }
+    },
+    "saved_suffix": "{{amount}} gespart"
   },
   "raporlar": {
     "title": "Berichte",
@@ -451,12 +452,12 @@
     "ai": "KI",
     "giyim": "Kleidung",
     "spor": "Sport",
-    "kisisel_bakim": "Körperpflege",
     "tatil": "Urlaub",
     "porsuk": "Haustier",
     "loto": "Lotto",
     "tabak": "Tabak",
-    "diger": "Sonstiges"
+    "diger": "Sonstiges",
+    "kisiselbakim": "Körperpflege"
   },
   "toast": {
     "deleted": "{{name}} gelöscht",
@@ -498,6 +499,138 @@
     "health": {
       "aria": "Details zum Budget-Gesundheitswert",
       "score_label": "WERT"
+    },
+    "inline_money": {
+      "edit_hint": "Zum Bearbeiten klicken"
+    },
+    "circular_progress": {
+      "over": "{{amount}} über",
+      "remaining": "{{amount}} übrig"
+    }
+  },
+  "subcategory": {
+    "konut": {
+      "kira": "Miete",
+      "strom": "Strom",
+      "gas": "Gas",
+      "fernwarme": "Fernwärme",
+      "internet": "Internet",
+      "orf": "ORF Gebühr",
+      "hausbesorger": "Hausbesorger",
+      "versicherung": "Wohnversicherung",
+      "aidat": "Betriebskosten",
+      "diger": "Sonstiges"
+    },
+    "yiyecek": {
+      "market": "Supermarkt (Hofer/Billa/Spar)",
+      "restoran": "Restaurant",
+      "cafe": "Café",
+      "lieferando": "Lieferando/Lieferdienst",
+      "diger": "Sonstiges"
+    },
+    "araba": {
+      "sigorta": "Versicherung",
+      "yakit": "Treibstoff",
+      "parkpickerl": "Parkpickerl",
+      "pickerl": "Pickerl (§57a)",
+      "tamirservis": "Reparatur / Service",
+      "yikama": "Autowäsche",
+      "oamtc": "ÖAMTC Jahresgebühr",
+      "vignette": "Vignette",
+      "otopark": "Parkplatz",
+      "ceza": "Park- / Strafzettel",
+      "diger": "Sonstiges"
+    },
+    "ulasim": {
+      "wienerlinien": "Wiener Linien",
+      "obb": "ÖBB",
+      "taksi": "Taxi / Uber / Bolt",
+      "ucak": "Flug",
+      "diger": "Sonstiges"
+    },
+    "saglik": {
+      "apotheke": "Apotheke",
+      "doktor": "Arzt",
+      "sigorta": "Private Krankenversicherung",
+      "dental": "Zahnarzt",
+      "optik": "Optiker",
+      "diger": "Sonstiges"
+    },
+    "eglence": {
+      "sinema": "Kino",
+      "konser": "Konzert",
+      "muze": "Museum / Ausstellung",
+      "gezi": "Ausflug",
+      "aktivite": "Aktivität",
+      "diger": "Sonstiges"
+    },
+    "abonelik": {
+      "netflix": "Netflix",
+      "spotify": "Spotify",
+      "disney": "Disney+",
+      "youtube": "YouTube Premium",
+      "mobil": "Mobilfunk",
+      "cloud": "iCloud / Google",
+      "diger": "Sonstiges"
+    },
+    "ai": {
+      "chatgpt": "ChatGPT",
+      "claude": "Claude",
+      "grok": "Grok",
+      "github": "GitHub Copilot",
+      "diger": "Sonstiges"
+    },
+    "giyim": {
+      "kiyafet": "Kleidung",
+      "gunluk": "Alltag",
+      "spor": "Sport",
+      "is": "Arbeit",
+      "ayakkabi": "Schuhe",
+      "aksesuar": "Accessoire",
+      "diger": "Sonstiges"
+    },
+    "spor": {
+      "salon": "Fitnessstudio",
+      "uyelik": "Mitgliedschaft",
+      "ekipman": "Ausrüstung",
+      "diger": "Sonstiges"
+    },
+    "kisiselbakim": {
+      "kuafor": "Friseur",
+      "kozmetik": "Kosmetik",
+      "krem": "Creme",
+      "serum": "Serum",
+      "parfum": "Parfum",
+      "diger": "Sonstiges"
+    },
+    "tatil": {
+      "bilet": "Tickets",
+      "otel": "Hotel",
+      "yemek": "Essen",
+      "aktivite": "Aktivität",
+      "diger": "Sonstiges"
+    },
+    "porsuk": {
+      "mama": "Futter",
+      "veteriner": "Tierarzt",
+      "bakim": "Pflege",
+      "aksesuar": "Streu / Zubehör",
+      "sigorta": "Tierversicherung",
+      "diger": "Sonstiges"
+    },
+    "loto": {
+      "lottoplus": "LottoPlus",
+      "euromillion": "EuroMillionen",
+      "diger": "Sonstiges"
+    },
+    "tabak": {
+      "snuss": "Snus",
+      "sigara": "Zigaretten",
+      "veev": "Veev",
+      "diger": "Sonstiges"
+    },
+    "diger": {
+      "diger": "Sonstiges"
     }
   }
 }

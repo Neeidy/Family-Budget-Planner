@@ -16,6 +16,7 @@ import {
 } from "./DialogShell";
 import { MoneyHint } from "@/components/design/MoneyHint";
 import { getDefaults, rememberDefaults } from "@/lib/formDefaults";
+import { getCategoryI18nKey, getSubcategoryI18nKey } from "@/lib/categories";
 
 interface ExpenseFormDefaults {
   owner?: "Benim" | "Esim" | "Ev";
@@ -191,7 +192,8 @@ export function ExpenseDialog({ open, onClose, entity }: ExpenseDialogProps) {
         >
           {CATEGORIES.map(c => (
             <option key={c.key} value={c.key}>
-              {c.emoji} {c.label}
+              {c.emoji}{" "}
+              {t(getCategoryI18nKey(c.key), { defaultValue: c.label })}
             </option>
           ))}
         </select>
@@ -220,7 +222,9 @@ export function ExpenseDialog({ open, onClose, entity }: ExpenseDialogProps) {
           >
             {subcategories.map(s => (
               <option key={s.key} value={s.key}>
-                {s.label}
+                {t(getSubcategoryI18nKey(category, s.key), {
+                  defaultValue: s.label,
+                })}
               </option>
             ))}
           </select>

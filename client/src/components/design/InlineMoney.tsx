@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { formatMoney, parseMoney } from "@/lib/format";
+import { useTranslation } from "react-i18next";
+import { parseMoney } from "@/lib/format";
+import { useFormatters } from "@/lib/useFormatters";
 
 interface InlineMoneyProps {
   value: number;
@@ -26,6 +28,8 @@ export function InlineMoney({
   className,
   style,
 }: InlineMoneyProps) {
+  const { t } = useTranslation();
+  const { fm } = useFormatters();
   const [editing, setEditing] = useState(false);
   const [raw, setRaw] = useState<string>(() => String(value));
   const inputRef = useRef<HTMLInputElement>(null);
@@ -55,7 +59,7 @@ export function InlineMoney({
       <span
         className={className}
         onClick={disabled ? undefined : () => setEditing(true)}
-        title={disabled ? undefined : "Düzenlemek için tıkla"}
+        title={disabled ? undefined : t("components.inline_money.edit_hint")}
         style={{
           cursor: disabled ? "default" : "pointer",
           borderBottom: disabled ? "none" : "1px dashed transparent",
@@ -75,7 +79,7 @@ export function InlineMoney({
           }
         }}
       >
-        {formatMoney(value)}
+        {fm(value)}
       </span>
     );
   }

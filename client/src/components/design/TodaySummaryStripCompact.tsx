@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { Avatar, AvatarWho } from "./Avatar";
-import { formatMoneyShort } from "@/lib/format";
+import { useFormatters } from "@/lib/useFormatters";
 
 type FilterKey = "tumu" | "yigit" | "arzu" | "ev";
 
@@ -34,6 +34,7 @@ export function TodaySummaryStripCompact({
   person2Name = "Arzu",
 }: TodaySummaryStripCompactProps) {
   const { t } = useTranslation();
+  const { fmShort } = useFormatters();
   const totalDue = upcoming.reduce((s, u) => s + u.amount, 0);
   const ownerName: string = {
     yigit: person1Name,
@@ -101,7 +102,7 @@ export function TodaySummaryStripCompact({
             flexShrink: 0,
           }}
         >
-          {formatMoneyShort(totalDue)}
+          {fmShort(totalDue)}
         </span>
       </div>
       <div
@@ -170,7 +171,7 @@ export function TodaySummaryStripCompact({
                 flexShrink: 0,
               }}
             >
-              {formatMoneyShort(u.amount)}
+              {fmShort(u.amount)}
             </div>
           </div>
         ))}

@@ -16,6 +16,7 @@ import {
 import { MoneyHint } from "@/components/design/MoneyHint";
 import { CATEGORIES, getSubcategories } from "@shared/categories";
 import { getDefaults, rememberDefaults } from "@/lib/formDefaults";
+import { getCategoryI18nKey, getSubcategoryI18nKey } from "@/lib/categories";
 
 const MONTH_SHORT_KEYS = [
   "jan",
@@ -207,7 +208,8 @@ export function AnnualPaymentDialog({
         >
           {CATEGORIES.map(c => (
             <option key={c.key} value={c.key}>
-              {c.emoji} {c.label}
+              {c.emoji}{" "}
+              {t(getCategoryI18nKey(c.key), { defaultValue: c.label })}
             </option>
           ))}
         </select>
@@ -230,7 +232,9 @@ export function AnnualPaymentDialog({
             ) : (
               subcategories.map(s => (
                 <option key={s.key} value={s.key}>
-                  {s.label}
+                  {t(getSubcategoryI18nKey(category, s.key), {
+                    defaultValue: s.label,
+                  })}
                 </option>
               ))
             )}
