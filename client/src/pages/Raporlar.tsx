@@ -8,7 +8,10 @@ import {
   DonutChart,
   BarChart,
 } from "@/components/design/charts";
-import { getCategoryMeta } from "@/components/design/CategoryPill";
+import {
+  getCategoryMeta,
+  getLocalizedCategoryName,
+} from "@/components/design/CategoryPill";
 import { useFormatters } from "@/lib/useFormatters";
 import { usePersistedTab } from "@/lib/usePersistedTab";
 
@@ -346,7 +349,7 @@ function AylikTab({ range }: { range: Range }) {
           groups={byCategory.slice(0, 5).map(([cat, val]) => {
             const meta = getCategoryMeta(cat);
             return {
-              label: meta.name,
+              label: getLocalizedCategoryName(cat, t),
               bars: [
                 {
                   color: meta.colorVar,
@@ -460,7 +463,7 @@ function AnalitikTab({ range }: { range: Range }) {
 
   const slices = byCategory.map(([cat, val]) => {
     const meta = getCategoryMeta(cat);
-    return { value: val, color: meta.colorVar, label: meta.name };
+    return { value: val, color: meta.colorVar, label: getLocalizedCategoryName(cat, t) };
   });
 
   const top5 = byCategory.slice(0, 5);
@@ -653,7 +656,7 @@ function AnalitikTab({ range }: { range: Range }) {
           groups={top5.map(([cat, val]) => {
             const meta = getCategoryMeta(cat);
             return {
-              label: meta.name,
+              label: getLocalizedCategoryName(cat, t),
               bars: [
                 { color: meta.colorVar, value: val, max: top5[0]?.[1] ?? 1 },
               ],

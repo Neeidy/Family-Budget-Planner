@@ -16,7 +16,11 @@ import {
 } from "@/components/design";
 import type { AvatarWho } from "@/components/design";
 import type { UpcomingItem } from "@/components/design/TodaySummaryStripCompact";
-import { getCategoryMeta } from "@/components/design/CategoryPill";
+import {
+  getCategoryMeta,
+  getLocalizedCategoryName,
+  getLocalizedSubcategoryName,
+} from "@/components/design/CategoryPill";
 import { TrendingUp, TrendingDown, ArrowRight } from "lucide-react";
 import { useFormatters } from "@/lib/useFormatters";
 import { applyPersonFilter } from "@/lib/personFilter";
@@ -110,7 +114,7 @@ const DESIGN_FILTER: Record<string, DesignFilter> = {
 
 // ── Dashboard ─────────────────────────────────────────────────
 export function Dashboard() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { fm, fmShort, fmParts } = useFormatters();
   const { budgetData, calculateTotals } = useBudget();
   const { person1Name, person2Name, currentPerson } = usePerson();
@@ -217,8 +221,8 @@ export function Dashboard() {
     if (sorted.length === 0) return null;
     const [cat, amount] = sorted[0];
     const meta = getCategoryMeta(cat);
-    return { name: meta.name, emoji: meta.emoji, amount };
-  }, [filteredExpenses]);
+    return { name: getLocalizedCategoryName(cat, t), emoji: meta.emoji, amount };
+  }, [filteredExpenses, i18n.language]);
 
   // Bütçe vs Gerçekleşen — derived from real budgetLimits.
   // Empty when the user hasn't configured any limits yet.
@@ -254,7 +258,7 @@ export function Dashboard() {
       if (days === null) continue;
       const meta = getCategoryMeta(e.category);
       items.push({
-        name: e.subcategory || e.category,
+        name: getLocalizedSubcategoryName(e.category, e.subcategory, t),
         amount: e.amount,
         days,
         who: ownerToWho(e.owner),
@@ -308,6 +312,7 @@ export function Dashboard() {
     budgetData.installments,
     budgetData.annualPayments,
     filter,
+    i18n.language,
   ]);
 
   const goRapor = () => setLocation("/raporlar");
@@ -383,7 +388,7 @@ export function Dashboard() {
                     textOverflow: "ellipsis",
                   }}
                 >
-                  {e.subcategory || e.category}
+                  {getLocalizedSubcategoryName(e.category, e.subcategory, t)}
                 </div>
                 <div
                   style={{

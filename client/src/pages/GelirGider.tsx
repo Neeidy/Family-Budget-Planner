@@ -24,7 +24,10 @@ import { useFormatters } from "@/lib/useFormatters";
 import { applyPersonFilter } from "@/lib/personFilter";
 import { isDemoMode, demoDisabledProps } from "@/lib/demoMode";
 import { InlineMoney } from "@/components/design/InlineMoney";
-import { getCategoryMeta } from "@/components/design/CategoryPill";
+import {
+  getCategoryMeta,
+  getLocalizedCategoryName,
+} from "@/components/design/CategoryPill";
 import type { Income, Expense, BudgetLimit } from "@/hooks/useBudgetData";
 
 const TABS = ["Gelirler", "Giderler", "Bütçe Limitleri"] as const;
@@ -774,7 +777,7 @@ function BudgetGaugeCard({
         max={limit.limit}
         size={120}
         emoji={meta.emoji}
-        label={limit.category}
+        label={getLocalizedCategoryName(limit.category, t)}
       />
     </div>
   );

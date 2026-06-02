@@ -520,6 +520,9 @@
       "december": "December"
     }
   },
+  "language_toggle": {
+    "label": "Select language"
+  },
   "category": {
     "konut": "Housing",
     "yiyecek": "Food",

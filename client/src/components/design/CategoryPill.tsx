@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 
 interface CategoryMeta {
   name: string;
@@ -7,7 +8,7 @@ interface CategoryMeta {
 }
 
 /** Normalized keys that have a `category.*` i18n leaf (the 16 main categories). */
-const MAIN_CATEGORY_KEYS = new Set([
+export const MAIN_CATEGORY_KEYS = new Set([
   "konut",
   "yiyecek",
   "araba",
@@ -30,7 +31,7 @@ const MAIN_CATEGORY_KEYS = new Set([
  * NOTE: Uses plain toLowerCase, NOT toLocaleLowerCase("tr-TR"). Turkish locale
  * maps "I" → "ı" (dotless), which then gets stripped by [^a-z], collapsing
  * "AI" to "a" and triggering false substring matches (e.g. "kira"). */
-function normalizeKey(input: string): string {
+export function normalizeKey(input: string): string {
   return input
     .toLowerCase()
     .normalize("NFD")
@@ -190,6 +191,33 @@ export function getCategoryMeta(cat: string | undefined | null): CategoryMeta {
     }
   }
   return FALLBACK;
+}
+
+/** Localize a main category name. Falls back to the TR meta.name when the
+ *  category has no `category.*` i18n leaf (custom/free-text categories). */
+export function getLocalizedCategoryName(
+  cat: string | undefined | null,
+  t: TFunction
+): string {
+  const meta = getCategoryMeta(cat);
+  const key = normalizeKey(cat ?? "");
+  return MAIN_CATEGORY_KEYS.has(key)
+    ? t(`category.${key}`, { defaultValue: meta.name })
+    : meta.name;
+}
+
+/** Localize a subcategory under its parent category. Falls back to the raw
+ *  subcategory string (already locale-overlaid in demo mode), or to the
+ *  localized parent category name when no subcategory is given. */
+export function getLocalizedSubcategoryName(
+  cat: string | undefined | null,
+  subcat: string | undefined | null,
+  t: TFunction
+): string {
+  if (!subcat) return getLocalizedCategoryName(cat, t);
+  const catKey = normalizeKey(cat ?? "");
+  const subKey = normalizeKey(subcat);
+  return t(`subcategory.${catKey}.${subKey}`, { defaultValue: subcat });
 }
 
 interface CategoryPillProps {
