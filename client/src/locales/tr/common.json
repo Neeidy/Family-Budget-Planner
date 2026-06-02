@@ -452,12 +452,12 @@
     "ai": "AI",
     "giyim": "Giyim",
     "spor": "Spor",
-    "kisisel_bakim": "Kişisel Bakım",
     "tatil": "Tatil",
     "porsuk": "Porsuk",
     "loto": "Loto",
     "tabak": "Tabak",
-    "diger": "Diğer"
+    "diger": "Diğer",
+    "kisiselbakim": "Kişisel Bakım"
   },
   "toast": {
     "deleted": "{{name}} silindi",
@@ -506,6 +506,131 @@
     "circular_progress": {
       "over": "{{amount}} aştı",
       "remaining": "{{amount}} kaldı"
+    }
+  },
+  "subcategory": {
+    "konut": {
+      "kira": "Kira",
+      "strom": "Elektrik (Strom)",
+      "gas": "Doğalgaz (Gas)",
+      "fernwarme": "Fernwärme",
+      "internet": "İnternet",
+      "orf": "ORF Gebühr",
+      "hausbesorger": "Hausbesorger",
+      "versicherung": "Konut Sigortası",
+      "aidat": "Aidat",
+      "diger": "Diğer"
+    },
+    "yiyecek": {
+      "market": "Market (Hofer/Billa/Spar)",
+      "restoran": "Restoran",
+      "cafe": "Cafe",
+      "lieferando": "Lieferando/Sipariş",
+      "diger": "Diğer"
+    },
+    "araba": {
+      "sigorta": "Sigorta",
+      "yakit": "Yakıt",
+      "parkpickerl": "Parkpickerl",
+      "pickerl": "Pickerl (§57a)",
+      "tamirservis": "Tamir / Servis",
+      "yikama": "Yıkama",
+      "oamtc": "ÖAMTC Jahresgebühr",
+      "vignette": "Vignette",
+      "otopark": "Otopark",
+      "ceza": "Park / Hız Cezası",
+      "diger": "Diğer"
+    },
+    "ulasim": {
+      "wienerlinien": "Wiener Linien",
+      "obb": "ÖBB",
+      "taksi": "Taksi / Uber / Bolt",
+      "ucak": "Uçak",
+      "diger": "Diğer"
+    },
+    "saglik": {
+      "apotheke": "Apotheke",
+      "doktor": "Doktor",
+      "sigorta": "Özel Sağlık Sigortası",
+      "dental": "Diş Hekimi",
+      "optik": "Optik",
+      "diger": "Diğer"
+    },
+    "eglence": {
+      "sinema": "Sinema",
+      "konser": "Konser",
+      "muze": "Müze / Sergi",
+      "gezi": "Gezi",
+      "aktivite": "Aktivite",
+      "diger": "Diğer"
+    },
+    "abonelik": {
+      "netflix": "Netflix",
+      "spotify": "Spotify",
+      "disney": "Disney+",
+      "youtube": "YouTube Premium",
+      "mobil": "Mobil Hat",
+      "cloud": "iCloud / Google",
+      "diger": "Diğer"
+    },
+    "ai": {
+      "chatgpt": "ChatGPT",
+      "claude": "Claude",
+      "grok": "Grok",
+      "github": "GitHub",
+      "diger": "Diğer"
+    },
+    "giyim": {
+      "kiyafet": "Kıyafet",
+      "gunluk": "Günlük",
+      "spor": "Spor",
+      "is": "İş",
+      "ayakkabi": "Ayakkabı",
+      "aksesuar": "Aksesuar",
+      "diger": "Diğer"
+    },
+    "spor": {
+      "salon": "Spor Salonu",
+      "uyelik": "Üyelik",
+      "ekipman": "Ekipman",
+      "diger": "Diğer"
+    },
+    "kisiselbakim": {
+      "kuafor": "Kuaför",
+      "kozmetik": "Kozmetik",
+      "krem": "Krem",
+      "serum": "Serum",
+      "parfum": "Parfüm",
+      "diger": "Diğer"
+    },
+    "tatil": {
+      "bilet": "Bilet",
+      "otel": "Otel",
+      "yemek": "Yemek",
+      "aktivite": "Aktivite",
+      "diger": "Diğer"
+    },
+    "porsuk": {
+      "mama": "Mama",
+      "veteriner": "Veteriner",
+      "bakim": "Bakım",
+      "aksesuar": "Kum / Aksesuar",
+      "sigorta": "Pet Sigortası",
+      "diger": "Diğer"
+    },
+    "loto": {
+      "lottoplus": "LottoPlus",
+      "euromillion": "EuroMillion",
+      "diger": "Diğer"
+    },
+    "tabak": {
+      "snuss": "Snuss",
+      "sigara": "Sigara",
+      "veev": "Veev",
+      "diger": "Diğer"
+    },
+    "diger": {
+      "diger": "Diğer (serbest)"
     }
   }
 }

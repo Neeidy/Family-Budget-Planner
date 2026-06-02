@@ -5,6 +5,7 @@ import { useBudget } from "@/contexts/BudgetContext";
 import { usePerson } from "@/contexts/PersonContext";
 import type { BudgetLimit } from "@/hooks/useBudgetData";
 import { CATEGORIES } from "@shared/categories";
+import { getCategoryI18nKey } from "@/lib/categories";
 import {
   DialogShell,
   Field,
@@ -112,7 +113,8 @@ export function BudgetLimitDialog({
         >
           {CATEGORIES.map(c => (
             <option key={c.key} value={c.key}>
-              {c.emoji} {c.label}
+              {c.emoji}{" "}
+              {t(getCategoryI18nKey(c.key), { defaultValue: c.label })}
             </option>
           ))}
         </select>
