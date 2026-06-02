@@ -24,8 +24,8 @@ const isDemoHost =
   typeof window !== "undefined" &&
   window.location.hostname === "demo.aileplan.uk";
 // Demo subdomain shows the showcase couple instead of the real family names.
-const DEFAULT_PERSON1 = isDemoHost ? "Kerem" : "Yigit";
-const DEFAULT_PERSON2 = isDemoHost ? "Yağmur" : "Arzu";
+const DEFAULT_PERSON1 = isDemoHost ? "Lukas" : "Yigit";
+const DEFAULT_PERSON2 = isDemoHost ? "Anna" : "Arzu";
 
 const PersonContext = createContext<PersonContextType | null>(null);
 

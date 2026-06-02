@@ -161,9 +161,9 @@ describe("demo profile endpoints — only on demo subdomain", () => {
     const ctx = makeCtx({ isGuest: true, family: null });
     const caller = appRouter.createCaller(ctx);
     const result = await caller.familyAuth.loginAsDemoProfile({
-      profileId: "demo-kerem",
+      profileId: "demo-lukas",
     });
-    expect(result).toMatchObject({ ok: true, person: "Benim", name: "Kerem" });
+    expect(result).toMatchObject({ ok: true, person: "Benim", name: "Lukas" });
     const setCookies = (
       ctx.res as unknown as { _setCookies: Array<{ name: string }> }
     )._setCookies;
@@ -175,7 +175,7 @@ describe("demo profile endpoints — only on demo subdomain", () => {
     const ctx = makeCtx({ isGuest: false, family: null });
     const caller = appRouter.createCaller(ctx);
     await expect(
-      caller.familyAuth.loginAsDemoProfile({ profileId: "demo-kerem" })
+      caller.familyAuth.loginAsDemoProfile({ profileId: "demo-lukas" })
     ).rejects.toThrow();
   });
 
