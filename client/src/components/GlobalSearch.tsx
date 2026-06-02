@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useBudget } from "@/contexts/BudgetContext";
 import { usePerson } from "@/contexts/PersonContext";
 import { formatCurrency } from "@/lib/categories";
@@ -23,15 +24,16 @@ import {
 } from "lucide-react";
 
 const PAGES = [
-  { label: "Ana Sayfa", path: "/", icon: LayoutDashboard },
-  { label: "Gelir & Gider", path: "/gelir-gider", icon: TrendingUp },
-  { label: "Borç & Ödemeler", path: "/borc-odemeler", icon: CreditCard },
-  { label: "Birikim & Hedef", path: "/hedef", icon: PiggyBank },
-  { label: "Raporlar", path: "/raporlar", icon: BarChart3 },
-  { label: "Ayarlar", path: "/ayarlar", icon: Settings },
+  { labelKey: "nav.home", path: "/", icon: LayoutDashboard },
+  { labelKey: "nav.income_expense", path: "/gelir-gider", icon: TrendingUp },
+  { labelKey: "nav.debt_payment", path: "/borc-odemeler", icon: CreditCard },
+  { labelKey: "nav.savings_goal", path: "/hedef", icon: PiggyBank },
+  { labelKey: "nav.reports", path: "/raporlar", icon: BarChart3 },
+  { labelKey: "nav.settings", path: "/ayarlar", icon: Settings },
 ];
 
 export function GlobalSearch() {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [, setLocation] = useLocation();
   const { budgetData } = useBudget();
@@ -69,7 +71,7 @@ export function GlobalSearch() {
     budgetData.incomes.forEach(i => {
       items.push({
         label: i.name,
-        sub: `Gelir • ${i.owner === "Benim" ? person1Name : i.owner === "Esim" ? person2Name : "Ev"}`,
+        sub: `${t("components.global_search.result_prefix.income")} • ${i.owner === "Benim" ? person1Name : i.owner === "Esim" ? person2Name : t("filter.home")}`,
         path: "/gelir-gider",
         amount: i.amount,
       });
@@ -77,7 +79,7 @@ export function GlobalSearch() {
     budgetData.expenses.forEach(e => {
       items.push({
         label: e.category,
-        sub: `Gider • ${e.type}`,
+        sub: `${t("components.global_search.result_prefix.expense")} • ${e.type}`,
         path: "/gelir-gider",
         amount: e.amount,
       });
@@ -85,7 +87,7 @@ export function GlobalSearch() {
     budgetData.debts.forEach(d => {
       items.push({
         label: d.name,
-        sub: `Borç • ${d.status}`,
+        sub: `${t("components.global_search.result_prefix.debt")} • ${d.status}`,
         path: "/borc-odemeler",
         amount: d.totalDebt,
       });
@@ -93,7 +95,7 @@ export function GlobalSearch() {
     budgetData.savingsGoals.forEach(g => {
       items.push({
         label: g.name,
-        sub: `Birikim Hedefi`,
+        sub: t("components.global_search.result_prefix.goal"),
         path: "/hedef",
         amount: g.currentAmount,
       });
@@ -101,7 +103,7 @@ export function GlobalSearch() {
     budgetData.annualPayments?.forEach(p => {
       items.push({
         label: p.name,
-        sub: `Yıllık Ödeme`,
+        sub: t("components.global_search.result_prefix.annual"),
         path: "/yillik-odemeler",
         amount: p.amount,
       });
@@ -109,24 +111,26 @@ export function GlobalSearch() {
     budgetData.installments?.forEach(i => {
       items.push({
         label: i.name,
-        sub: `Taksit • ${i.installmentCount} ay`,
+        sub: `${t("components.global_search.result_prefix.installment")} • ${t("components.global_search.months_count", { count: i.installmentCount })}`,
         path: "/taksitler",
         amount: i.monthlyAmount,
       });
     });
 
     return items;
-  }, [budgetData, person1Name, person2Name]);
+  }, [budgetData, person1Name, person2Name, t]);
 
   return (
     <>
       {/* Arama tetikleyici buton - DashboardLayout'tan çağrılır */}
       <CommandDialog open={open} onOpenChange={setOpen}>
-        <CommandInput placeholder="Sayfa veya veri ara... (Ctrl+K)" />
+        <CommandInput placeholder={t("components.global_search.placeholder")} />
         <CommandList>
-          <CommandEmpty>Sonuç bulunamadı.</CommandEmpty>
+          <CommandEmpty>
+            {t("components.global_search.no_results")}
+          </CommandEmpty>
 
-          <CommandGroup heading="Sayfalar">
+          <CommandGroup heading={t("components.global_search.pages_heading")}>
             {PAGES.map(page => (
               <CommandItem
                 key={page.path}
@@ -134,14 +138,14 @@ export function GlobalSearch() {
                 className="gap-2"
               >
                 <page.icon className="w-4 h-4 text-muted-foreground shrink-0" />
-                <span>{page.label}</span>
+                <span>{t(page.labelKey)}</span>
               </CommandItem>
             ))}
           </CommandGroup>
 
           <CommandSeparator />
 
-          <CommandGroup heading="Veriler">
+          <CommandGroup heading={t("components.global_search.data_heading")}>
             {dataItems.slice(0, 20).map((item, idx) => (
               <CommandItem
                 key={idx}

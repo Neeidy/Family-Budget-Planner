@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 interface HealthBubbleProps {
   score: number;
   mobile: boolean;
@@ -10,6 +12,7 @@ interface HealthBubbleProps {
  * Designed to be placed inside a parent with `position: relative` (e.g. NET DEĞER card).
  */
 export function HealthBubble({ score, mobile, onClick }: HealthBubbleProps) {
+  const { t } = useTranslation();
   const size = mobile ? 64 : 78;
   const r = size / 2 - 5;
   const c = 2 * Math.PI * r;
@@ -26,7 +29,7 @@ export function HealthBubble({ score, mobile, onClick }: HealthBubbleProps) {
     <button
       type="button"
       onClick={onClick}
-      aria-label="Bütçe Sağlık Skoru detayları"
+      aria-label={t("components.health.aria")}
       style={{
         position: "absolute",
         top: mobile ? 12 : 16,
@@ -111,7 +114,7 @@ export function HealthBubble({ score, mobile, onClick }: HealthBubbleProps) {
             letterSpacing: "0.05em",
           }}
         >
-          SKOR · {grade}
+          {t("components.health.score_label")} · {grade}
         </div>
       </div>
     </button>

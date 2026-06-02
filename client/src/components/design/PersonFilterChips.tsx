@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 export type FilterValue = "tumu" | "yigit" | "arzu" | "ev";
 
 interface PersonFilterChipsProps {
@@ -7,13 +9,6 @@ interface PersonFilterChipsProps {
   labels?: Partial<Record<FilterValue, string>>;
 }
 
-const DEFAULT_LABELS: Record<FilterValue, string> = {
-  tumu: "Tümü",
-  yigit: "Yigit",
-  arzu: "Arzu",
-  ev: "Ev",
-};
-
 const ITEMS: FilterValue[] = ["tumu", "yigit", "arzu", "ev"];
 
 export function PersonFilterChips({
@@ -21,7 +16,14 @@ export function PersonFilterChips({
   onChange,
   labels,
 }: PersonFilterChipsProps) {
-  const resolved = { ...DEFAULT_LABELS, ...labels };
+  const { t } = useTranslation();
+  const resolved: Record<FilterValue, string> = {
+    tumu: t("filter.all"),
+    yigit: "Yigit",
+    arzu: "Arzu",
+    ev: t("filter.home"),
+    ...labels,
+  };
   return (
     <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
       {ITEMS.map(key => {

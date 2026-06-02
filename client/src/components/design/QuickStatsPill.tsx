@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { formatMoneyShort } from "@/lib/format";
 
 interface QuickStatsPillProps {
@@ -31,39 +32,42 @@ export function QuickStatsPill({
   monthSpent,
   tomorrowDue,
 }: QuickStatsPillProps) {
+  const { t } = useTranslation();
   const monthPct = Math.max(
     0,
     Math.min(100, monthBudget > 0 ? (monthSpent / monthBudget) * 100 : 0)
   );
   const items: StatItem[] = [
     {
-      lbl: "BUGÜN",
+      lbl: t("dashboard.quick_stats.today"),
       val: formatMoneyShort(todaySpent),
       live: true,
       hue: "var(--accent-green)",
-      sub: "canlı toplam",
+      sub: t("dashboard.quick_stats.today_subtitle"),
       icon: "●",
     },
     monthBudget === 0
       ? {
-          lbl: "BU AY KALAN",
+          lbl: t("dashboard.quick_stats.month_remaining"),
           val: "—",
           hue: "var(--text-tertiary)",
-          sub: "Bütçe limiti yok",
+          sub: t("dashboard.quick_stats.no_budget_limit"),
         }
       : {
-          lbl: "BU AY KALAN",
+          lbl: t("dashboard.quick_stats.month_remaining"),
           val: formatMoneyShort(monthRemaining),
           hue:
             monthRemaining < 0 ? "var(--status-danger)" : "var(--text-primary)",
-          sub: `${Math.round(monthPct)}% kullanıldı`,
+          sub: t("dashboard.quick_stats.month_used", {
+            pct: Math.round(monthPct),
+          }),
           progress: monthPct,
         },
     {
-      lbl: "YARIN",
+      lbl: t("dashboard.quick_stats.tomorrow"),
       val: formatMoneyShort(tomorrowDue),
       hue: "var(--status-warning)",
-      sub: "2 ödeme yaklaşıyor",
+      sub: t("dashboard.quick_stats.tomorrow_subtitle"),
       icon: "⚠",
     },
   ];

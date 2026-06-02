@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
+import { useTranslation } from "react-i18next";
 import {
   Home,
   ArrowLeftRight,
@@ -13,7 +14,7 @@ import { useFab, type FabAction } from "@/contexts/FabContext";
 
 interface NavItem {
   key: string;
-  label: string;
+  labelKey: string;
   icon: React.ComponentType<{ style?: React.CSSProperties }>;
   path: string;
   fab?: boolean;
@@ -26,11 +27,26 @@ interface NavItem {
  */
 
 const NAV_ITEMS: NavItem[] = [
-  { key: "ana", label: "Ana Sayfa", icon: Home, path: "/" },
-  { key: "gelir", label: "Gelir", icon: ArrowLeftRight, path: "/gelir-gider" },
-  { key: "fab", label: "", icon: Plus, path: "", fab: true },
-  { key: "borc", label: "Borç", icon: ClipboardList, path: "/borc-odemeler" },
-  { key: "birikim", label: "Hedef", icon: Target, path: "/hedef" },
+  { key: "ana", labelKey: "nav.home", icon: Home, path: "/" },
+  {
+    key: "gelir",
+    labelKey: "gelir_gider.tab.income",
+    icon: ArrowLeftRight,
+    path: "/gelir-gider",
+  },
+  { key: "fab", labelKey: "", icon: Plus, path: "", fab: true },
+  {
+    key: "borc",
+    labelKey: "borc.tab.debts",
+    icon: ClipboardList,
+    path: "/borc-odemeler",
+  },
+  {
+    key: "birikim",
+    labelKey: "hedef.target_label",
+    icon: Target,
+    path: "/hedef",
+  },
 ];
 
 interface MobileFABProps {
@@ -58,6 +74,7 @@ function actionForLocation(pathname: string): FabAction {
 }
 
 export function MobileFAB(_props: MobileFABProps) {
+  const { t } = useTranslation();
   const [location, setLocation] = useLocation();
   const [quickAddOpen, setQuickAddOpen] = useState(false);
   const { requestAction } = useFab();
@@ -105,9 +122,9 @@ export function MobileFAB(_props: MobileFABProps) {
                 key="fab"
                 type="button"
                 onClick={handleFab}
-                aria-label="Hızlı ekle"
+                aria-label={t("components.mobile_fab.quick_add_title")}
                 disabled={demo}
-                title={demo ? "Demo modunda düzenleme yapılamaz" : "Hızlı ekle"}
+                title={t("components.mobile_fab.quick_add_title")}
                 style={{
                   width: 56,
                   height: 56,
@@ -153,7 +170,7 @@ export function MobileFAB(_props: MobileFABProps) {
               }}
             >
               <Icon style={{ width: 20, height: 20 }} />
-              <span>{it.label}</span>
+              <span>{t(it.labelKey)}</span>
             </button>
           );
         })}
@@ -175,6 +192,7 @@ function QuickAddSheet({
   open: boolean;
   onClose: () => void;
 }) {
+  const { t } = useTranslation();
   const [, setLocation] = useLocation();
   if (!open) return null;
   const items: Array<{
@@ -185,32 +203,35 @@ function QuickAddSheet({
   }> = [
     {
       emoji: "💰",
-      label: "Gelir Ekle",
+      label: t("gelir_gider.add_income"),
       color: "var(--accent-green)",
       path: "/gelir-gider?action=add-income",
     },
     {
       emoji: "🛒",
-      label: "Gider Ekle",
+      label: t("gelir_gider.add_expense"),
       color: "var(--status-danger)",
       path: "/gelir-gider?action=add-expense",
     },
     {
       emoji: "💳",
-      label: "Borç Ekle",
+      label: t("borc.add_debt"),
       color: "var(--owner-ev)",
       path: "/borc-odemeler?action=add-debt",
     },
     {
       emoji: "🎯",
-      label: "Hedef Ekle",
+      label: t("hedef.add_goal"),
       color: "var(--owner-yigit)",
       path: "/hedef?action=add-goal",
     },
   ];
 
   return (
-    <BottomSheet onClose={onClose} title="Hızlı Ekle">
+    <BottomSheet
+      onClose={onClose}
+      title={t("components.mobile_fab.quick_add_title")}
+    >
       <div
         style={{
           display: "grid",

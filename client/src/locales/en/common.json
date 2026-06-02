@@ -27,7 +27,9 @@
     "light_mode": "Light Mode",
     "dark_mode": "Dark Mode",
     "logout": "Log Out",
-    "active_user": "Active User"
+    "active_user": "Active User",
+    "toggle_sidebar": "Toggle navigation",
+    "switch_person": "Switch person"
   },
   "sidebar": {
     "brand_title": {
@@ -35,8 +37,8 @@
       "demo": "Demo Family Budget"
     },
     "brand_tagline": {
-      "butce": "Vienna",
-      "demo": "Showcase"
+      "butce": "Family budget panel",
+      "demo": "Demo family profile"
     }
   },
   "filter": {
@@ -47,7 +49,7 @@
   },
   "dashboard": {
     "greeting": "Hello, {{name}}!",
-    "view_as": "Viewing as: {{name}}",
+    "view_as": "Viewing as {{name}}",
     "this_month_net": "This Month Net",
     "total_income": "Total Income",
     "total_expense": "Total Expense",
@@ -59,19 +61,59 @@
     "owner_card": {
       "own": "Own",
       "home_share": "Home Share",
-      "each_one": "Each one"
+      "each_one": "Each one",
+      "title": {
+        "person1": "{{name}}'S EXPENSES",
+        "person2": "{{name}}'S EXPENSES",
+        "home": "SHARED EXPENSES"
+      },
+      "own_label": "Own",
+      "home_share_label": "Home share",
+      "each_label": "Each"
     },
     "summary": {
       "income": "Income",
       "expense": "Expense",
       "remaining": "Remaining",
-      "savings": "Savings"
+      "savings": "Savings",
+      "total_income": "Total Income",
+      "total_expense": "Total Expense"
     },
-    "budget_vs_actual": "Budget vs Actual",
+    "budget_vs_actual": {
+      "title": "BUDGET VS ACTUAL",
+      "subtitle": "Category comparison for {{month}}",
+      "plan": "Plan",
+      "actual": "Actual",
+      "no_limit_hint": "No budget limit yet. Add one from the \"Budget Limits\" tab on the Income & Expense page."
+    },
     "no_budget_limit_hint": "No budget limit yet",
     "health_pulse": {
       "gain_gt_loss": "Earnings exceed expenses this month 🎯",
       "loss_gt_gain": "Expenses exceed earnings this month ⚠"
+    },
+    "month_pulse": {
+      "net_movement": "NET CHANGE THIS MONTH",
+      "savings_rate": "SAVINGS RATE",
+      "active_category": "TOP CATEGORY",
+      "gain_gt_loss": "Income > Expense",
+      "loss_gt_gain": "Expense > Income",
+      "bu_ay_tasarruf": "Saved this month",
+      "no_data": "No data yet"
+    },
+    "quick_stats": {
+      "today": "TODAY",
+      "today_subtitle": "live total",
+      "month_remaining": "MONTH REMAINING",
+      "no_budget_limit": "No budget limit",
+      "month_used": "{{pct}}% used",
+      "tomorrow": "TOMORROW",
+      "tomorrow_subtitle": "payments upcoming"
+    },
+    "today_summary": {
+      "title": "DUE TOMORROW",
+      "upcoming_days": "next few days",
+      "no_upcoming": "No upcoming payments for this profile ✓",
+      "x_days_later": "in {{count}} days"
     }
   },
   "gelir_gider": {
@@ -427,5 +469,35 @@
   "empty": {
     "no_data": "No data yet",
     "add_first": "Add your first entry"
+  },
+  "components": {
+    "notifications": {
+      "panel_title": "Notifications",
+      "mark_all_read": "Mark All Read",
+      "no_notifications_title": "No notifications yet",
+      "no_notifications_subtitle": "Everything is under control!"
+    },
+    "global_search": {
+      "placeholder": "Search pages or data... (Ctrl+K)",
+      "no_results": "No results found.",
+      "pages_heading": "Pages",
+      "data_heading": "Data",
+      "months_count": "{{count}} months",
+      "result_prefix": {
+        "income": "Income",
+        "expense": "Expense",
+        "debt": "Debt",
+        "installment": "Installment",
+        "annual": "Annual Payment",
+        "goal": "Savings Goal"
+      }
+    },
+    "mobile_fab": {
+      "quick_add_title": "Quick Add"
+    },
+    "health": {
+      "aria": "Budget Health Score details",
+      "score_label": "SCORE"
+    }
   }
 }

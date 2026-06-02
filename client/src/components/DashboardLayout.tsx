@@ -53,12 +53,16 @@ import { useTranslation } from "react-i18next";
 import { LanguageToggle } from "@/components/design/LanguageToggle";
 
 const menuItems = [
-  { icon: LayoutDashboard, label: "Ana Sayfa", path: "/" },
-  { icon: ArrowLeftRight, label: "Gelir & Gider", path: "/gelir-gider" },
-  { icon: ClipboardList, label: "Borç & Ödemeler", path: "/borc-odemeler" },
-  { icon: Target, label: "Birikim & Hedef", path: "/hedef" },
-  { icon: BarChart3, label: "Raporlar", path: "/raporlar" },
-  { icon: Settings, label: "Ayarlar", path: "/ayarlar" },
+  { icon: LayoutDashboard, labelKey: "nav.home", path: "/" },
+  {
+    icon: ArrowLeftRight,
+    labelKey: "nav.income_expense",
+    path: "/gelir-gider",
+  },
+  { icon: ClipboardList, labelKey: "nav.debt_payment", path: "/borc-odemeler" },
+  { icon: Target, labelKey: "nav.savings_goal", path: "/hedef" },
+  { icon: BarChart3, labelKey: "nav.reports", path: "/raporlar" },
+  { icon: Settings, labelKey: "nav.settings", path: "/ayarlar" },
 ];
 
 const SKELETON_PAGE_BY_PATH: Record<string, SkeletonPage> = {
@@ -229,7 +233,9 @@ function DashboardLayoutContent({
   const brandTitle = demo
     ? t("sidebar.brand_title.demo")
     : t("sidebar.brand_title.butce");
-  const brandTagline = demo ? "Demo aile profili" : "Aile bütçe paneli";
+  const brandTagline = demo
+    ? t("sidebar.brand_tagline.demo")
+    : t("sidebar.brand_tagline.butce");
 
   return (
     <>
@@ -254,7 +260,7 @@ function DashboardLayoutContent({
             >
               <button
                 onClick={toggleSidebar}
-                aria-label="Navigasyonu aç/kapat"
+                aria-label={t("nav.toggle_sidebar")}
                 style={{
                   width: 32,
                   height: 32,
@@ -376,7 +382,7 @@ function DashboardLayoutContent({
                     padding: 4,
                     borderRadius: 8,
                   }}
-                  title="Çıkış Yap"
+                  title={t("nav.logout")}
                 >
                   <LogOut className="w-4 h-4" />
                 </button>
@@ -405,13 +411,13 @@ function DashboardLayoutContent({
                     <SidebarMenuButton
                       isActive={isActive}
                       onClick={() => handleNavClick(item.path)}
-                      tooltip={item.label}
+                      tooltip={t(item.labelKey)}
                       className={`h-9 transition-all font-normal text-sm`}
                     >
                       <item.icon
                         className={`h-4 w-4 shrink-0 ${isActive ? "text-primary" : "text-muted-foreground"}`}
                       />
-                      <span>{item.label}</span>
+                      <span>{t(item.labelKey)}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 );
@@ -586,7 +592,7 @@ function DashboardLayoutContent({
                     whiteSpace: "nowrap",
                   }}
                 >
-                  {activeMenuItem?.label ?? t("nav.home")}
+                  {activeMenuItem ? t(activeMenuItem.labelKey) : t("nav.home")}
                 </div>
               </div>
             </div>
@@ -643,8 +649,8 @@ function DashboardLayoutContent({
                     display: "flex",
                     alignItems: "center",
                   }}
-                  title="Kişi değiştir"
-                  aria-label={`${activeName} olarak görüntüleniyor — değiştir`}
+                  title={t("nav.switch_person")}
+                  aria-label={t("dashboard.view_as", { name: activeName })}
                 >
                   <Avatar who={activeWho} size={32} />
                 </button>

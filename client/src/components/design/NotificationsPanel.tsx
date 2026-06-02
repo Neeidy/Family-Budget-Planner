@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { X, Bell } from "lucide-react";
 
 interface Notification {
@@ -68,6 +69,7 @@ export function NotificationsPanel({
   onClose,
   mobile = false,
 }: NotificationsPanelProps) {
+  const { t } = useTranslation();
   const [items, setItems] = useState<Notification[]>(SAMPLE_NOTIFICATIONS);
   const unreadCount = items.filter(n => !n.read).length;
 
@@ -118,7 +120,7 @@ export function NotificationsPanel({
           }}
         >
           <SheetHeader
-            title="Bildirimler"
+            title={t("components.notifications.panel_title")}
             onClose={onClose}
             unreadCount={unreadCount}
             onMarkAllRead={markAllRead}
@@ -159,7 +161,7 @@ export function NotificationsPanel({
         }}
       >
         <SheetHeader
-          title="Bildirimler"
+          title={t("components.notifications.panel_title")}
           onClose={onClose}
           unreadCount={unreadCount}
           onMarkAllRead={markAllRead}
@@ -181,6 +183,7 @@ function SheetHeader({
   unreadCount: number;
   onMarkAllRead: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div
       style={{
@@ -235,7 +238,7 @@ function SheetHeader({
               padding: 4,
             }}
           >
-            Tümünü Okundu
+            {t("components.notifications.mark_all_read")}
           </button>
         )}
         <button
@@ -260,6 +263,7 @@ function SheetHeader({
 }
 
 function NotificationList({ items }: { items: Notification[] }) {
+  const { t } = useTranslation();
   if (items.length === 0) {
     return (
       <div
@@ -277,10 +281,10 @@ function NotificationList({ items }: { items: Notification[] }) {
             color: "var(--text-secondary)",
           }}
         >
-          Yeni bildirim yok
+          {t("components.notifications.no_notifications_title")}
         </div>
         <div style={{ fontSize: 12, marginTop: 4 }}>
-          Her şey kontrol altında!
+          {t("components.notifications.no_notifications_subtitle")}
         </div>
       </div>
     );
