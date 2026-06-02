@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { formatMoneyShort } from "@/lib/format";
+import { useFormatters } from "@/lib/useFormatters";
 
 interface TopCategory {
   name: string;
@@ -30,6 +30,7 @@ export function MonthPulse({
   mobile,
 }: MonthPulseProps) {
   const { t } = useTranslation();
+  const { fmShort } = useFormatters();
   const savingsPct = Math.max(0, Math.min(100, savingsRate * 100));
   const savingsHue =
     savingsRate >= 0.2
@@ -41,9 +42,7 @@ export function MonthPulse({
   const items: StatItem[] = [
     {
       lbl: t("dashboard.month_pulse.net_movement"),
-      val:
-        (netMovement >= 0 ? "+" : "−") +
-        formatMoneyShort(Math.abs(netMovement)),
+      val: (netMovement >= 0 ? "+" : "−") + fmShort(Math.abs(netMovement)),
       hue: netMovement >= 0 ? "var(--accent-green)" : "var(--status-danger)",
       sub:
         netMovement >= 0
@@ -63,7 +62,7 @@ export function MonthPulse({
       val: topCategory ? topCategory.name : "—",
       hue: "var(--text-primary)",
       sub: topCategory
-        ? formatMoneyShort(topCategory.amount)
+        ? fmShort(topCategory.amount)
         : t("dashboard.month_pulse.no_data"),
       icon: topCategory?.emoji ?? "",
     },

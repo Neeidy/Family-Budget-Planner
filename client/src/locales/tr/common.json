@@ -194,7 +194,8 @@
       "behind": "{{months}} ay geride",
       "no_allocation": "Aylık ödeme yok",
       "target_passed": "Hedef tarihi geçti"
-    }
+    },
+    "saved_suffix": "{{amount}} biriktirildi"
   },
   "raporlar": {
     "title": "Raporlar",
@@ -498,6 +499,13 @@
     "health": {
       "aria": "Bütçe Sağlık Skoru detayları",
       "score_label": "SKOR"
+    },
+    "inline_money": {
+      "edit_hint": "Düzenlemek için tıkla"
+    },
+    "circular_progress": {
+      "over": "{{amount}} aştı",
+      "remaining": "{{amount}} kaldı"
     }
   }
 }

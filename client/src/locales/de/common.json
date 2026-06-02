@@ -194,7 +194,8 @@
       "behind": "{{months}} Monate hinten",
       "no_allocation": "Keine monatliche Zuweisung",
       "target_passed": "Zieltermin überschritten"
-    }
+    },
+    "saved_suffix": "{{amount}} gespart"
   },
   "raporlar": {
     "title": "Berichte",
@@ -498,6 +499,13 @@
     "health": {
       "aria": "Details zum Budget-Gesundheitswert",
       "score_label": "WERT"
+    },
+    "inline_money": {
+      "edit_hint": "Zum Bearbeiten klicken"
+    },
+    "circular_progress": {
+      "over": "{{amount}} über",
+      "remaining": "{{amount}} übrig"
     }
   }
 }

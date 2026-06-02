@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { formatMoneyShort } from "@/lib/format";
+import { useFormatters } from "@/lib/useFormatters";
 
 interface QuickStatsPillProps {
   mobile: boolean;
@@ -33,6 +33,7 @@ export function QuickStatsPill({
   tomorrowDue,
 }: QuickStatsPillProps) {
   const { t } = useTranslation();
+  const { fmShort } = useFormatters();
   const monthPct = Math.max(
     0,
     Math.min(100, monthBudget > 0 ? (monthSpent / monthBudget) * 100 : 0)
@@ -40,7 +41,7 @@ export function QuickStatsPill({
   const items: StatItem[] = [
     {
       lbl: t("dashboard.quick_stats.today"),
-      val: formatMoneyShort(todaySpent),
+      val: fmShort(todaySpent),
       live: true,
       hue: "var(--accent-green)",
       sub: t("dashboard.quick_stats.today_subtitle"),
@@ -55,7 +56,7 @@ export function QuickStatsPill({
         }
       : {
           lbl: t("dashboard.quick_stats.month_remaining"),
-          val: formatMoneyShort(monthRemaining),
+          val: fmShort(monthRemaining),
           hue:
             monthRemaining < 0 ? "var(--status-danger)" : "var(--text-primary)",
           sub: t("dashboard.quick_stats.month_used", {
@@ -65,7 +66,7 @@ export function QuickStatsPill({
         },
     {
       lbl: t("dashboard.quick_stats.tomorrow"),
-      val: formatMoneyShort(tomorrowDue),
+      val: fmShort(tomorrowDue),
       hue: "var(--status-warning)",
       sub: t("dashboard.quick_stats.tomorrow_subtitle"),
       icon: "⚠",

@@ -9,7 +9,7 @@ import {
   BarChart,
 } from "@/components/design/charts";
 import { getCategoryMeta } from "@/components/design/CategoryPill";
-import { formatMoney } from "@/lib/format";
+import { useFormatters } from "@/lib/useFormatters";
 import { usePersistedTab } from "@/lib/usePersistedTab";
 
 const TABS = ["Aylık Karşılaştırma", "Analitik"] as const;
@@ -171,6 +171,7 @@ function HeroCard({
 
 // ── AYLIK KARŞILAŞTIRMA TAB ────────────────────────────────────
 function AylikTab({ range }: { range: Range }) {
+  const { fm } = useFormatters();
   const { budgetData } = useBudget();
 
   // Build a 12-month synthetic series from current budget data (real historical data isn't tracked yet)
@@ -229,7 +230,7 @@ function AylikTab({ range }: { range: Range }) {
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <HeroCard
         label="ORTALAMA AYLIK HARCAMA"
-        value={formatMoney(avgExpense)}
+        value={fm(avgExpense)}
         delta={{
           value: `${deltaPct >= 0 ? "↑" : "↓"} %${Math.abs(deltaPct).toFixed(1)} geçen aya göre`,
           positive: deltaPct < 0,
@@ -384,6 +385,7 @@ function DeltaCard({
   positive: boolean;
 }) {
   const { t } = useTranslation();
+  const { fm } = useFormatters();
   return (
     <div
       style={{
@@ -419,7 +421,7 @@ function DeltaCard({
             color: "var(--text-primary)",
           }}
         >
-          {formatMoney(amount)}
+          {fm(amount)}
         </span>
         <span
           className="pill"
@@ -451,6 +453,7 @@ function DeltaCard({
 // ── ANALİTİK TAB ───────────────────────────────────────────────
 function AnalitikTab({ range }: { range: Range }) {
   const { t } = useTranslation();
+  const { fm } = useFormatters();
   const { budgetData } = useBudget();
   void range;
 
@@ -491,7 +494,7 @@ function AnalitikTab({ range }: { range: Range }) {
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <HeroCard
         label="SEÇİLEN ARALIKTA TOPLAM HARCAMA"
-        value={formatMoney(totalSpent)}
+        value={fm(totalSpent)}
       />
 
       {/* Donut + top 5 list */}
@@ -542,7 +545,7 @@ function AnalitikTab({ range }: { range: Range }) {
                   marginTop: 4,
                 }}
               >
-                {formatMoney(totalSpent)}
+                {fm(totalSpent)}
               </div>
             </div>
           }
@@ -605,7 +608,7 @@ function AnalitikTab({ range }: { range: Range }) {
                       whiteSpace: "nowrap",
                     }}
                   >
-                    {formatMoney(val)}
+                    {fm(val)}
                   </span>
                 </div>
               );

@@ -20,7 +20,7 @@ import { deleteWithUndo } from "@/lib/undoToast";
 import { usePersistedTab } from "@/lib/usePersistedTab";
 import { useFab } from "@/contexts/FabContext";
 import type { AvatarWho } from "@/components/design";
-import { formatMoney } from "@/lib/format";
+import { useFormatters } from "@/lib/useFormatters";
 import { applyPersonFilter } from "@/lib/personFilter";
 import { isDemoMode, demoDisabledProps } from "@/lib/demoMode";
 import { InlineMoney } from "@/components/design/InlineMoney";
@@ -180,6 +180,7 @@ function IncomesTab({
   onDelete: (income: Income) => void;
 }) {
   const { t } = useTranslation();
+  const { fm } = useFormatters();
   const { budgetData, updateIncome } = useBudget();
   const { person1Name, person2Name } = usePerson();
 
@@ -261,8 +262,7 @@ function IncomesTab({
                   color: "var(--text-primary)",
                 }}
               >
-                {group.label} — {group.items.length} kayıt ·{" "}
-                {formatMoney(group.total)} ↑
+                {group.label} — {group.items.length} kayıt · {fm(group.total)} ↑
               </h3>
             </div>
             <DataTable
@@ -319,7 +319,7 @@ function IncomesTab({
             style={{ fontWeight: 700, color: "var(--text-secondary)" }}
           >
             Görüntülenen toplam:{" "}
-            {formatMoney(sortedIncomes.reduce((s, i) => s + i.amount, 0))}
+            {fm(sortedIncomes.reduce((s, i) => s + i.amount, 0))}
           </span>
         </div>
       )}
@@ -340,6 +340,7 @@ function ExpensesTab({
   onDelete: (expense: Expense) => void;
 }) {
   const { t } = useTranslation();
+  const { fm } = useFormatters();
   const { budgetData, updateExpense } = useBudget();
   const { person1Name, person2Name } = usePerson();
   const [statusFilter, setStatusFilter] = useState<ExpenseStatus>("tumu");
@@ -420,7 +421,7 @@ function ExpensesTab({
                   fontWeight: 600,
                 }}
               >
-                {group.items.length} kalem · {formatMoney(group.total)}
+                {group.items.length} kalem · {fm(group.total)}
               </span>
             </div>
             <DataTable
@@ -502,7 +503,7 @@ function ExpensesTab({
             style={{ fontWeight: 700, color: "var(--text-secondary)" }}
           >
             Görüntülenen toplam:{" "}
-            {formatMoney(filtered.reduce((s, e) => s + e.amount, 0))}
+            {fm(filtered.reduce((s, e) => s + e.amount, 0))}
           </span>
         </div>
       )}
@@ -754,6 +755,7 @@ function MiniSummaryCard({
   amount: number;
   accent: string;
 }) {
+  const { fm } = useFormatters();
   return (
     <div className="card lift" style={{ padding: "16px 20px" }}>
       <div className="section-label">{label}</div>
@@ -761,7 +763,7 @@ function MiniSummaryCard({
         className="tnum"
         style={{ fontSize: 24, fontWeight: 700, marginTop: 8, color: accent }}
       >
-        {formatMoney(amount)}
+        {fm(amount)}
       </div>
     </div>
   );

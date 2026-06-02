@@ -1,4 +1,5 @@
-import { parseMoney, formatMoney } from "@/lib/format";
+import { parseMoney } from "@/lib/format";
+import { useFormatters } from "@/lib/useFormatters";
 
 interface MoneyHintProps {
   raw: string;
@@ -12,6 +13,7 @@ interface MoneyHintProps {
  * value parses to €1.500,50.
  */
 export function MoneyHint({ raw }: MoneyHintProps) {
+  const { fm } = useFormatters();
   const num = parseMoney(raw);
   if (!Number.isFinite(num) || num <= 0) return null;
   return (
@@ -24,7 +26,7 @@ export function MoneyHint({ raw }: MoneyHintProps) {
         fontFeatureSettings: '"tnum"',
       }}
     >
-      = {formatMoney(num)}
+      = {fm(num)}
     </span>
   );
 }

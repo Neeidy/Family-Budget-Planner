@@ -194,7 +194,8 @@
       "behind": "{{months}} months behind",
       "no_allocation": "No monthly allocation",
       "target_passed": "Target date passed"
-    }
+    },
+    "saved_suffix": "{{amount}} saved"
   },
   "raporlar": {
     "title": "Reports",
@@ -498,6 +499,13 @@
     "health": {
       "aria": "Budget Health Score details",
       "score_label": "SCORE"
+    },
+    "inline_money": {
+      "edit_hint": "Click to edit"
+    },
+    "circular_progress": {
+      "over": "{{amount}} over",
+      "remaining": "{{amount}} left"
     }
   }
 }

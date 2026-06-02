@@ -21,7 +21,7 @@ import { deleteWithUndo } from "@/lib/undoToast";
 import { usePersistedTab } from "@/lib/usePersistedTab";
 import { useFab } from "@/contexts/FabContext";
 import type { AvatarWho, BadgeStatus } from "@/components/design";
-import { formatMoney } from "@/lib/format";
+import { useFormatters } from "@/lib/useFormatters";
 import { applyPersonFilter } from "@/lib/personFilter";
 import { isDemoMode, demoDisabledProps } from "@/lib/demoMode";
 import type { Debt, Installment, AnnualPayment } from "@/hooks/useBudgetData";
@@ -178,6 +178,7 @@ function MiniStatCard({
   amount: number;
   color?: string;
 }) {
+  const { fm } = useFormatters();
   return (
     <div className="card lift" style={{ padding: "16px 20px" }}>
       <div className="section-label">{label}</div>
@@ -190,7 +191,7 @@ function MiniStatCard({
           color: color ?? "var(--text-primary)",
         }}
       >
-        {formatMoney(amount)}
+        {fm(amount)}
       </div>
     </div>
   );
@@ -207,6 +208,7 @@ function DebtsTab({
   onDelete: (debt: Debt) => void;
 }) {
   const { t } = useTranslation();
+  const { fm } = useFormatters();
   const { budgetData, updateDebt } = useBudget();
 
   const filtered = useMemo(
@@ -226,7 +228,7 @@ function DebtsTab({
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <HeroCard
         label={t("borc.total_debt").toUpperCase()}
-        value={formatMoney(remaining)}
+        value={fm(remaining)}
         accent="var(--status-danger)"
         subInfo={
           <>
@@ -235,7 +237,7 @@ function DebtsTab({
               className="tnum"
               style={{ color: "var(--text-secondary)", fontWeight: 600 }}
             >
-              {formatMoney(totalMonthly)}
+              {fm(totalMonthly)}
             </span>
           </>
         }
@@ -308,6 +310,7 @@ function DebtCard({
   onMarkPaid?: () => void;
   onChangeStatus?: (next: "Odendi" | "Bekliyor" | "Gecikti") => void;
 }) {
+  const { fm } = useFormatters();
   const { updateDebt } = useBudget();
   const { person1Name, person2Name } = usePerson();
   // monthlyPayment is "this month's payment" — rough progress placeholder
@@ -438,13 +441,13 @@ function DebtCard({
             }}
           >
             <span className="tnum" style={{ color: "var(--accent-green)" }}>
-              Ödenen: {formatMoney(paid)} (%{pctPaid})
+              Ödenen: {fm(paid)} (%{pctPaid})
             </span>
             <span
               className="tnum"
               style={{ color: "var(--status-danger)", fontWeight: 600 }}
             >
-              Kalan: {formatMoney(remaining)}
+              Kalan: {fm(remaining)}
             </span>
           </div>
         </>
@@ -681,6 +684,7 @@ function InstallmentCard({
   onEdit: () => void;
   onDelete: () => void;
 }) {
+  const { fm } = useFormatters();
   const { updateInstallment } = useBudget();
   const { person1Name, person2Name } = usePerson();
   const paid = paidCount(inst);
@@ -808,8 +812,7 @@ function InstallmentCard({
         }}
       >
         <div style={{ fontSize: 11, color: "var(--text-tertiary)" }}>
-          Toplam:{" "}
-          <span className="hero-num">{formatMoney(inst.totalAmount)}</span>
+          Toplam: <span className="hero-num">{fm(inst.totalAmount)}</span>
         </div>
         <div style={{ display: "flex", gap: 4 }}>
           <button
@@ -846,6 +849,7 @@ function AnnualPaymentsTab({
   onEdit: (p: AnnualPayment) => void;
   onDelete: (p: AnnualPayment) => void;
 }) {
+  const { fm } = useFormatters();
   const { budgetData, updateAnnualPayment } = useBudget();
   const { person1Name, person2Name } = usePerson();
   const list = budgetData.annualPayments ?? [];
@@ -935,7 +939,7 @@ function AnnualPaymentsTab({
                         color: "var(--text-primary)",
                       }}
                     >
-                      {formatMoney(monthTotal)}
+                      {fm(monthTotal)}
                     </div>
                     <div
                       style={{

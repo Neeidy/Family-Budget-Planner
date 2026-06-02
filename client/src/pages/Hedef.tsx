@@ -10,7 +10,7 @@ import { useIsMobile } from "@/hooks/useMobile";
 import { Avatar, EmptyState, GoalDialog } from "@/components/design";
 import { deleteWithUndo } from "@/lib/undoToast";
 import type { AvatarWho } from "@/components/design";
-import { formatMoney, formatMoneyShort } from "@/lib/format";
+import { useFormatters } from "@/lib/useFormatters";
 import { applyPersonFilter } from "@/lib/personFilter";
 import { isDemoMode, demoDisabledProps } from "@/lib/demoMode";
 import type { SavingsGoal } from "@/hooks/useBudgetData";
@@ -201,10 +201,10 @@ function HeroCard({
   mobile: boolean;
 }) {
   const { t } = useTranslation();
-  const totalStr = formatMoney(totalSaved);
-  const decMatch = totalStr.match(/,\d{2}$/);
-  const totalMain = decMatch ? totalStr.replace(/,\d{2}$/, "") : totalStr;
-  const totalDecimals = decMatch?.[0] ?? ",00";
+  const { fmShort, fmParts } = useFormatters();
+  const totalParts = fmParts(totalSaved);
+  const totalMain = totalParts.main;
+  const totalDecimals = totalParts.fraction;
 
   return (
     <div
@@ -287,7 +287,7 @@ function HeroCard({
                 color: "var(--accent-green)",
               }}
             >
-              +{formatMoneyShort(monthDelta)}
+              +{fmShort(monthDelta)}
             </div>
           </div>
           <div
@@ -313,7 +313,7 @@ function HeroCard({
               className="tnum"
               style={{ fontSize: 22, fontWeight: 700, marginTop: 4 }}
             >
-              {formatMoneyShort(totalTarget)}
+              {fmShort(totalTarget)}
             </div>
           </div>
         </div>
@@ -336,6 +336,8 @@ function GoalCard({
   onDelete: () => void;
   onContribute: (amount: number) => void;
 }) {
+  const { t } = useTranslation();
+  const { fmShort } = useFormatters();
   const { person1Name, person2Name } = usePerson();
   const pct =
     goal.targetAmount > 0
@@ -486,13 +488,13 @@ function GoalCard({
               color: "var(--text-primary)",
             }}
           >
-            {formatMoneyShort(goal.targetAmount)}
+            {fmShort(goal.targetAmount)}
           </div>
           <div
             className="tnum"
             style={{ fontSize: 12, color: "var(--text-tertiary)" }}
           >
-            {formatMoneyShort(goal.currentAmount)} biriktirildi
+            {t("hedef.saved_suffix", { amount: fmShort(goal.currentAmount) })}
           </div>
         </div>
       </div>
@@ -595,7 +597,7 @@ function GoalCard({
                 className="tnum"
                 style={{ color: "var(--text-secondary)", fontWeight: 600 }}
               >
-                {formatMoneyShort(goal.monthlyAllocation)}
+                {fmShort(goal.monthlyAllocation)}
               </span>
               /ay
             </span>
