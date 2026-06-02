@@ -422,7 +422,7 @@ export function Dashboard() {
               cursor: "pointer",
             }}
           >
-            Hepsini gör →
+            {t("dashboard.see_all")} →
           </button>
         )}
       </div>

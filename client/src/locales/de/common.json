@@ -13,7 +13,8 @@
     "search": "Suchen",
     "filter": "Filter",
     "all": "Alle",
-    "none": "Keine"
+    "none": "Keine",
+    "demo_disabled": "Bearbeiten im Demo-Modus deaktiviert"
   },
   "nav": {
     "home": "Startseite",
@@ -114,7 +115,8 @@
       "upcoming_days": "nächste Tage",
       "no_upcoming": "Keine anstehenden Zahlungen für dieses Profil ✓",
       "x_days_later": "in {{count}} Tagen"
-    }
+    },
+    "see_all": "Alle anzeigen"
   },
   "gelir_gider": {
     "title": "Einnahmen & Ausgaben",
@@ -136,8 +138,19 @@
       "name": "Name",
       "amount": "Betrag",
       "date": "Datum",
-      "action": "Aktion"
-    }
+      "action": "Aktion",
+      "category": "Kategorie",
+      "expense_name": "Ausgabe",
+      "income_name": "Einnahme",
+      "type": "Typ",
+      "status": "Status"
+    },
+    "dateless_group": "Ohne Datum",
+    "month_items_total": "{{count}} Einträge · {{total}}",
+    "month_records_total": "{{count}} Einträge · {{total}}",
+    "total_count": "{{count}} Einträge",
+    "make_one_time": "Einmalig machen (Fix → Variabel)",
+    "person_income": "Einnahmen von {{name}}"
   },
   "borc": {
     "title": "Schulden & Zahlungen",
@@ -161,7 +174,19 @@
     "no_installments": "Noch keine Raten",
     "no_annual": "Noch keine jährlichen Zahlungen",
     "annual_total": "Jahressumme",
-    "monthly_average": "Monatlicher Durchschnitt"
+    "monthly_average": "Monatlicher Durchschnitt",
+    "installments_left": "Noch {{count}} Raten",
+    "monthly_label": "monatlich",
+    "active_installments_count": "AKTIVE RATEN",
+    "this_month_total": "Diesen Monat gesamt",
+    "remaining_total": "Restbetrag gesamt",
+    "active_installments": "Aktive Raten",
+    "last_payment_label": "Letzte Zahlung",
+    "mark_paid_title": "Als diesen Monat bezahlt markieren",
+    "paid_label": "Bezahlt",
+    "monthly_short": "Monatlich",
+    "end_label": "Ende",
+    "total_label": "Gesamt"
   },
   "hedef": {
     "title": "Sparen & Ziele",
@@ -195,7 +220,18 @@
       "no_allocation": "Keine monatliche Zuweisung",
       "target_passed": "Zieltermin überschritten"
     },
-    "saved_suffix": "{{amount}} gespart"
+    "saved_suffix": "{{amount}} gespart",
+    "continuous": "Laufend",
+    "projection": {
+      "completed": "✓ Ziel erreicht",
+      "no_monthly": "⚠ Keine monatliche Einlage angegeben",
+      "date_passed": "⚠ Zieldatum überschritten, aktualisieren",
+      "on_track": "✓ Im Plan für das Zieldatum",
+      "delayed": "⚠ {{months}} Monate Verzug — {{amount}}/Monat nötig"
+    },
+    "days_left_suffix": "Tage übrig",
+    "per_month_suffix": "/Monat",
+    "contribute_tooltip": "+{{amount}} hinzufügen"
   },
   "raporlar": {
     "title": "Berichte",
@@ -215,9 +251,16 @@
     "income_vs_expense_chart": "Einnahmen vs. Ausgaben",
     "avg_monthly_spend": "Durchschnittliche Monatsausgaben",
     "compared_to_last_month": "im Vergleich zum Vormonat",
-    "top_increasing_category": "Am stärksten steigende Kategorie",
+    "top_increasing_category": "STÄRKSTER ANSTIEG",
     "least_spent_category": "Geringste Ausgaben in Kategorie",
-    "no_data": "Keine Daten"
+    "no_data": "Keine Daten",
+    "top_5_categories": "TOP 5 KATEGORIEN",
+    "category_distribution": "KATEGORIENVERTEILUNG",
+    "monthly_category_distribution": "MONATLICHE KATEGORIENVERTEILUNG",
+    "income_vs_expense_trend": "EINNAHMEN VS. AUSGABEN TREND",
+    "net_savings_trend": "NETTO-SPARTREND",
+    "avg_monthly_spend_label": "DURCHSCHN. MONATSAUSGABEN",
+    "delta_vs_last_month": "{{dir}} {{pct}}% ggü. Vormonat"
   },
   "settings": {
     "title": "Einstellungen",
@@ -632,5 +675,9 @@
     "diger": {
       "diger": "Sonstiges"
     }
+  },
+  "demo_banner": {
+    "title": "Demo-Vorschau",
+    "subtitle": "Beispieldaten, nicht gespeichert"
   }
 }

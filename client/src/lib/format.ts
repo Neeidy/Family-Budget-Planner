@@ -122,3 +122,30 @@ export function formatDate(iso: string, intl?: string): string {
     return iso;
   }
 }
+
+/** Locale-aware "long month + year" (e.g. Haziran 2026 / June 2026 / Juni 2026). month0 is 0-based. */
+export function formatMonthYear(
+  year: number,
+  month0: number,
+  intl?: string
+): string {
+  try {
+    return new Intl.DateTimeFormat(intl ?? currentIntl(), {
+      year: "numeric",
+      month: "long",
+    }).format(new Date(year, month0, 1));
+  } catch {
+    return `${month0 + 1}/${year}`;
+  }
+}
+
+/** Locale-aware short month label by 0-based index (e.g. Oca / Jan / Jän). */
+export function formatMonthShort(month0: number, intl?: string): string {
+  try {
+    return new Intl.DateTimeFormat(intl ?? currentIntl(), {
+      month: "short",
+    }).format(new Date(2000, month0, 1));
+  } catch {
+    return String(month0 + 1);
+  }
+}

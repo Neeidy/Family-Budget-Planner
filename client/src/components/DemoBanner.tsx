@@ -4,11 +4,14 @@
  *
  * Tokens: --status-warning + --bg-elevated tint, mockup-aligned typography.
  */
+import { useTranslation } from "react-i18next";
+
 export function DemoBanner() {
+  const { t } = useTranslation();
   return (
     <div
       role="status"
-      aria-label="Demo gösterimi"
+      aria-label={t("demo_banner.title")}
       style={{
         position: "sticky",
         top: 0,
@@ -48,9 +51,9 @@ export function DemoBanner() {
       >
         i
       </span>
-      <span>Demo gösterimi</span>
+      <span>{t("demo_banner.title")}</span>
       <span style={{ color: "var(--text-tertiary)", fontWeight: 500 }}>
-        · Veriler örnektir, kaydedilmez
+        · {t("demo_banner.subtitle")}
       </span>
     </div>
   );

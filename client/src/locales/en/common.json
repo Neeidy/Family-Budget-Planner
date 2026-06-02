@@ -13,7 +13,8 @@
     "search": "Search",
     "filter": "Filter",
     "all": "All",
-    "none": "None"
+    "none": "None",
+    "demo_disabled": "Editing disabled in demo mode"
   },
   "nav": {
     "home": "Home",
@@ -114,7 +115,8 @@
       "upcoming_days": "next few days",
       "no_upcoming": "No upcoming payments for this profile ✓",
       "x_days_later": "in {{count}} days"
-    }
+    },
+    "see_all": "See all"
   },
   "gelir_gider": {
     "title": "Income & Expense",
@@ -136,8 +138,19 @@
       "name": "Name",
       "amount": "Amount",
       "date": "Date",
-      "action": "Action"
-    }
+      "action": "Action",
+      "category": "Category",
+      "expense_name": "Expense Name",
+      "income_name": "Income Name",
+      "type": "Type",
+      "status": "Status"
+    },
+    "dateless_group": "Undated",
+    "month_items_total": "{{count}} items · {{total}}",
+    "month_records_total": "{{count}} records · {{total}}",
+    "total_count": "{{count}} items",
+    "make_one_time": "Make one-time (Fixed → Variable)",
+    "person_income": "{{name}}'s Income"
   },
   "borc": {
     "title": "Debt & Payments",
@@ -161,7 +174,19 @@
     "no_installments": "No installments yet",
     "no_annual": "No annual payments yet",
     "annual_total": "Annual Total",
-    "monthly_average": "Monthly Average"
+    "monthly_average": "Monthly Average",
+    "installments_left": "{{count}} installments left",
+    "monthly_label": "monthly",
+    "active_installments_count": "ACTIVE INSTALLMENTS",
+    "this_month_total": "This Month Total",
+    "remaining_total": "Remaining Total",
+    "active_installments": "Active Installments",
+    "last_payment_label": "Last payment",
+    "mark_paid_title": "Mark as paid this month",
+    "paid_label": "Paid",
+    "monthly_short": "Monthly",
+    "end_label": "End",
+    "total_label": "Total"
   },
   "hedef": {
     "title": "Savings & Goals",
@@ -195,7 +220,18 @@
       "no_allocation": "No monthly allocation",
       "target_passed": "Target date passed"
     },
-    "saved_suffix": "{{amount}} saved"
+    "saved_suffix": "{{amount}} saved",
+    "continuous": "Ongoing",
+    "projection": {
+      "completed": "✓ Goal reached",
+      "no_monthly": "⚠ No monthly contribution set",
+      "date_passed": "⚠ Target date passed, update",
+      "on_track": "✓ On track for target date",
+      "delayed": "⚠ {{months}} months behind — {{amount}}/mo needed"
+    },
+    "days_left_suffix": "days left",
+    "per_month_suffix": "/mo",
+    "contribute_tooltip": "Add +{{amount}}"
   },
   "raporlar": {
     "title": "Reports",
@@ -215,9 +251,16 @@
     "income_vs_expense_chart": "Income vs Expense",
     "avg_monthly_spend": "Avg. Monthly Spend",
     "compared_to_last_month": "vs last month",
-    "top_increasing_category": "Top Increasing Category",
+    "top_increasing_category": "TOP INCREASING CATEGORY",
     "least_spent_category": "Least Spent Category",
-    "no_data": "No data"
+    "no_data": "No data",
+    "top_5_categories": "TOP 5 CATEGORIES",
+    "category_distribution": "CATEGORY DISTRIBUTION",
+    "monthly_category_distribution": "MONTHLY CATEGORY DISTRIBUTION",
+    "income_vs_expense_trend": "INCOME VS EXPENSE TREND",
+    "net_savings_trend": "NET SAVINGS TREND",
+    "avg_monthly_spend_label": "AVG. MONTHLY SPEND",
+    "delta_vs_last_month": "{{dir}} {{pct}}% vs last month"
   },
   "settings": {
     "title": "Settings",
@@ -632,5 +675,9 @@
     "diger": {
       "diger": "Other (free-form)"
     }
+  },
+  "demo_banner": {
+    "title": "Demo preview",
+    "subtitle": "Sample data, not persisted"
   }
 }

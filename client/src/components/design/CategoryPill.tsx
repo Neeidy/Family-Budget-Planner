@@ -1,8 +1,30 @@
+import { useTranslation } from "react-i18next";
+
 interface CategoryMeta {
   name: string;
   emoji: string;
   colorVar: string;
 }
+
+/** Normalized keys that have a `category.*` i18n leaf (the 16 main categories). */
+const MAIN_CATEGORY_KEYS = new Set([
+  "konut",
+  "yiyecek",
+  "araba",
+  "ulasim",
+  "saglik",
+  "eglence",
+  "abonelik",
+  "ai",
+  "giyim",
+  "spor",
+  "kisiselbakim",
+  "tatil",
+  "porsuk",
+  "loto",
+  "tabak",
+  "diger",
+]);
 
 /** Build a stable lookup key — strip diacritics + non-letter chars + lowercase.
  * NOTE: Uses plain toLowerCase, NOT toLocaleLowerCase("tr-TR"). Turkish locale
@@ -186,7 +208,12 @@ export function CategoryPill({
   showEmoji = true,
   displayName,
 }: CategoryPillProps) {
+  const { t } = useTranslation();
   const meta = getCategoryMeta(cat);
+  const norm = normalizeKey(cat);
+  const localizedName = MAIN_CATEGORY_KEYS.has(norm)
+    ? t(`category.${norm}`, { defaultValue: meta.name })
+    : meta.name;
   const fontSize = size === "sm" ? 11 : 13;
   return (
     <span
@@ -200,7 +227,7 @@ export function CategoryPill({
     >
       {showEmoji && <span>{meta.emoji}</span>}
       <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>
-        {displayName ?? meta.name}
+        {displayName ?? localizedName}
       </span>
     </span>
   );
