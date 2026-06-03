@@ -369,7 +369,7 @@ function DashboardLayoutContent({
                     {activeName}
                   </div>
                   <div style={{ fontSize: 11, color: "var(--text-tertiary)" }}>
-                    Aktif kullanıcı
+                    {t("nav.active_user")}
                   </div>
                 </div>
                 <button

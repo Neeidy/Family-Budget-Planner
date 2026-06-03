@@ -23,6 +23,7 @@ import {
 } from "@/components/design/CategoryPill";
 import { TrendingUp, TrendingDown, ArrowRight } from "lucide-react";
 import { useFormatters } from "@/lib/useFormatters";
+import { monthIndexFromTRString } from "@/lib/format";
 import { applyPersonFilter } from "@/lib/personFilter";
 
 // ── Upcoming-bill helpers ─────────────────────────────────────
@@ -115,7 +116,7 @@ const DESIGN_FILTER: Record<string, DesignFilter> = {
 // ── Dashboard ─────────────────────────────────────────────────
 export function Dashboard() {
   const { t, i18n } = useTranslation();
-  const { fm, fmShort, fmParts } = useFormatters();
+  const { fm, fmShort, fmParts, fMonthYear } = useFormatters();
   const { budgetData, calculateTotals } = useBudget();
   const { person1Name, person2Name, currentPerson } = usePerson();
   const { filter } = usePersonFilter();
@@ -470,7 +471,8 @@ export function Dashboard() {
         <div
           style={{ fontSize: 13, color: "var(--text-tertiary)", marginTop: 6 }}
         >
-          {budgetData.month} {budgetData.year} •{" "}
+          {fMonthYear(budgetData.year, monthIndexFromTRString(budgetData.month))}{" "}
+          •{" "}
           <Avatar who={activeWho} size={16} />
           <span style={{ verticalAlign: "middle", marginLeft: 4 }}>
             {t("dashboard.view_as", { name: activeName })}
@@ -690,7 +692,7 @@ export function Dashboard() {
         <OwnerCard
           who="yigit"
           title={t("dashboard.owner_card.title.person1", {
-            name: person1Name.toLocaleUpperCase("tr-TR"),
+            name: person1Name.toUpperCase(),
           })}
           amount={fm(fullTotals.myExpensesOwn + fullTotals.myHomeShare)}
           subtitle={`${t("dashboard.owner_card.own_label")}: ${fm(fullTotals.myExpensesOwn)} · ${t("dashboard.owner_card.home_share_label")}: ${fm(fullTotals.myHomeShare)}`}
@@ -705,7 +707,7 @@ export function Dashboard() {
         <OwnerCard
           who="arzu"
           title={t("dashboard.owner_card.title.person2", {
-            name: person2Name.toLocaleUpperCase("tr-TR"),
+            name: person2Name.toUpperCase(),
           })}
           amount={fm(fullTotals.spouseExpensesOwn + fullTotals.spouseHomeShare)}
           subtitle={`${t("dashboard.owner_card.own_label")}: ${fm(fullTotals.spouseExpensesOwn)} · ${t("dashboard.owner_card.home_share_label")}: ${fm(fullTotals.spouseHomeShare)}`}

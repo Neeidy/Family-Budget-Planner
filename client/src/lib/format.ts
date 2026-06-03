@@ -152,3 +152,31 @@ export function formatMonthShort(month0: number, intl?: string): string {
     return String(month0 + 1);
   }
 }
+
+/**
+ * Turkish long month names — the legacy format that `budgetData.month` is
+ * persisted as in the DB. Used to map that string back to a 0-based index so
+ * the UI can render the month locale-aware (the DB string itself is never
+ * mutated → schema/legacy compatibility preserved).
+ */
+const MONTHS_TR = [
+  "Ocak",
+  "Şubat",
+  "Mart",
+  "Nisan",
+  "Mayıs",
+  "Haziran",
+  "Temmuz",
+  "Ağustos",
+  "Eylül",
+  "Ekim",
+  "Kasım",
+  "Aralık",
+];
+
+/** Map a Turkish long month name to its 0-based index. Falls back to the
+ *  current month when the string is unrecognized. */
+export function monthIndexFromTRString(s: string): number {
+  const i = MONTHS_TR.indexOf(s);
+  return i >= 0 ? i : new Date().getMonth();
+}

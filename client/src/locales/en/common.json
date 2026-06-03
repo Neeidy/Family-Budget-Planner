@@ -46,7 +46,8 @@
     "all": "All",
     "person1": "{{name}}",
     "person2": "{{name}}",
-    "home": "Home"
+    "home": "Home",
+    "displayed_total": "Displayed total"
   },
   "dashboard": {
     "greeting": "Hello, {{name}}!",
@@ -547,7 +548,13 @@
     "saved": "Saved",
     "error_invalid_data": "Invalid data",
     "success_imported": "Imported",
-    "error_import_failed": "Import failed"
+    "error_import_failed": "Import failed",
+    "undo_done": "Undone: {{name}}",
+    "month_archived": "This month archived",
+    "data_downloaded": "Data downloaded",
+    "data_imported": "Data imported successfully",
+    "invalid_backup": "Invalid backup file",
+    "file_read_error": "Could not read file"
   },
   "empty": {
     "no_data": "No data yet",

@@ -50,8 +50,7 @@ const SAMPLE_NOTIFICATIONS: Notification[] = [
     id: "5",
     emoji: "📊",
     title: "Aylık özet hazır",
-    description:
-      "Mayıs 2026 raporu hazırlandı. Raporlar sayfasından inceleyin.",
+    description: "Last month's report is ready. Check the Reports page.",
     timeAgo: "1 hafta önce",
     type: "info",
     read: true,
