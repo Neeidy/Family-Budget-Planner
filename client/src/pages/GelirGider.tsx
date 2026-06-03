@@ -188,7 +188,7 @@ function IncomesTab({
   onDelete: (income: Income) => void;
 }) {
   const { t } = useTranslation();
-  const { fm, fMonthYear } = useFormatters();
+  const { fm, fMonthYear, fd } = useFormatters();
   const { budgetData, updateIncome } = useBudget();
   const { person1Name, person2Name } = usePerson();
 
@@ -318,7 +318,7 @@ function IncomesTab({
                     style={{ fontWeight: 700, color: "var(--accent-green)" }}
                   />,
                   <span style={{ fontSize: 12, color: "var(--text-tertiary)" }}>
-                    {new Date(income.date).toLocaleDateString("tr-TR")}
+                    {fd(income.date)}
                   </span>,
                   <RowActions
                     onEdit={() => onEdit(income)}
@@ -348,7 +348,7 @@ function IncomesTab({
             className="tnum"
             style={{ fontWeight: 700, color: "var(--text-secondary)" }}
           >
-            Görüntülenen toplam:{" "}
+            {t("filter.displayed_total")}:{" "}
             {fm(sortedIncomes.reduce((s, i) => s + i.amount, 0))}
           </span>
         </div>
@@ -555,7 +555,7 @@ function ExpensesTab({
             className="tnum"
             style={{ fontWeight: 700, color: "var(--text-secondary)" }}
           >
-            Görüntülenen toplam:{" "}
+            {t("filter.displayed_total")}:{" "}
             {fm(filtered.reduce((s, e) => s + e.amount, 0))}
           </span>
         </div>

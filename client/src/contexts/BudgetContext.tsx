@@ -113,7 +113,7 @@ export function BudgetProvider({ children }: { children: ReactNode }) {
   // locale. butce (production) is never in demo mode → raw data passes through
   // untouched. Write paths keep using budgetHook.* (raw), so persistence and
   // undo snapshots never see overlaid labels.
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const localizedBudgetData = useMemo<BudgetData>(() => {
     const raw = budgetHook.budgetData;
     if (!isDemoMode()) return raw;
@@ -145,9 +145,9 @@ export function BudgetProvider({ children }: { children: ReactNode }) {
     const entry = popUndo();
     if (entry) {
       budgetHook.setBudgetData(entry.snapshot);
-      toast.success(`Geri alındı: ${entry.description}`);
+      toast.success(t("toast.undo_done", { name: entry.description }));
     }
-  }, [popUndo, budgetHook]);
+  }, [popUndo, budgetHook, t]);
 
   // ─── Archive ──────────────────────────────────────────────────────────────
 
@@ -156,8 +156,8 @@ export function BudgetProvider({ children }: { children: ReactNode }) {
     const year = budgetHook.budgetData.year || now.getFullYear();
     const monthIndex = now.getMonth() + 1;
     saveToArchive(budgetHook.budgetData, year, monthIndex);
-    toast.success("Bu ay arşive kaydedildi");
-  }, [budgetHook.budgetData, saveToArchive]);
+    toast.success(t("toast.month_archived"));
+  }, [budgetHook.budgetData, saveToArchive, t]);
 
   // ─── Backup / Restore ─────────────────────────────────────────────────────
 
@@ -177,8 +177,8 @@ export function BudgetProvider({ children }: { children: ReactNode }) {
     a.download = `viyana-butce-yedek-${new Date().toISOString().split("T")[0]}.json`;
     a.click();
     URL.revokeObjectURL(url);
-    toast.success("Veriler indirildi");
-  }, [budgetHook.budgetData, archive]);
+    toast.success(t("toast.data_downloaded"));
+  }, [budgetHook.budgetData, archive, t]);
 
   const importData = useCallback(
     (jsonString: string): boolean => {
@@ -187,17 +187,17 @@ export function BudgetProvider({ children }: { children: ReactNode }) {
         if (parsed.currentData) {
           pushUndo("Veri içe aktarıldı", budgetHook.budgetData);
           budgetHook.setBudgetData(parsed.currentData);
-          toast.success("Veriler başarıyla yüklendi");
+          toast.success(t("toast.data_imported"));
           return true;
         }
-        toast.error("Geçersiz yedek dosyası");
+        toast.error(t("toast.invalid_backup"));
         return false;
       } catch {
-        toast.error("Dosya okunamadı");
+        toast.error(t("toast.file_read_error"));
         return false;
       }
     },
-    [budgetHook, pushUndo]
+    [budgetHook, pushUndo, t]
   );
 
   const value: BudgetContextType = {

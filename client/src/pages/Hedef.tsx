@@ -35,7 +35,7 @@ function ownerLabel(
 }
 
 function pickEmoji(name: string): string {
-  const lower = name.toLocaleLowerCase("tr-TR");
+  const lower = name.toLowerCase();
   if (
     lower.includes("tatil") ||
     lower.includes("seyahat") ||

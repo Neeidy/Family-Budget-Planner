@@ -46,7 +46,8 @@
     "all": "Tümü",
     "person1": "{{name}}",
     "person2": "{{name}}",
-    "home": "Ev"
+    "home": "Ev",
+    "displayed_total": "Görüntülenen toplam"
   },
   "dashboard": {
     "greeting": "Merhaba, {{name}}!",
@@ -547,7 +548,13 @@
     "saved": "Kaydedildi",
     "error_invalid_data": "Geçersiz veri",
     "success_imported": "İçe aktarıldı",
-    "error_import_failed": "İçe aktarma başarısız"
+    "error_import_failed": "İçe aktarma başarısız",
+    "undo_done": "Geri alındı: {{name}}",
+    "month_archived": "Bu ay arşive kaydedildi",
+    "data_downloaded": "Veriler indirildi",
+    "data_imported": "Veriler başarıyla yüklendi",
+    "invalid_backup": "Geçersiz yedek dosyası",
+    "file_read_error": "Dosya okunamadı"
   },
   "empty": {
     "no_data": "Henüz veri yok",

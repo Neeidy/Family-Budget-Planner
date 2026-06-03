@@ -46,7 +46,8 @@
     "all": "Alle",
     "person1": "{{name}}",
     "person2": "{{name}}",
-    "home": "Haushalt"
+    "home": "Haushalt",
+    "displayed_total": "Angezeigte Summe"
   },
   "dashboard": {
     "greeting": "Hallo, {{name}}!",
@@ -547,7 +548,13 @@
     "saved": "Gespeichert",
     "error_invalid_data": "Ungültige Daten",
     "success_imported": "Importiert",
-    "error_import_failed": "Import fehlgeschlagen"
+    "error_import_failed": "Import fehlgeschlagen",
+    "undo_done": "Rückgängig: {{name}}",
+    "month_archived": "Dieser Monat archiviert",
+    "data_downloaded": "Daten heruntergeladen",
+    "data_imported": "Daten erfolgreich importiert",
+    "invalid_backup": "Ungültige Sicherungsdatei",
+    "file_read_error": "Datei konnte nicht gelesen werden"
   },
   "empty": {
     "no_data": "Noch keine Daten",
