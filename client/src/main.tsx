@@ -7,6 +7,16 @@ import App from "./App";
 import "./index.css";
 import "./i18n";
 
+// Hostname-aware browser tab title.
+// Demo subdomain shows a portfolio-friendly English title;
+// production keeps the existing Turkish title from index.html.
+if (
+  typeof window !== "undefined" &&
+  window.location.hostname === "demo.aileplan.uk"
+) {
+  document.title = "Family Budget OS — Live demo";
+}
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
