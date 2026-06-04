@@ -17,7 +17,7 @@ Family budget app deployed at butce.aileplan.uk (Cloudflare Access protected, re
 2. **demo.aileplan.uk public**, parolasız erişim, hardcoded sample data only. Real family data ASLA demo'ya sızmaz.
 3. **Drizzle schema değişikliği için** `pnpm exec drizzle-kit generate` ile yeni migration üret. Mevcut migration dosyalarını editleme.
 4. **Currency:** EUR only. **UI:** Turkish.
-5. **Aile parolası `***REMOVED***`** (sadece butce). Demo'da parola yok, profile pick → direct dashboard.
+5. **Aile parolası** `.env` içindeki `FAMILY_PASSWORD_HASH`'te tutulur (repo'da plaintext yok; sadece butce). Demo'da parola yok, profile pick → direct dashboard.
 6. **Production restart komutu:** `launchctl kickstart -k gui/$(id -u)/com.viyana.budget`. Kısa downtime kabul.
 7. **Tests baseline 93/93.** Yeni feature için test ekle, mevcut 93'ten düşürme.
 8. **tsconfig.json'da `noUnusedLocals` + `noUnusedParameters` açık.** Her import gerçekten kullanılmalı, build kırar.

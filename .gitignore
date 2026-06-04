@@ -130,3 +130,11 @@ client/public/__manus__/version.json
 /audit/
 /.playwright-mcp/
 /UK Family - Google Play package/
+
+# Local-only agent configs, session notes & portfolio exports (not part of source)
+.codex/
+AGENTS.md
+/.claude/SESSION_CHECKPOINT.md
+screenshots/
+*portfolio*.html
+/Family Budget Os.html
