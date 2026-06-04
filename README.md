@@ -1,26 +1,46 @@
-# Vienna Budget Planner
+<div align="center">
 
-A trilingual (🇹🇷 Türkçe · 🇬🇧 English · 🇦🇹 Deutsch) family budget planner for an
-Austrian household — track income, expenses, debts, installments, annual
-payments, and savings goals, with fully locale-aware currency/date formatting
-and an installable PWA.
+# 💶 Vienna Budget Planner
 
-**Live demo:** https://demo.aileplan.uk — public, sample data, no login required.
+***plan together — every euro, in three languages***
+
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
+![tRPC](https://img.shields.io/badge/tRPC-v11-2596BE?logo=trpc&logoColor=white)
+![Drizzle + MySQL](https://img.shields.io/badge/Drizzle%20%2B%20MySQL-8-4479A1?logo=mysql&logoColor=white)
+![i18n](https://img.shields.io/badge/i18n-TR%20%C2%B7%20EN%20%C2%B7%20DE-22C55E)
+![PWA](https://img.shields.io/badge/PWA-installable-5A0FC8?logo=pwa&logoColor=white)
+![license](https://img.shields.io/badge/license-MIT-blue)
+
+</div>
+
+> A self-hosted family budget planner with a fully localized **TR · EN · DE** UI,
+> a public demo backed by locale-overlaid sample data, and a strict
+> production/demo split.
+
+**Vienna Budget Planner** helps an Austrian household track income, expenses,
+debts, installments, annual payments, and savings goals — with money, dates, and
+category names all rendered per locale, an installable PWA shell, and
+cookie-based family auth. The public demo serves hardcoded sample data with
+mutations disabled; real household data never touches it.
+
+**🔗 Live demo:** [demo.aileplan.uk](https://demo.aileplan.uk) — no login, sample data.
+
+---
 
 ## Features
 
 - **Complete budgeting model** — incomes, fixed/variable expenses, debts,
   installments, annual payments, savings goals, and per-category budget limits.
-- **Trilingual UI** — TR / EN / DE via i18next with a compact language switcher.
-  Money, dates, and month names render per locale (EUR formatted as `tr-TR`,
-  `en-GB`, or `de-AT`), and category names are localized too.
+- **Trilingual UI** — 🇹🇷 / 🇬🇧 / 🇦🇹 via i18next. Currency (EUR), dates, month
+  names, and category labels all format per locale (`tr-TR` · `en-GB` · `de-AT`).
 - **Reports** — category breakdowns, per-owner splits, and spend charts.
-- **Monthly archive & rollover** — snapshot each month and carry balances forward.
-- **Demo mode** — the public demo serves hardcoded sample data with
-  locale-translated labels; all mutations are disabled server-side.
-- **PWA** — installable, offline-tolerant app shell (vite-plugin-pwa / Workbox).
-- **Cookie-based family auth** — a single shared household password (no per-user
-  accounts); the password is stored only as a hash in `.env`, never in the repo.
+- **Monthly archive & rollover** — snapshot each month, carry balances forward.
+- **Demo mode** — the public demo serves locale-translated sample data and is
+  read-only server-side (all mutations `FORBIDDEN`).
+- **PWA** — installable, offline-tolerant app shell (Workbox).
+- **Cookie-based family auth** — one shared household password, stored only as a
+  hash in `.env` (never in the repo).
 
 ## Tech stack
 
@@ -32,6 +52,22 @@ and an installable PWA.
 | Tooling  | pnpm 10, TypeScript (strict mode), Vitest           |
 | Delivery | PWA (Workbox), Cloudflare Tunnel ingress            |
 
+## Architecture
+
+```
+client/  ──  React 19 SPA (wouter · i18next · Tailwind v4)
+   │            pages · components · contexts · /locales (tr, en, de)
+   │   tRPC over HTTP (superjson, cookie auth)
+   ▼
+server/  ──  Express + tRPC v11
+   │            family auth · demo overlay (isGuest) · routers
+   │   Drizzle ORM
+   ▼
+MySQL 8  ──  single-family budget document
+
+shared/  ──  categories + demo translations (used by client ⇄ server)
+```
+
 ## Getting started
 
 Prerequisites: Node 20+, pnpm 10, and MySQL 8 running locally on port 3306.
@@ -40,22 +76,16 @@ Prerequisites: Node 20+, pnpm 10, and MySQL 8 running locally on port 3306.
 # 1. Create the database
 mysql -u root -e "CREATE DATABASE IF NOT EXISTS viyana_budget CHARACTER SET utf8mb4;"
 
-# 2. Configure environment — copy the template and fill in real values
+# 2. Configure environment — copy the template, fill in real values
 cp .env.example .env
-
-#    Generate the family password hash and paste it into FAMILY_PASSWORD_HASH:
-pnpm tsx scripts/hash-family-password.ts <your-password>
-
-#    Generate a cookie secret and paste it into FAMILY_COOKIE_SECRET:
-node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
+pnpm tsx scripts/hash-family-password.ts <your-password>                  # → FAMILY_PASSWORD_HASH
+node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"  # → FAMILY_COOKIE_SECRET
 
 # 3. Install, migrate, run
 pnpm install
 pnpm exec drizzle-kit migrate
-pnpm dev
+pnpm dev          # http://localhost:3000
 ```
-
-The app starts on http://localhost:3000.
 
 ## Scripts
 
@@ -66,21 +96,14 @@ pnpm test                # Vitest suite
 pnpm exec tsc --noEmit   # type-check
 ```
 
-## Project layout
-
-```
-client/    React app — pages, components, contexts, and i18n locales
-server/    Express + tRPC API, family auth, and demo data
-shared/    Code shared by client and server (categories, demo translations)
-drizzle/   ORM schema and migrations
-scripts/   CLI helpers (e.g. password hashing)
-```
-
 ## License
 
 MIT — see [LICENSE](./LICENSE).
 
 ---
 
-Built by [Yigitcan Uk](https://www.linkedin.com/in/yigitcanuk/)
-· [GitHub](https://github.com/Neeidy)
+<div align="center">
+
+Built by [Yigitcan Uk](https://www.linkedin.com/in/yigitcanuk/) · [GitHub](https://github.com/Neeidy)
+
+</div>

@@ -21,6 +21,7 @@ Family budget app deployed at butce.aileplan.uk (Cloudflare Access protected, re
 6. **Production restart komutu:** `launchctl kickstart -k gui/$(id -u)/com.viyana.budget`. Kısa downtime kabul.
 7. **Tests baseline 93/93.** Yeni feature için test ekle, mevcut 93'ten düşürme.
 8. **tsconfig.json'da `noUnusedLocals` + `noUnusedParameters` açık.** Her import gerçekten kullanılmalı, build kırar.
+9. **Commit mesajlarında Claude/Anthropic atfı YASAK.** `Co-Authored-By: Claude …` trailer'ı veya herhangi bir Claude/Anthropic imzası/atfı commit'e ASLA eklenmez. (Bu yalnızca *atıf* içindir; `CLAUDE.md` dosya adı, `.claude/` yolu veya demo verisindeki `Claude Pro` gibi gerçek içerik referansları muaftır.)
 
 ## How to Run Locally
 
