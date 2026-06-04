@@ -1,6 +1,6 @@
 <div align="center">
 
-# 💶 Vienna Budget Planner
+# 💶 Family Budget Planner
 
 ***plan together — every euro, in three languages***
 
@@ -18,7 +18,7 @@
 > a public demo backed by locale-overlaid sample data, and a strict
 > production/demo split.
 
-**Vienna Budget Planner** helps an Austrian household track income, expenses,
+**Family Budget Planner** helps an Austrian household track income, expenses,
 debts, installments, annual payments, and savings goals — with money, dates, and
 category names all rendered per locale, an installable PWA shell, and
 cookie-based family auth. The public demo serves hardcoded sample data with

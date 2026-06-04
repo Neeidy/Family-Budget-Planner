@@ -1,4 +1,4 @@
-# Vienna Budget Planner — Production Project
+# Family Budget Planner — Production Project
 
 Family budget app deployed at butce.aileplan.uk (Cloudflare Access protected, real family use) and demo.aileplan.uk (public showcase, hardcoded sample data). Single master branch, direct deploys via launchd.
 
