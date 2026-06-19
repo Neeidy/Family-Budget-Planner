@@ -16,3 +16,4 @@ Scratchpad for short-term ideas and observations. Not intended to ship.
 ## Testing
 
 - Add integration test for rollover edge cases
+- Expand demo-mode mutation guard tests
