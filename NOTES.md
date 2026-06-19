@@ -36,3 +36,5 @@ Scratchpad for short-term ideas and observations. Not intended to ship.
 - Schedule a quarterly dep refresh + lockfile review
 
 _Reminder: nothing in this file is a commitment — wipe when stale._
+
+<!-- last reviewed: see git log -->
