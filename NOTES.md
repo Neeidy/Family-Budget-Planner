@@ -22,3 +22,4 @@ Scratchpad for short-term ideas and observations. Not intended to ship.
 
 - Audit empty states across all pages
 - Verify TR/EN/DE parity on the new archive screen
+- Review safe-area padding on iOS PWA install
