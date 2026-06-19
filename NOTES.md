@@ -6,3 +6,4 @@ Scratchpad for short-term ideas and observations. Not intended to ship.
 
 - Profile chart rendering on slow phones
 - Watch main bundle size (currently ~1.25 MB pre-gzip)
+- Candidate routes for dynamic import: archive view, reports view
