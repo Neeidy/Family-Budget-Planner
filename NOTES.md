@@ -29,3 +29,7 @@ Scratchpad for short-term ideas and observations. Not intended to ship.
 - Document the launchctl restart procedure in README
 - No alerting on prod 5xx rate; consider a simple uptime probe
 - Verify mysqldump cron is still running on the host
+
+## Housekeeping
+
+- Prune old archive snapshots > 24 months
