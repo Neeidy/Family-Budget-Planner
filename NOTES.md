@@ -12,3 +12,7 @@ Scratchpad for short-term ideas and observations. Not intended to ship.
 
 - Consider splitting BudgetContext by concern
 - familyBudget router is getting long; could shard by sub-domain
+
+## Testing
+
+- Add integration test for rollover edge cases
