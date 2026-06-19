@@ -17,3 +17,7 @@ Scratchpad for short-term ideas and observations. Not intended to ship.
 
 - Add integration test for rollover edge cases
 - Expand demo-mode mutation guard tests
+
+## UI polish
+
+- Audit empty states across all pages
