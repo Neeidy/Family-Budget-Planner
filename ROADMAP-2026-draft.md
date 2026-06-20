@@ -37,3 +37,5 @@ Working draft of quarterly priorities. Not a commitment, revisit each month.
 - Should family auth support multiple shared passwords (per device)?
 
 _Reviewed monthly. If a quarter slips, demote items rather than scope-creep._
+
+---
