@@ -24,3 +24,4 @@ Working draft of quarterly priorities. Not a commitment, revisit each month.
 
 - Backup/restore drill with mysqldump
 - Uptime probe + 5xx alerting on butce/demo
+- Quarterly dependency review + lockfile audit
