@@ -29,3 +29,4 @@ Working draft of quarterly priorities. Not a commitment, revisit each month.
 ## Risks
 
 - Single-host deployment is a SPOF
+- No automated DB migration rollback path
