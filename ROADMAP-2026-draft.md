@@ -18,3 +18,4 @@ Working draft of quarterly priorities. Not a commitment, revisit each month.
 
 - Touch-target audit on small viewports
 - Queue mutations while offline, replay on reconnect
+- iOS PWA shortcut for quick-add expense
