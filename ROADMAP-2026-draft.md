@@ -17,3 +17,4 @@ Working draft of quarterly priorities. Not a commitment, revisit each month.
 ## Q3 — mobile
 
 - Touch-target audit on small viewports
+- Queue mutations while offline, replay on reconnect
