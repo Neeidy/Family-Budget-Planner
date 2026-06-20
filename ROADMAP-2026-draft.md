@@ -30,3 +30,7 @@ Working draft of quarterly priorities. Not a commitment, revisit each month.
 
 - Single-host deployment is a SPOF
 - No automated DB migration rollback path
+
+## Open questions
+
+- Worth introducing a staging tunnel?
