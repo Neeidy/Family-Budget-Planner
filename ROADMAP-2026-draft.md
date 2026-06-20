@@ -35,3 +35,5 @@ Working draft of quarterly priorities. Not a commitment, revisit each month.
 
 - Worth introducing a staging tunnel?
 - Should family auth support multiple shared passwords (per device)?
+
+_Reviewed monthly. If a quarter slips, demote items rather than scope-creep._
