@@ -23,3 +23,4 @@ Working draft of quarterly priorities. Not a commitment, revisit each month.
 ## Q4 — hardening
 
 - Backup/restore drill with mysqldump
+- Uptime probe + 5xx alerting on butce/demo
