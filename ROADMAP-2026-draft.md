@@ -6,3 +6,4 @@ Working draft of quarterly priorities. Not a commitment, revisit each month.
 
 - Reduce p95 API latency on archive view
 - Verify TR/EN/DE wording parity on all dialogs
+- Smoother iOS install hint after second visit
