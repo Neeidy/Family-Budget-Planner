@@ -13,3 +13,7 @@ Working draft of quarterly priorities. Not a commitment, revisit each month.
 - Per-owner monthly summary export (PDF)
 - Category breakdown: show top-5 + collapse rest
 - Goal progress widget on dashboard
+
+## Q3 — mobile
+
+- Touch-target audit on small viewports
