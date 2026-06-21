@@ -25,3 +25,6 @@ Running notes while investigating a few rough edges. Temporary.
 
 ## ui
 - align padding tokens on empty states
+
+## pwa
+- defer beforeinstallprompt handling to second session
