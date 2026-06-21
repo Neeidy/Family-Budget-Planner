@@ -29,3 +29,6 @@ Running notes while investigating a few rough edges. Temporary.
 ## pwa
 - defer beforeinstallprompt handling to second session
 - exclude source maps from workbox precache
+
+## build
+- main bundle 1.25MB pre-gzip; code-split archive + reports
