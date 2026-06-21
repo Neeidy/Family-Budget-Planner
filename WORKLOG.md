@@ -14,3 +14,6 @@ Running notes while investigating a few rough edges. Temporary.
 ## reports
 - memoize breakdown selector keyed by month + owner
 - chart unmounts/remounts; keep instance, swap data
+
+## demo mode
+- audit: every mutating procedure checks isGuest
