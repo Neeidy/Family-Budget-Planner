@@ -32,3 +32,4 @@ Running notes while investigating a few rough edges. Temporary.
 
 ## build
 - main bundle 1.25MB pre-gzip; code-split archive + reports
+- vendor: react, recharts, i18next into separate chunk
