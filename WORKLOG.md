@@ -18,3 +18,6 @@ Running notes while investigating a few rough edges. Temporary.
 ## demo mode
 - audit: every mutating procedure checks isGuest
 - expect FORBIDDEN on budget.archive when isGuest
+
+## i18n
+- missing de-AT keys for archive empty state
