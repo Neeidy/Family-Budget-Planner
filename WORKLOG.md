@@ -36,3 +36,4 @@ Running notes while investigating a few rough edges. Temporary.
 
 ## ops
 - kickstart -k gui/<uid>/com.viyana.budget
+- add simple external HTTP probe + alert on 5xx
