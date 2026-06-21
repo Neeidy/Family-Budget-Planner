@@ -37,3 +37,6 @@ Running notes while investigating a few rough edges. Temporary.
 ## ops
 - kickstart -k gui/<uid>/com.viyana.budget
 - add simple external HTTP probe + alert on 5xx
+
+## auth
+- server refuses start if FAMILY_COOKIE_SECRET < 32 chars
