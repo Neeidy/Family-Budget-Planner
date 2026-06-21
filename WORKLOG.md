@@ -40,3 +40,4 @@ Running notes while investigating a few rough edges. Temporary.
 
 ## auth
 - server refuses start if FAMILY_COOKIE_SECRET < 32 chars
+- banned substrings: viyana, vienna, budget, family
