@@ -22,3 +22,6 @@ Running notes while investigating a few rough edges. Temporary.
 ## i18n
 - missing de-AT keys for archive empty state
 - verify Intl.DateTimeFormat month long form
+
+## ui
+- align padding tokens on empty states
