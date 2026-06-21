@@ -10,3 +10,6 @@ Running notes while investigating a few rough edges. Temporary.
 ## familyBudget router
 - 600+ lines, consider splitting save/load/archive concerns
 - proposal: budget.save / budget.archive / budget.report
+
+## reports
+- memoize breakdown selector keyed by month + owner
