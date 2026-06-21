@@ -28,3 +28,4 @@ Running notes while investigating a few rough edges. Temporary.
 
 ## pwa
 - defer beforeinstallprompt handling to second session
+- exclude source maps from workbox precache
