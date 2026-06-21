@@ -44,3 +44,5 @@ Running notes while investigating a few rough edges. Temporary.
 
 ---
 _Most of these belong in the issue tracker, not here._
+
+<!-- triaged; safe to remove -->
