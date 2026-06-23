@@ -22,3 +22,4 @@ Pre-release self-review pass. Throwaway checklist, delete when cleared.
 ## dx
 - move server/*.test.ts next to source for discoverability
 - noUnusedLocals already on; extend to dead exports
+- isGuest path + DEMO_FAMILY_BUDGET shape
