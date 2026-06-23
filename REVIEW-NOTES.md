@@ -10,3 +10,4 @@ Pre-release self-review pass. Throwaway checklist, delete when cleared.
 
 ## accessibility
 - audit dialog focus return on close
+- verify cat-tabak / cat-diger against AA threshold
