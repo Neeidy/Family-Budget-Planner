@@ -27,3 +27,4 @@ Pre-release self-review pass. Throwaway checklist, delete when cleared.
 ## data integrity
 - store amounts as integer cents, format at edge
 - sum(parts) == total across split categories
+- unique constraint on archive(month)
