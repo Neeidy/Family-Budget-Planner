@@ -17,3 +17,4 @@ Pre-release self-review pass. Throwaway checklist, delete when cleared.
 ## performance
 - dynamic import keeps initial bundle leaner
 - currently fires per keystroke; debounce 400ms
+- archive list query does full scan on large months
