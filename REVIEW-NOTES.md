@@ -28,3 +28,6 @@ Pre-release self-review pass. Throwaway checklist, delete when cleared.
 - store amounts as integer cents, format at edge
 - sum(parts) == total across split categories
 - unique constraint on archive(month)
+
+## release
+- pnpm test + tsc + build green, then kickstart
