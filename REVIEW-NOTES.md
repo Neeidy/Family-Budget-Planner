@@ -36,3 +36,5 @@ Pre-release self-review pass. Throwaway checklist, delete when cleared.
 
 ---
 _Cleared or filed; this checklist can go._
+
+<!-- all items triaged -->
