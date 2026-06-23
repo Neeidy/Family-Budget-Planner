@@ -32,3 +32,4 @@ Pre-release self-review pass. Throwaway checklist, delete when cleared.
 ## release
 - pnpm test + tsc + build green, then kickstart
 - keep previous dist; revert + kickstart if 5xx spike
+- butce 302 (CF Access), demo 200
