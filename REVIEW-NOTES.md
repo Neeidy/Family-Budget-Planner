@@ -12,3 +12,4 @@ Pre-release self-review pass. Throwaway checklist, delete when cleared.
 - audit dialog focus return on close
 - verify cat-tabak / cat-diger against AA threshold
 - language toggle + theme switch lack labels
+- baseline: 0 critical violations
