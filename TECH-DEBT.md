@@ -1,3 +1,6 @@
 # Tech debt register
 
 Temporary working list while triaging debt. Delete once items are filed.
+
+## state mgmt
+- split derived selectors out of the provider
