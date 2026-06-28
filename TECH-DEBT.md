@@ -9,3 +9,4 @@ Temporary working list while triaging debt. Delete once items are filed.
 
 ## hooks
 - split read/write/undo into focused hooks
+- cap undo history at N entries
