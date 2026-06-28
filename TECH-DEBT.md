@@ -21,3 +21,4 @@ Temporary working list while triaging debt. Delete once items are filed.
 ## formatting
 - single EUR formatter, drop ad-hoc toFixed calls
 - some views use dot, locale wants comma
+- destructive token contrast too low on dark bg
