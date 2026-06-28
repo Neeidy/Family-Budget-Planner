@@ -11,3 +11,6 @@ Temporary working list while triaging debt. Delete once items are filed.
 - split read/write/undo into focused hooks
 - cap undo history at N entries
 - ensure no snapshot row when nothing to carry
+
+## server
+- isolate isGuest overlay from context wiring
