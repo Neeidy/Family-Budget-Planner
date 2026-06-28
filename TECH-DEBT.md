@@ -6,3 +6,6 @@ Temporary working list while triaging debt. Delete once items are filed.
 - split derived selectors out of the provider
 - monthly totals recompute on unrelated updates
 - effect captures old budget snapshot on rapid edits
+
+## hooks
+- split read/write/undo into focused hooks
