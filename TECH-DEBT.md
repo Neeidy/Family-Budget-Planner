@@ -30,3 +30,6 @@ Temporary working list while triaging debt. Delete once items are filed.
 ## build
 - react/recharts/i18next rarely change; separate chunk
 - workbox precaches maps unnecessarily
+
+## deps
+- avoid surprise migration generator changes
