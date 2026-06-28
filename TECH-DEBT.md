@@ -34,3 +34,6 @@ Temporary working list while triaging debt. Delete once items are filed.
 ## deps
 - avoid surprise migration generator changes
 - prune packages no longer referenced
+
+## db
+- columns, indexes, and retention policy
