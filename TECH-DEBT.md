@@ -17,3 +17,6 @@ Temporary working list while triaging debt. Delete once items are filed.
 - verify Date round-trips through tRPC + superjson
 - multiple inserts per snapshot; wrap in one tx
 - optimistic lock should reject stale expectedUpdatedAt
+
+## formatting
+- single EUR formatter, drop ad-hoc toFixed calls
