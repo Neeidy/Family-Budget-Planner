@@ -26,3 +26,6 @@ Temporary working list while triaging debt. Delete once items are filed.
 ## ui
 - many pages re-implement the same card shell
 - keyboard users can't see focused option
+
+## build
+- react/recharts/i18next rarely change; separate chunk
