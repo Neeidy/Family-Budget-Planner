@@ -15,3 +15,4 @@ Temporary working list while triaging debt. Delete once items are filed.
 ## server
 - isolate isGuest overlay from context wiring
 - verify Date round-trips through tRPC + superjson
+- multiple inserts per snapshot; wrap in one tx
