@@ -39,3 +39,6 @@ Temporary working list while triaging debt. Delete once items are filed.
 - columns, indexes, and retention policy
 - snapshots older than 24 months can be archived off
 - drizzle-kit migrate from empty should succeed
+
+## ops
+- step-by-step restore + post-restore checks
