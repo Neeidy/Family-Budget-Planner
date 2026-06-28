@@ -42,3 +42,4 @@ Temporary working list while triaging debt. Delete once items are filed.
 
 ## ops
 - step-by-step restore + post-restore checks
+- probe butce/demo, alert on 5xx or timeout
